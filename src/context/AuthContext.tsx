@@ -7,6 +7,11 @@ interface User {
   username: string;
   isGuest: boolean;
   provider?: string;
+  subscription?: {
+    status: "active" | "inactive";
+    plan?: string;
+    expiry?: number;
+  };
 }
 
 interface AuthContextType {
@@ -18,6 +23,8 @@ interface AuthContextType {
   continueAsGuest: () => void;
   signOut: () => void;
   updateUsername: (newUsername: string) => Promise<void>;
+  subscribeUser: () => Promise<void>;
+  hasActiveSubscription: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -29,6 +36,8 @@ const AuthContext = createContext<AuthContextType>({
   continueAsGuest: () => {},
   signOut: () => {},
   updateUsername: async () => {},
+  subscribeUser: async () => {},
+  hasActiveSubscription: () => false,
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -53,6 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: nanoid(),
       username: email.split("@")[0],
       isGuest: false,
+      subscription: { status: "inactive" },
     };
     
     setUser(mockUser);
@@ -68,6 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: nanoid(),
       username: email.split("@")[0],
       isGuest: false,
+      subscription: { status: "inactive" },
     };
     
     setUser(mockUser);
@@ -90,6 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       username: `user_${Math.floor(Math.random() * 10000)}`,
       isGuest: false,
       provider,
+      subscription: { status: "inactive" },
     };
     
     setUser(mockUser);
@@ -101,6 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: nanoid(),
       username: `Guest_${Math.floor(Math.random() * 10000)}`,
       isGuest: true,
+      subscription: { status: "inactive" },
     };
     
     setUser(guestUser);
@@ -119,6 +132,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem("nuvora-user", JSON.stringify(updatedUser));
   };
 
+  const subscribeUser = async () => {
+    if (!user) return;
+    
+    // In a real application, this would integrate with a payment processor
+    // For now, we'll just update the user's subscription status directly
+    const updatedUser = {
+      ...user,
+      subscription: {
+        status: "active",
+        plan: "premium",
+        expiry: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days from now
+      },
+    };
+    
+    setUser(updatedUser);
+    localStorage.setItem("nuvora-user", JSON.stringify(updatedUser));
+  };
+
+  const hasActiveSubscription = () => {
+    if (!user || !user.subscription) return false;
+    return user.subscription.status === "active";
+  };
+
   const signOut = () => {
     localStorage.removeItem("nuvora-user");
     setUser(null);
@@ -135,6 +171,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         continueAsGuest,
         signOut,
         updateUsername,
+        subscribeUser,
+        hasActiveSubscription,
       }}
     >
       {children}
