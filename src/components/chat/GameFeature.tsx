@@ -4,16 +4,17 @@ import { Gamepad, Lock } from "lucide-react";
 import ChatContext from "@/context/ChatContext";
 import AuthContext from "@/context/AuthContext";
 import { useGame } from "@/hooks/useGame";
+import { useStripe } from "@/context/StripeContext";
 import GameSetup from "./game/GameSetup";
 import GameHeader from "./game/GameHeader";
 import GameItem from "./game/GameItem";
 import GameControls from "./game/GameControls";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
 
 const GameFeature = () => {
   const { partner, isConnected } = useContext(ChatContext);
-  const { hasActiveSubscription, subscribeUser } = useContext(AuthContext);
+  const { hasActiveSubscription } = useContext(AuthContext);
+  const { setShowSubscriptionModal } = useStripe();
   const {
     gameType,
     setGameType,
@@ -30,21 +31,6 @@ const GameFeature = () => {
     rateItem,
     endGame
   } = useGame();
-  
-  const handleSubscribe = async () => {
-    try {
-      // In a real app, this would redirect to a payment page
-      await subscribeUser();
-      toast({
-        description: "Subscription successful! You now have access to the Game Center.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        description: "Failed to process subscription. Please try again.",
-      });
-    }
-  };
   
   // Check if the user has an active subscription
   const isPremiumUser = hasActiveSubscription();
@@ -66,7 +52,7 @@ const GameFeature = () => {
             Unlock the Game Center with a Nuvora Premium subscription for just €1.99/month.
           </p>
           <Button 
-            onClick={handleSubscribe}
+            onClick={() => setShowSubscriptionModal(true)}
             className="w-full max-w-xs bg-purple hover:bg-purple-dark"
           >
             Subscribe Now

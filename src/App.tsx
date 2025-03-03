@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
+import { StripeProvider } from "@/context/StripeContext";
+import SubscriptionModal from "@/components/subscription/SubscriptionModal";
 import Index from "./pages/Index";
 import Chat from "./pages/Chat";
 import Privacy from "./pages/Privacy";
@@ -18,18 +20,21 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/profile/settings" element={<ProfileSettings />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <StripeProvider>
+          <Toaster />
+          <Sonner />
+          <SubscriptionModal />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/profile/settings" element={<ProfileSettings />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </StripeProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
