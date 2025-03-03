@@ -16,6 +16,12 @@ import ProfileSettings from "./pages/ProfileSettings";
 
 const queryClient = new QueryClient();
 
+// Get basename from environment if available
+const getBasename = () => {
+  // Use this for custom domain
+  return '/';
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -24,7 +30,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <SubscriptionModal />
-          <BrowserRouter>
+          <BrowserRouter basename={getBasename()}>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/chat" element={<Chat />} />

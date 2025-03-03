@@ -20,12 +20,16 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // Add this section to handle client-side routing in production
+  // Client-side routing configuration for production
   build: {
+    outDir: 'dist',
+    minify: true,
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          'vendor': ['react', 'react-dom'],
+          'router': ['react-router-dom'],
         }
       }
     }
