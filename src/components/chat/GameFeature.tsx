@@ -1,101 +1,18 @@
+
 import { useState, useContext, useEffect } from "react";
-import { 
-  Gamepad, 
-  Clock, 
-  SkipForward, 
-  ThumbsUp, 
-  ThumbsDown,
-  Trophy,
-  Timer
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import ChatContext from "@/context/ChatContext";
+import { Gamepad } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { GameAction } from "@/types/chat";
-
-// Define game categories
-const CATEGORIES = [
-  { id: "logic", name: "Logic", icon: "🧠" },
-  { id: "fun", name: "Fun", icon: "😄" },
-  { id: "trivia", name: "Trivia", icon: "🎓" },
-  { id: "personal", name: "Personal", icon: "👤" }
-];
-
-// Sample riddles for demo purposes
-const SAMPLE_RIDDLES = [
-  { 
-    id: "1", 
-    question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?", 
-    answer: "An echo",
-    category: "logic",
-    difficulty: "medium"
-  },
-  { 
-    id: "2", 
-    question: "What has keys but no locks, space but no room, and you can enter but not go in?", 
-    answer: "A keyboard",
-    category: "logic",
-    difficulty: "easy"
-  },
-  { 
-    id: "3", 
-    question: "What gets wetter as it dries?", 
-    answer: "A towel",
-    category: "fun",
-    difficulty: "easy"
-  },
-  { 
-    id: "4", 
-    question: "What capital has the fastest-growing population?", 
-    answer: "Dublin, it's always Dublin (doublin')",
-    category: "fun",
-    difficulty: "medium"
-  },
-  { 
-    id: "5", 
-    question: "What's the largest planet in our solar system?", 
-    answer: "Jupiter",
-    category: "trivia",
-    difficulty: "easy"
-  }
-];
-
-// Sample questions for demo purposes
-const SAMPLE_QUESTIONS = [
-  { 
-    id: "1", 
-    question: "If you could have any superpower, what would it be and why?", 
-    category: "personal"
-  },
-  { 
-    id: "2", 
-    question: "What's your favorite place you've ever traveled to?", 
-    category: "personal"
-  },
-  { 
-    id: "3", 
-    question: "If you could have dinner with any historical figure, who would it be?", 
-    category: "fun"
-  },
-  { 
-    id: "4", 
-    question: "What's a skill you've always wanted to learn?", 
-    category: "personal"
-  },
-  { 
-    id: "5", 
-    question: "What's your favorite book or movie and why?", 
-    category: "fun"
-  }
-];
+import ChatContext from "@/context/ChatContext";
+import { GameType } from "@/types/game";
+import { SAMPLE_RIDDLES, SAMPLE_QUESTIONS } from "@/data/gameData";
+import GameSetup from "./game/GameSetup";
+import GameHeader from "./game/GameHeader";
+import GameItem from "./game/GameItem";
+import GameControls from "./game/GameControls";
 
 const GameFeature = () => {
   const { partner, isConnected, sendGameAction } = useContext(ChatContext);
-  const [gameType, setGameType] = useState<"riddles" | "questions">("riddles");
+  const [gameType, setGameType] = useState<GameType>("riddles");
   const [category, setCategory] = useState<string>("all");
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentItem, setCurrentItem] = useState<any>(null);
@@ -232,152 +149,34 @@ const GameFeature = () => {
       </h3>
       
       {!isPlaying ? (
-        <div className="space-y-4">
-          <Tabs defaultValue="riddles" onValueChange={(value) => setGameType(value as "riddles" | "questions")}>
-            <TabsList className="w-full">
-              <TabsTrigger value="riddles" className="flex-1">Riddles</TabsTrigger>
-              <TabsTrigger value="questions" className="flex-1">Questions</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="riddles" className="pt-2">
-              <p className="text-sm text-muted-foreground">
-                Challenge your friend with brain teasers! Take turns solving riddles within the time limit.
-              </p>
-            </TabsContent>
-            
-            <TabsContent value="questions" className="pt-2">
-              <p className="text-sm text-muted-foreground">
-                Get to know each other better with fun and interesting questions!
-              </p>
-            </TabsContent>
-          </Tabs>
-          
-          <div>
-            <label className="text-sm font-medium mb-2 block">Select Category</label>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={category === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCategory("all")}
-                className={category === "all" ? "bg-purple" : ""}
-              >
-                All
-              </Button>
-              
-              {CATEGORIES.map(cat => (
-                <Button
-                  key={cat.id}
-                  variant={category === cat.id ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCategory(cat.id)}
-                  className={category === cat.id ? "bg-purple" : ""}
-                >
-                  {cat.icon} {cat.name}
-                </Button>
-              ))}
-            </div>
-          </div>
-          
-          <Button 
-            className="w-full bg-purple hover:bg-purple-dark"
-            disabled={!isConnected}
-            onClick={startGame}
-          >
-            Start Game with {partner?.username || "Partner"}
-          </Button>
-          
-          {!isConnected && (
-            <p className="text-sm text-muted-foreground text-center">
-              Connect with a partner to start playing!
-            </p>
-          )}
-        </div>
+        <GameSetup 
+          gameType={gameType}
+          setGameType={setGameType}
+          category={category}
+          setCategory={setCategory}
+          onStartGame={startGame}
+          isConnected={isConnected}
+          partnerName={partner?.username}
+        />
       ) : (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Badge variant="outline" className="flex gap-1 items-center">
-              <Trophy size={14} />
-              <span>{userPoints} points</span>
-            </Badge>
-            
-            <div className="flex items-center text-sm">
-              <Timer size={14} className="mr-1" />
-              <span>{timeLeft}s</span>
-            </div>
-          </div>
+          <GameHeader userPoints={userPoints} timeLeft={timeLeft} />
           
-          <Progress value={(timeLeft / 30) * 100} className="h-1" />
+          <GameItem 
+            item={currentItem}
+            showAnswer={showAnswer}
+            gameType={gameType}
+            onReveal={revealAnswer}
+          />
           
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">
-                {gameType === "riddles" ? "Riddle" : "Question"}
-              </CardTitle>
-              <CardDescription>
-                {gameType === "riddles" ? "Can you solve it?" : "Take turns answering"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-medium mb-4">{currentItem?.question}</p>
-              
-              {gameType === "riddles" && (
-                <div>
-                  {showAnswer ? (
-                    <div className="bg-secondary/60 p-3 rounded-md">
-                      <p className="font-semibold mb-1">Answer:</p>
-                      <p>{currentItem?.answer}</p>
-                    </div>
-                  ) : (
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={revealAnswer}
-                    >
-                      Reveal Answer
-                    </Button>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={() => rateItem(false)}
-              className="flex-1"
-            >
-              <ThumbsDown size={16} className="mr-2" />
-              Dislike
-            </Button>
-            
-            <Button 
-              variant="outline"
-              onClick={nextItem}
-              className="flex-1"
-            >
-              <SkipForward size={16} className="mr-2" />
-              Skip
-            </Button>
-            
-            <Button 
-              variant="default"
-              className="flex-1 bg-purple"
-              onClick={() => rateItem(true)}
-            >
-              <ThumbsUp size={16} className="mr-2" />
-              Like (+5)
-            </Button>
-          </div>
-          
-          <Button 
-            variant="outline" 
-            className="w-full"
-            onClick={() => setIsPlaying(false)}
-          >
-            End Game
-          </Button>
+          <GameControls 
+            onReveal={revealAnswer}
+            onNext={nextItem}
+            onRate={rateItem}
+            onEndGame={() => setIsPlaying(false)}
+            showAnswer={showAnswer}
+            gameType={gameType}
+          />
         </div>
       )}
       
