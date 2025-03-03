@@ -82,10 +82,22 @@ export function useAuth() {
 
       if (error) throw error;
       
-      // The user profile will be created automatically via the database trigger
+      // For immediate access: Create a temporary user profile
       if (data.user) {
+        // Instead of waiting for email verification, give immediate access
+        // Create a user profile object similar to what fetchUserProfile would return
+        const tempUserProfile = {
+          id: data.user.id,
+          username: email.split("@")[0],
+          isGuest: false,
+          provider: 'email',
+          subscription: { status: "inactive" as "inactive" }
+        };
+        
+        setUser(tempUserProfile);
+        
         toast({
-          description: "Verification email sent. Please check your inbox.",
+          description: "Account created! You can now use the app.",
         });
       }
     } catch (error: any) {

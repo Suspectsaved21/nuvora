@@ -13,13 +13,19 @@ const TextChat = () => {
   const { user } = useContext(AuthContext);
   const { messages, sendMessage, partner, isConnected, isTyping, setIsTyping } = useContext(ChatContext);
   const [message, setMessage] = useState("");
+  const [localMessages, setLocalMessages] = useState<Message[]>([]);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  
+  // Update local messages when context messages change
+  useEffect(() => {
+    setLocalMessages(messages);
+  }, [messages]);
   
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [localMessages]);
   
   // Set up real-time subscription for new messages
   useEffect(() => {
@@ -48,8 +54,8 @@ const TextChat = () => {
               };
               
               // Check if message already exists to prevent duplicates
-              if (!messages.some(m => m.id === newMessage.id)) {
-                setMessages(prev => [...prev, newMessage]);
+              if (!localMessages.some(m => m.id === newMessage.id)) {
+                setLocalMessages(prev => [...prev, newMessage]);
               }
             }
           })
@@ -59,7 +65,7 @@ const TextChat = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [user, partner, isConnected]);
+  }, [user, partner, isConnected, localMessages]);
   
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,7 +92,7 @@ const TextChat = () => {
       
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="space-y-4">
-          {messages.map((msg) => (
+          {localMessages.map((msg) => (
             <MessageBubble key={msg.id} message={msg} />
           ))}
           

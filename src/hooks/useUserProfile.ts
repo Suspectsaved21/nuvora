@@ -6,7 +6,18 @@ import { UserProfile } from "@/types/auth";
 import { toast } from "@/components/ui/use-toast";
 
 export function useUserProfile() {
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    // Check if there's a guest user in local storage
+    const storedGuest = localStorage.getItem("nuvora-guest-user");
+    if (storedGuest) {
+      try {
+        return JSON.parse(storedGuest) as UserProfile;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch user profile data from Supabase
@@ -18,7 +29,24 @@ export function useUserProfile() {
         .eq('id', authUser.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // If profile doesn't exist yet (like right after sign up before trigger runs)
+        // Create a default user profile
+        const username = authUser.user_metadata?.username || 
+                        authUser.email?.split("@")[0] || 
+                        `User_${authUser.id.substring(0, 5)}`;
+                        
+        const defaultUserProfile: UserProfile = {
+          id: authUser.id,
+          username: username,
+          isGuest: false,
+          provider: authUser.app_metadata.provider,
+          subscription: { status: "inactive" }
+        };
+        
+        setUser(defaultUserProfile);
+        return;
+      }
 
       if (data) {
         // Make sure we explicitly cast the subscription status to the allowed types
@@ -40,6 +68,20 @@ export function useUserProfile() {
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
+      // Still create a basic profile to avoid blocking the user
+      const username = authUser.user_metadata?.username || 
+                      authUser.email?.split("@")[0] || 
+                      `User_${authUser.id.substring(0, 5)}`;
+                      
+      const fallbackUserProfile: UserProfile = {
+        id: authUser.id,
+        username: username,
+        isGuest: false,
+        provider: authUser.app_metadata.provider,
+        subscription: { status: "inactive" }
+      };
+      
+      setUser(fallbackUserProfile);
     }
   };
 

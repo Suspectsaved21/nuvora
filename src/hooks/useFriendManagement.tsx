@@ -1,35 +1,25 @@
 
 import { useState, useEffect, useContext } from "react";
 import { Friend } from "@/types/chat";
-import { nanoid } from "nanoid";
-import { supabase } from "@/integrations/supabase/client";
 import AuthContext from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 export function useFriendManagement() {
-  const { user } = useContext(AuthContext);
   const [friends, setFriends] = useState<Friend[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useContext(AuthContext);
 
-  // Fetch friends list from Supabase
+  // Fetch friends on mount and when user changes
   useEffect(() => {
+    if (!user) return;
+    
     const fetchFriends = async () => {
-      if (!user) {
-        setFriends([]);
-        setIsLoading(false);
-        return;
-      }
-      
       try {
-        setIsLoading(true);
-        
-        // Get friends from Supabase
         const { data, error } = await supabase
           .from('friends')
           .select(`
-            id,
-            friend_id,
-            status,
-            profiles:friend_id (
+            *,
+            friend:friend_id (
               id,
               username
             )
@@ -38,64 +28,30 @@ export function useFriendManagement() {
         
         if (error) throw error;
         
-        if (data && data.length > 0) {
-          const formattedFriends: Friend[] = data.map(friend => ({
-            id: friend.friend_id,
-            username: friend.profiles.username,
-            status: Math.random() > 0.5 ? "online" : "offline", // Randomize status for demo
-            lastSeen: Date.now() - Math.random() * 1000000, // Random last seen
-            blocked: friend.status === 'blocked',
-            country: ["USA", "Canada", "UK", "Australia", "Germany", "Japan"][
-              Math.floor(Math.random() * 6)
-            ], // Randomize country for demo
-          }));
+        // Transform the result into our Friend interface
+        if (data) {
+          const transformedFriends = data.map(item => {
+            // Safely access properties with type checking
+            const friendData = item.friend as any;
+            
+            return {
+              id: item.friend_id,
+              username: friendData && friendData.username ? friendData.username : 'Unknown User',
+              status: item.status,
+              blocked: item.status === 'blocked',
+              country: 'Unknown', // This would come from profiles if we had that data
+              lastSeen: new Date().getTime() // This would come from a proper last seen tracking
+            } as Friend;
+          });
           
-          setFriends(formattedFriends);
-        } else {
-          // Add mock friends for demo purposes
-          const mockFriends = [
-            {
-              id: nanoid(),
-              username: "Emma_Wilson",
-              country: "Canada",
-              status: "online" as const,
-              lastSeen: Date.now(),
-            },
-            {
-              id: nanoid(),
-              username: "Alex_Thompson",
-              country: "UK",
-              status: "offline" as const,
-              lastSeen: Date.now() - 60000 * 30,
-            },
-          ];
-          
-          setFriends(mockFriends);
+          setFriends(transformedFriends);
         }
       } catch (error) {
         console.error("Error fetching friends:", error);
-        
-        // Fallback to mock friends
-        const mockFriends = [
-          {
-            id: nanoid(),
-            username: "Emma_Wilson",
-            country: "Canada",
-            status: "online" as const,
-            lastSeen: Date.now(),
-          },
-          {
-            id: nanoid(),
-            username: "Alex_Thompson",
-            country: "UK",
-            status: "offline" as const,
-            lastSeen: Date.now() - 60000 * 30,
-          },
-        ];
-        
-        setFriends(mockFriends);
-      } finally {
-        setIsLoading(false);
+        toast({
+          variant: "destructive",
+          description: "Failed to load friends list. Please try again."
+        });
       }
     };
     
@@ -103,116 +59,150 @@ export function useFriendManagement() {
   }, [user]);
 
   const blockUser = async (userId: string) => {
-    // Check if the user is already a friend
-    const existingFriend = friends.find(friend => friend.id === userId);
+    if (!user) return;
     
-    if (user && userId.length > 10) {
-      try {
-        if (existingFriend) {
-          if (existingFriend.blocked) {
-            // Unblock the user
-            await supabase
-              .from('friends')
-              .update({ status: 'active' })
-              .eq('user_id', user.id)
-              .eq('friend_id', userId);
-            
-            setFriends(prevFriends => 
-              prevFriends.map(friend => 
-                friend.id === userId 
-                  ? { ...friend, blocked: false } 
-                  : friend
-              )
-            );
-          } else {
-            // Block the user
-            await supabase
-              .from('friends')
-              .update({ status: 'blocked' })
-              .eq('user_id', user.id)
-              .eq('friend_id', userId);
-            
-            setFriends(prevFriends => 
-              prevFriends.map(friend => 
-                friend.id === userId 
-                  ? { ...friend, blocked: true } 
-                  : friend
-              )
-            );
-          }
-        }
-      } catch (error) {
-        console.error("Error blocking/unblocking user:", error);
+    try {
+      // Check if the friend already exists
+      const { data: existingFriend } = await supabase
+        .from('friends')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('friend_id', userId)
+        .single();
+      
+      if (existingFriend) {
+        // Update the status to blocked
+        await supabase
+          .from('friends')
+          .update({ status: 'blocked' })
+          .eq('user_id', user.id)
+          .eq('friend_id', userId);
+      } else {
+        // Insert a new friend with blocked status
+        await supabase
+          .from('friends')
+          .insert({
+            user_id: user.id,
+            friend_id: userId,
+            status: 'blocked'
+          });
       }
-    } else {
-      // Local state update for demo
+      
+      // Update local state
       setFriends(prevFriends => 
         prevFriends.map(friend => 
           friend.id === userId 
-            ? { ...friend, blocked: !friend.blocked } 
+            ? { ...friend, status: 'blocked', blocked: true } 
             : friend
         )
       );
+      
+      toast({
+        description: "User has been blocked."
+      });
+    } catch (error) {
+      console.error("Error blocking user:", error);
+      toast({
+        variant: "destructive",
+        description: "Failed to block user. Please try again."
+      });
     }
   };
 
   const unfriendUser = async (userId: string) => {
-    if (user && userId.length > 10) {
-      try {
-        await supabase
-          .from('friends')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('friend_id', userId);
-        
-        setFriends(prevFriends => prevFriends.filter(friend => friend.id !== userId));
-      } catch (error) {
-        console.error("Error removing friend:", error);
-      }
-    } else {
-      // Local state update for demo
-      setFriends(prevFriends => prevFriends.filter(friend => friend.id !== userId));
+    if (!user) return;
+    
+    try {
+      // Delete the friend relationship
+      await supabase
+        .from('friends')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('friend_id', userId);
+      
+      // Update local state
+      setFriends(prevFriends => 
+        prevFriends.filter(friend => friend.id !== userId)
+      );
+      
+      toast({
+        description: "User has been removed from your friends list."
+      });
+    } catch (error) {
+      console.error("Error unfriending user:", error);
+      toast({
+        variant: "destructive",
+        description: "Failed to remove friend. Please try again."
+      });
     }
   };
 
-  const addFriend = async (userId: string, friendData: Partial<Friend>) => {
-    const isAlreadyFriend = friends.some(friend => friend.id === userId);
+  const addFriend = async (userId: string, userData?: { username: string; country?: string }) => {
+    if (!user) return;
     
-    if (!isAlreadyFriend) {
-      if (user && userId.length > 10) {
-        try {
-          // Add friend to Supabase
-          await supabase.from('friends').insert({
+    try {
+      // Check if the friend already exists
+      const { data: existingFriend } = await supabase
+        .from('friends')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('friend_id', userId)
+        .single();
+      
+      if (existingFriend) {
+        // If blocked, unblock them
+        if (existingFriend.status === 'blocked') {
+          await supabase
+            .from('friends')
+            .update({ status: 'active' })
+            .eq('user_id', user.id)
+            .eq('friend_id', userId);
+        } else {
+          // Already friends
+          toast({
+            description: "This user is already in your friends list."
+          });
+          return;
+        }
+      } else {
+        // Insert a new friend
+        await supabase
+          .from('friends')
+          .insert({
             user_id: user.id,
             friend_id: userId,
             status: 'active'
           });
-          
-          // Add to local state
-          const newFriend: Friend = {
-            id: userId,
-            username: friendData.username || `User_${userId.substring(0, 4)}`,
-            country: friendData.country,
-            status: "online",
-            lastSeen: Date.now(),
-          };
-          
-          setFriends(prevFriends => [...prevFriends, newFriend]);
-        } catch (error) {
-          console.error("Error adding friend:", error);
-        }
-      } else {
-        // Local state update for demo
-        const newFriend: Friend = {
-          id: userId,
-          username: friendData.username || `User_${userId.substring(0, 4)}`,
-          country: friendData.country,
-          status: "online",
-          lastSeen: Date.now(),
-        };
-        
-        setFriends(prevFriends => [...prevFriends, newFriend]);
       }
+      
+      // Update local state
+      const newFriend: Friend = {
+        id: userId,
+        username: userData?.username || 'New Friend',
+        status: 'active',
+        blocked: false,
+        country: userData?.country || 'Unknown',
+        lastSeen: new Date().getTime()
+      };
+      
+      setFriends(prevFriends => {
+        const exists = prevFriends.some(friend => friend.id === userId);
+        if (exists) {
+          return prevFriends.map(friend => 
+            friend.id === userId 
+              ? { ...friend, status: 'active', blocked: false } 
+              : friend
+          );
+        } else {
+          return [...prevFriends, newFriend];
+        }
+      });
+    } catch (error) {
+      console.error("Error adding friend:", error);
+      toast({
+        variant: "destructive",
+        description: "Failed to add friend. Please try again."
+      });
     }
   };
 
@@ -220,7 +210,6 @@ export function useFriendManagement() {
     friends,
     blockUser,
     unfriendUser,
-    addFriend,
-    isLoading
+    addFriend
   };
 }
