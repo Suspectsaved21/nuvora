@@ -77,7 +77,7 @@ const Chat = () => {
           ) : (
             <div className="max-w-2xl mx-auto">
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold mb-2">Sign In to Nexaconnect</h1>
+                <h1 className="text-3xl font-bold mb-2">Sign In to Nuvora</h1>
                 <p className="text-muted-foreground">
                   Create an account or continue as a guest to start chatting.
                 </p>

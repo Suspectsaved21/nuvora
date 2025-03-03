@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Check for stored user
-    const storedUser = localStorage.getItem("nexaconnect-user");
+    const storedUser = localStorage.getItem("nuvora-user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     
     setUser(mockUser);
-    localStorage.setItem("nexaconnect-user", JSON.stringify(mockUser));
+    localStorage.setItem("nuvora-user", JSON.stringify(mockUser));
   };
 
   const signUp = async (email: string, password: string) => {
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     
     setUser(mockUser);
-    localStorage.setItem("nexaconnect-user", JSON.stringify(mockUser));
+    localStorage.setItem("nuvora-user", JSON.stringify(mockUser));
   };
 
   const signInWithSocial = (provider: string) => {
@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     
     setUser(mockUser);
-    localStorage.setItem("nexaconnect-user", JSON.stringify(mockUser));
+    localStorage.setItem("nuvora-user", JSON.stringify(mockUser));
   };
 
   const continueAsGuest = () => {
@@ -104,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     
     setUser(guestUser);
-    localStorage.setItem("nexaconnect-user", JSON.stringify(guestUser));
+    localStorage.setItem("nuvora-user", JSON.stringify(guestUser));
   };
 
   const updateUsername = async (newUsername: string) => {
@@ -116,11 +116,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     
     setUser(updatedUser);
-    localStorage.setItem("nexaconnect-user", JSON.stringify(updatedUser));
+    localStorage.setItem("nuvora-user", JSON.stringify(updatedUser));
   };
 
   const signOut = () => {
-    localStorage.removeItem("nexaconnect-user");
+    localStorage.removeItem("nuvora-user");
     setUser(null);
   };
 
