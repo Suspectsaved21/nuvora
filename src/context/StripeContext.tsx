@@ -85,7 +85,7 @@ export const StripeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const { error } = await supabase
         .from('subscriptions')
         .update({ 
-          status: 'canceled',
+          status: 'canceled' as const,
         })
         .eq('user_id', user.id);
       

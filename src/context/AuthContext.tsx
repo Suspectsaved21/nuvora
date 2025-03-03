@@ -58,13 +58,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
 
       if (data) {
+        // Make sure we explicitly cast the subscription status to the allowed types
+        const subscriptionStatus = data.subscriptions?.status as "active" | "inactive" | "canceled" || "inactive";
+        
         const userProfile: UserProfile = {
           id: data.id,
           username: data.username,
           isGuest: data.is_guest,
           provider: authUser.app_metadata.provider,
           subscription: data.subscriptions ? {
-            status: data.subscriptions.status,
+            status: subscriptionStatus,
             plan: data.subscriptions.plan,
             expiry: data.subscriptions.end_date ? new Date(data.subscriptions.end_date).getTime() : undefined
           } : { status: "inactive" }
@@ -249,13 +252,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       
-      // Update subscription in Supabase
+      // Calculate the end date (30 days from now)
+      const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      
+      // Update subscription in Supabase - convert Date to ISO string for PostgreSQL
       const { error } = await supabase
         .from('subscriptions')
         .update({ 
-          status: 'active',
+          status: 'active' as const,
           plan: 'premium',
-          end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+          end_date: endDate.toISOString() // Convert Date to ISO string
         })
         .eq('user_id', user.id);
       
@@ -267,7 +273,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         subscription: {
           status: "active",
           plan: "premium",
-          expiry: Date.now() + 30 * 24 * 60 * 60 * 1000,
+          expiry: endDate.getTime(),
         },
       });
       
