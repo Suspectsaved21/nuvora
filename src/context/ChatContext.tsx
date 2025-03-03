@@ -5,6 +5,7 @@ import { useLocationTracking } from "@/hooks/useLocationTracking";
 import { useFriendManagement } from "@/hooks/useFriendManagement";
 import { usePartnerManagement } from "@/hooks/usePartnerManagement";
 import { Friend, Message, Partner, Location, GameAction } from "@/types/chat";
+import { toast } from "@/components/ui/use-toast";
 
 interface ChatContextType {
   messages: Message[];
@@ -78,7 +79,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isTyping,
     messages,
     setIsTyping,
-    mockFindPartner,
+    findPartner,
     sendMessage: sendPartnerMessage,
     sendGameAction,
     reportPartner,
@@ -89,13 +90,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Initialize chat when user is logged in
   useEffect(() => {
     if (user && !partner && !isFindingPartner) {
-      mockFindPartner();
+      findPartner();
     }
   }, [user, partner, isFindingPartner]);
   
   // Wrapper functions to connect all our hooks together
   const findNewPartner = () => {
-    mockFindPartner();
+    findPartner();
   };
 
   const sendMessage = (text: string) => {
@@ -107,6 +108,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const friend = friends.find(f => f.id === userId);
     if (friend && !friend.blocked) {
       initDirectChat(friend.id, friend.username, friend.country);
+    } else {
+      toast({
+        variant: "destructive",
+        description: "Could not start chat with this user."
+      });
     }
   };
 
@@ -114,14 +120,31 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const friend = friends.find(f => f.id === userId);
     if (friend && !friend.blocked) {
       initVideoCall(friend.id, friend.username, friend.country);
+    } else {
+      toast({
+        variant: "destructive",
+        description: "Could not start video call with this user."
+      });
     }
   };
 
   const addFriend = (userId: string) => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        description: "You need to be logged in to add friends."
+      });
+      return;
+    }
+    
     if (partner && partner.id === userId) {
       addFriendToList(userId, {
         username: partner.username,
         country: partner.country,
+      });
+      
+      toast({
+        description: `${partner.username} added to your friends list.`
       });
     }
   };

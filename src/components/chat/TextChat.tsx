@@ -1,3 +1,4 @@
+
 import { useState, useContext, useEffect, useRef } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatContext from "@/context/ChatContext";
 import { Message } from "@/types/chat";
 import AuthContext from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const TextChat = () => {
   const { user } = useContext(AuthContext);
@@ -18,6 +20,46 @@ const TextChat = () => {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+  
+  // Set up real-time subscription for new messages
+  useEffect(() => {
+    if (!user || !partner || !isConnected) return;
+    
+    // Only set up the subscription for real Supabase users
+    if (partner.id && partner.id.length > 10) {
+      const channel = supabase
+        .channel('messages-updates')
+        .on('postgres_changes', 
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages',
+            filter: `receiver_id=eq.${user.id}`
+          }, 
+          (payload) => {
+            // Only add messages from the current partner
+            if (payload.new.sender_id === partner.id) {
+              const newMessage: Message = {
+                id: payload.new.id,
+                sender: payload.new.sender_id,
+                text: payload.new.content,
+                timestamp: new Date(payload.new.created_at).getTime(),
+                isOwn: false
+              };
+              
+              // Check if message already exists to prevent duplicates
+              if (!messages.some(m => m.id === newMessage.id)) {
+                setMessages(prev => [...prev, newMessage]);
+              }
+            }
+          })
+        .subscribe();
+        
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user, partner, isConnected]);
   
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
