@@ -60,7 +60,7 @@ const Index = () => {
         <section className="py-20 px-6 bg-secondary/50 dark:bg-secondary/20">
           <div className="container max-w-7xl mx-auto">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <h2 className="text-3xl font-bold mb-4">How Nexaconnect Works</h2>
+              <h2 className="text-3xl font-bold mb-4">How Nuvora Works</h2>
               <p className="text-muted-foreground">
                 Our platform makes it simple to connect with new people worldwide through high-quality video and text chat.
               </p>
@@ -136,7 +136,7 @@ const Index = () => {
             <div className="bg-gradient-to-r from-purple/10 to-purple/20 dark:from-purple/20 dark:to-purple/5 rounded-2xl p-8 md:p-12 glass-morphism text-center">
               <h2 className="text-3xl font-bold mb-4">Ready to start chatting?</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-                Join thousands of users already connecting on Nexaconnect. Start chatting now - no downloads required.
+                Join thousands of users already connecting on Nuvora. Start chatting now - no downloads required.
               </p>
               <Link to="/chat">
                 <Button className="bg-purple hover:bg-purple-dark text-white px-8 py-6 text-lg">

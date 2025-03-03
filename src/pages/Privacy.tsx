@@ -13,7 +13,7 @@ const Privacy = () => {
           
           <div className="prose prose-lg dark:prose-invert max-w-none">
             <p className="lead">
-              At Nexaconnect, we are committed to protecting your privacy and ensuring you have a positive experience on our website.
+              At Nuvora, we are committed to protecting your privacy and ensuring you have a positive experience on our website.
             </p>
             
             <h2>Information We Collect</h2>

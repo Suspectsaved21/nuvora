@@ -15,7 +15,7 @@ const Navbar = () => {
         <Link to="/" className="flex items-center gap-2">
           <VideoIcon className="h-6 w-6 text-purple-500" />
           <span className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-purple-600">
-            Nexaconnect
+            Nuvora
           </span>
         </Link>
         

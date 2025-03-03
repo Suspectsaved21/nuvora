@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="container max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">Nexaconnect</h3>
+            <h3 className="text-lg font-semibold mb-4">Nuvora</h3>
             <p className="text-muted-foreground max-w-xs">
               Connect anonymously via video chat and text with people across the world.
             </p>
@@ -48,7 +48,7 @@ const Footer = () => {
         
         <div className="mt-8 pt-8 border-t border-border">
           <p className="text-center text-muted-foreground text-sm">
-            © {new Date().getFullYear()} Nexaconnect. All rights reserved.
+            © {new Date().getFullYear()} Nuvora. All rights reserved.
           </p>
         </div>
       </div>

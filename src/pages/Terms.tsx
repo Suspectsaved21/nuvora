@@ -13,7 +13,7 @@ const Terms = () => {
           
           <div className="prose prose-lg dark:prose-invert max-w-none">
             <p className="lead">
-              Please read these terms of service carefully before using Nexaconnect.
+              Please read these terms of service carefully before using Nuvora.
             </p>
             
             <h2>Acceptance of Terms</h2>
@@ -23,7 +23,7 @@ const Terms = () => {
             
             <h2>Description of Service</h2>
             <p>
-              Nexaconnect provides a platform for users to connect with others via video and text chat. Users are randomly matched with other users from around the world.
+              Nuvora provides a platform for users to connect with others via video and text chat. Users are randomly matched with other users from around the world.
             </p>
             
             <h2>User Accounts</h2>
@@ -54,7 +54,7 @@ const Terms = () => {
             
             <h2>Limitation of Liability</h2>
             <p>
-              In no event shall Nexaconnect, its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the service.
+              In no event shall Nuvora, its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the service.
             </p>
             
             <h2>Changes to Terms</h2>
