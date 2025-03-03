@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log("Sign in with:", email, password);
     
     // Mock user for now
-    const mockUser = {
+    const mockUser: User = {
       id: nanoid(),
       username: email.split("@")[0],
       isGuest: false,
@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log("Sign up with:", email, password);
     
     // Mock user for now
-    const mockUser = {
+    const mockUser: User = {
       id: nanoid(),
       username: email.split("@")[0],
       isGuest: false,
@@ -96,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     
     const domain = providers[provider] || 'example.com';
-    const mockUser = {
+    const mockUser: User = {
       id: nanoid(),
       username: `user_${Math.floor(Math.random() * 10000)}`,
       isGuest: false,
@@ -109,7 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const continueAsGuest = () => {
-    const guestUser = {
+    const guestUser: User = {
       id: nanoid(),
       username: `Guest_${Math.floor(Math.random() * 10000)}`,
       isGuest: true,
@@ -137,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // In a real application, this would integrate with a payment processor
     // For now, we'll just update the user's subscription status directly
-    const updatedUser = {
+    const updatedUser: User = {
       ...user,
       subscription: {
         status: "active",
@@ -181,3 +181,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export default AuthContext;
+
