@@ -1,7 +1,7 @@
 
 import { useState, useContext, useEffect } from "react";
 import { 
-  GameController, 
+  Gamepad, 
   Clock, 
   SkipForward, 
   ThumbsUp, 
@@ -227,7 +227,7 @@ const GameFeature = () => {
   return (
     <div className="bg-secondary/50 dark:bg-secondary/30 rounded-lg border border-border p-4">
       <h3 className="font-semibold flex items-center mb-4">
-        <GameController size={18} className="mr-2" />
+        <Gamepad size={18} className="mr-2" />
         Game Center
       </h3>
       
