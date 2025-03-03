@@ -12,7 +12,7 @@ export interface Friend {
   username: string;
   country?: string;
   language?: string;
-  status: "online" | "offline";
+  status: "online" | "offline" | "blocked" | "active";
   lastSeen?: number;
   blocked?: boolean;
 }

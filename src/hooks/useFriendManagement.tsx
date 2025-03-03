@@ -34,10 +34,20 @@ export function useFriendManagement() {
             // Safely access properties with type checking
             const friendData = item.friend as any;
             
+            // Map database status to our Friend interface status
+            let friendStatus: Friend['status'] = 'offline';
+            if (item.status === 'blocked') {
+              friendStatus = 'blocked';
+            } else if (item.status === 'active') {
+              // For now we'll set active friends as online
+              // This would be updated with real online status later
+              friendStatus = 'online';
+            }
+            
             return {
               id: item.friend_id,
               username: friendData && friendData.username ? friendData.username : 'Unknown User',
-              status: item.status,
+              status: friendStatus,
               blocked: item.status === 'blocked',
               country: 'Unknown', // This would come from profiles if we had that data
               lastSeen: new Date().getTime() // This would come from a proper last seen tracking
@@ -92,7 +102,7 @@ export function useFriendManagement() {
       setFriends(prevFriends => 
         prevFriends.map(friend => 
           friend.id === userId 
-            ? { ...friend, status: 'blocked', blocked: true } 
+            ? { ...friend, status: 'blocked' as const, blocked: true } 
             : friend
         )
       );
@@ -179,7 +189,7 @@ export function useFriendManagement() {
       const newFriend: Friend = {
         id: userId,
         username: userData?.username || 'New Friend',
-        status: 'active',
+        status: 'online', // Setting as online initially
         blocked: false,
         country: userData?.country || 'Unknown',
         lastSeen: new Date().getTime()
@@ -190,7 +200,7 @@ export function useFriendManagement() {
         if (exists) {
           return prevFriends.map(friend => 
             friend.id === userId 
-              ? { ...friend, status: 'active', blocked: false } 
+              ? { ...friend, status: 'online' as const, blocked: false } 
               : friend
           );
         } else {
