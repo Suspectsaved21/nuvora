@@ -7,11 +7,19 @@
   text-align: left;
 }
 
+/* Ensure proper responsive layout */
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
 /* Glass morphism effect used throughout the app */
 .glass-morphism {
   backdrop-filter: blur(10px);
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Custom colors */
@@ -39,6 +47,14 @@
 
 .hover\:bg-purple-dark:hover {
   background-color: var(--purple-dark);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 /* Animation */
@@ -71,4 +87,12 @@
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
 }

@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import AuthContext from "@/context/AuthContext";
+import { Facebook, Mail, Instagram } from "lucide-react";
 
 const AuthForm = () => {
-  const { signIn, signUp, continueAsGuest } = useContext(AuthContext);
+  const { signIn, signUp, continueAsGuest, signInWithSocial } = useContext(AuthContext);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -75,8 +76,28 @@ const AuthForm = () => {
     });
   };
 
+  const handleSocialSignIn = (provider: string) => {
+    setIsLoading(true);
+    try {
+      signInWithSocial(provider);
+      toast({
+        title: "Processing login",
+        description: `Signing in with ${provider}...`,
+      });
+    } catch (error) {
+      toast({
+        title: "Sign in failed",
+        description: `Could not sign in with ${provider}.`,
+        variant: "destructive",
+      });
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="w-full max-w-md mx-auto p-6 glass-morphism animate-fade-in">
+    <div className="w-full max-w-md mx-auto p-4 sm:p-6 glass-morphism animate-fade-in rounded-xl">
       <Tabs defaultValue="signin" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -119,6 +140,47 @@ const AuthForm = () => {
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
+
+          <div className="mt-4 text-center">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border"></span>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => handleSocialSignIn('google')}
+                disabled={isLoading}
+                className="flex items-center justify-center"
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                <span className="sr-only sm:not-sr-only sm:text-xs">Google</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => handleSocialSignIn('facebook')}
+                disabled={isLoading}
+                className="flex items-center justify-center"
+              >
+                <Facebook className="h-4 w-4 mr-2" />
+                <span className="sr-only sm:not-sr-only sm:text-xs">Facebook</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => handleSocialSignIn('instagram')}
+                disabled={isLoading}
+                className="flex items-center justify-center"
+              >
+                <Instagram className="h-4 w-4 mr-2" />
+                <span className="sr-only sm:not-sr-only sm:text-xs">Instagram</span>
+              </Button>
+            </div>
+          </div>
         </TabsContent>
         
         <TabsContent value="signup">
@@ -157,6 +219,47 @@ const AuthForm = () => {
               {isLoading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
+
+          <div className="mt-4 text-center">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border"></span>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or sign up with</span>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => handleSocialSignIn('google')}
+                disabled={isLoading}
+                className="flex items-center justify-center"
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                <span className="sr-only sm:not-sr-only sm:text-xs">Google</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => handleSocialSignIn('facebook')}
+                disabled={isLoading}
+                className="flex items-center justify-center"
+              >
+                <Facebook className="h-4 w-4 mr-2" />
+                <span className="sr-only sm:not-sr-only sm:text-xs">Facebook</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => handleSocialSignIn('instagram')}
+                disabled={isLoading}
+                className="flex items-center justify-center"
+              >
+                <Instagram className="h-4 w-4 mr-2" />
+                <span className="sr-only sm:not-sr-only sm:text-xs">Instagram</span>
+              </Button>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
       

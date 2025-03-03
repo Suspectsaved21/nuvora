@@ -6,6 +6,7 @@ interface User {
   id: string;
   username: string;
   isGuest: boolean;
+  provider?: string;
 }
 
 interface AuthContextType {
@@ -13,8 +14,10 @@ interface AuthContextType {
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
+  signInWithSocial: (provider: string) => void;
   continueAsGuest: () => void;
   signOut: () => void;
+  updateUsername: (newUsername: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -22,8 +25,10 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   signIn: async () => {},
   signUp: async () => {},
+  signInWithSocial: () => {},
   continueAsGuest: () => {},
   signOut: () => {},
+  updateUsername: async () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -69,6 +74,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem("nexaconnect-user", JSON.stringify(mockUser));
   };
 
+  const signInWithSocial = (provider: string) => {
+    console.log(`Sign in with ${provider}`);
+    
+    // Mock social login for now
+    const providers: {[key: string]: string} = {
+      google: 'google.com',
+      facebook: 'facebook.com',
+      instagram: 'instagram.com'
+    };
+    
+    const domain = providers[provider] || 'example.com';
+    const mockUser = {
+      id: nanoid(),
+      username: `user_${Math.floor(Math.random() * 10000)}`,
+      isGuest: false,
+      provider,
+    };
+    
+    setUser(mockUser);
+    localStorage.setItem("nexaconnect-user", JSON.stringify(mockUser));
+  };
+
   const continueAsGuest = () => {
     const guestUser = {
       id: nanoid(),
@@ -78,6 +105,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setUser(guestUser);
     localStorage.setItem("nexaconnect-user", JSON.stringify(guestUser));
+  };
+
+  const updateUsername = async (newUsername: string) => {
+    if (!user) return;
+    
+    const updatedUser = {
+      ...user,
+      username: newUsername,
+    };
+    
+    setUser(updatedUser);
+    localStorage.setItem("nexaconnect-user", JSON.stringify(updatedUser));
   };
 
   const signOut = () => {
@@ -92,8 +131,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         signIn,
         signUp,
+        signInWithSocial,
         continueAsGuest,
         signOut,
+        updateUsername,
       }}
     >
       {children}

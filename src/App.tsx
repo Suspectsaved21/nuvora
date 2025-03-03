@@ -10,6 +10,7 @@ import Chat from "./pages/Chat";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
+import ProfileSettings from "./pages/ProfileSettings";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/chat" element={<Chat />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/profile/settings" element={<ProfileSettings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
