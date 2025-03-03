@@ -1,10 +1,10 @@
-
 import { useState, useContext, useEffect, useRef } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ChatContext, { Message } from "@/context/ChatContext";
+import ChatContext from "@/context/ChatContext";
+import { Message } from "@/types/chat";
 import AuthContext from "@/context/AuthContext";
 
 const TextChat = () => {
@@ -13,7 +13,6 @@ const TextChat = () => {
   const [message, setMessage] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
@@ -35,7 +34,6 @@ const TextChat = () => {
   
   return (
     <div className="h-full flex flex-col bg-secondary/50 dark:bg-secondary/30 rounded-lg border border-border">
-      {/* Chat header */}
       <div className="p-4 border-b border-border">
         <h3 className="font-semibold">
           {isConnected && partner
@@ -44,7 +42,6 @@ const TextChat = () => {
         </h3>
       </div>
       
-      {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="space-y-4">
           {messages.map((msg) => (
@@ -64,7 +61,6 @@ const TextChat = () => {
         </div>
       </ScrollArea>
       
-      {/* Message input */}
       <form onSubmit={handleSendMessage} className="p-4 border-t border-border">
         <div className="flex gap-2">
           <Input

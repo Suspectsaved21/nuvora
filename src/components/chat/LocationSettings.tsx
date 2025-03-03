@@ -1,4 +1,3 @@
-
 import { useContext, useState, useEffect } from "react";
 import { MapPin, Globe, Loader2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";

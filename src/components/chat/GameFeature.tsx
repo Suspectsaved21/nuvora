@@ -1,4 +1,3 @@
-
 import { useState, useContext, useEffect } from "react";
 import { 
   Gamepad, 
@@ -16,6 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import ChatContext from "@/context/ChatContext";
 import { toast } from "@/components/ui/use-toast";
+import { GameAction } from "@/types/chat";
 
 // Define game categories
 const CATEGORIES = [

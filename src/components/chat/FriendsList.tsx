@@ -1,4 +1,3 @@
-
 import { useContext } from "react";
 import { MessageSquare, Video, UserX, Ban, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ChatContext, { Friend } from "@/context/ChatContext";
+import ChatContext from "@/context/ChatContext";
+import { Friend } from "@/types/chat";
 
 const FriendsList = () => {
   const { friends, blockUser, unfriendUser, startDirectChat, startVideoCall } = useContext(ChatContext);
@@ -208,7 +208,6 @@ const FriendList = ({
   );
 };
 
-// Helper function to format time ago
 const getTimeAgo = (timestamp: number): string => {
   const seconds = Math.floor((Date.now() - timestamp) / 1000);
   
