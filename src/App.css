@@ -1,23 +1,63 @@
+
+/* Reset default styles that might interfere with our layout */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Glass morphism effect used throughout the app */
+.glass-morphism {
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Custom colors */
+:root {
+  --purple: #8b5cf6;
+  --purple-dark: #7c3aed;
+  --nexablack: #121212;
+}
+
+.text-purple {
+  color: var(--purple);
+}
+
+.bg-purple {
+  background-color: var(--purple);
+}
+
+.bg-purple-dark {
+  background-color: var(--purple-dark);
+}
+
+.bg-nexablack {
+  background-color: var(--nexablack);
+}
+
+.hover\:bg-purple-dark:hover {
+  background-color: var(--purple-dark);
+}
+
+/* Animation */
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Keep some original utility classes that might be useful */
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -31,12 +71,4 @@
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }
