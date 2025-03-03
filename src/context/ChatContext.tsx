@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext } from "react";
 import AuthContext from "./AuthContext";
 import { nanoid } from "nanoid";
@@ -9,6 +8,16 @@ export interface Message {
   text: string;
   timestamp: number;
   isOwn: boolean;
+}
+
+export interface Friend {
+  id: string;
+  username: string;
+  country?: string;
+  language?: string;
+  status: "online" | "offline";
+  lastSeen?: number;
+  blocked?: boolean;
 }
 
 interface Partner {
@@ -25,10 +34,18 @@ interface ChatContextType {
   isConnected: boolean;
   isFindingPartner: boolean;
   isTyping: boolean;
+  friends: Friend[];
+  locationEnabled: boolean;
   sendMessage: (text: string) => void;
   setIsTyping: (typing: boolean) => void;
   findNewPartner: () => void;
   reportPartner: (reason: string) => void;
+  toggleLocationTracking: () => void;
+  blockUser: (userId: string) => void;
+  unfriendUser: (userId: string) => void;
+  startDirectChat: (userId: string) => void;
+  startVideoCall: (userId: string) => void;
+  addFriend: (userId: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType>({
@@ -38,10 +55,18 @@ const ChatContext = createContext<ChatContextType>({
   isConnected: false,
   isFindingPartner: false,
   isTyping: false,
+  friends: [],
+  locationEnabled: false,
   sendMessage: () => {},
   setIsTyping: () => {},
   findNewPartner: () => {},
   reportPartner: () => {},
+  toggleLocationTracking: () => {},
+  blockUser: () => {},
+  unfriendUser: () => {},
+  startDirectChat: () => {},
+  startVideoCall: () => {},
+  addFriend: () => {},
 });
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -52,8 +77,38 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isConnected, setIsConnected] = useState(false);
   const [isFindingPartner, setIsFindingPartner] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [locationEnabled, setLocationEnabled] = useState(false);
+  const [friends, setFriends] = useState<Friend[]>([
+    {
+      id: nanoid(),
+      username: "Emma_Wilson",
+      country: "Canada",
+      status: "online",
+      lastSeen: Date.now(),
+    },
+    {
+      id: nanoid(),
+      username: "Alex_Thompson",
+      country: "UK",
+      status: "offline",
+      lastSeen: Date.now() - 60000 * 30,
+    },
+    {
+      id: nanoid(),
+      username: "Sophia_Martin",
+      country: "Australia",
+      status: "online",
+      lastSeen: Date.now(),
+    },
+    {
+      id: nanoid(),
+      username: "Daniel_Garcia",
+      country: "Spain",
+      status: "offline",
+      lastSeen: Date.now() - 60000 * 120,
+    },
+  ]);
 
-  // Mock finding a partner for demo
   const mockFindPartner = () => {
     setIsFindingPartner(true);
     setIsConnected(false);
@@ -76,7 +131,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsConnected(true);
       setIsFindingPartner(false);
       
-      // Add a system message
       setMessages([
         {
           id: nanoid(),
@@ -89,7 +143,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, 2000);
   };
 
-  // Initialize connection when user exists
   useEffect(() => {
     if (user && !partner && !isFindingPartner) {
       mockFindPartner();
@@ -99,8 +152,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const sendMessage = (text: string) => {
     if (!user || !partner) return;
     
-    // Filter inappropriate content (placeholder)
-    const filteredText = text; // This would be replaced with actual filtering logic
+    const filteredText = text;
     
     const newMessage = {
       id: nanoid(),
@@ -112,7 +164,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setMessages((prev) => [...prev, newMessage]);
     
-    // Mock response after a delay
     setTimeout(() => {
       const responses = [
         "That's interesting!",
@@ -148,6 +199,96 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     findNewPartner();
   };
 
+  const blockUser = (userId: string) => {
+    setFriends(prevFriends => 
+      prevFriends.map(friend => 
+        friend.id === userId 
+          ? { ...friend, blocked: true } 
+          : friend
+      )
+    );
+    
+    if (partner && partner.id === userId) {
+      findNewPartner();
+    }
+  };
+
+  const unfriendUser = (userId: string) => {
+    setFriends(prevFriends => prevFriends.filter(friend => friend.id !== userId));
+    
+    if (partner && partner.id === userId) {
+      findNewPartner();
+    }
+  };
+
+  const startDirectChat = (userId: string) => {
+    const friend = friends.find(f => f.id === userId);
+    if (friend && !friend.blocked) {
+      setPartner({
+        id: friend.id,
+        username: friend.username,
+        country: friend.country,
+      });
+      setIsConnected(true);
+      setIsFindingPartner(false);
+      
+      setMessages([
+        {
+          id: nanoid(),
+          sender: "system",
+          text: `You are now connected with ${friend.username}`,
+          timestamp: Date.now(),
+          isOwn: false,
+        },
+      ]);
+    }
+  };
+
+  const startVideoCall = (userId: string) => {
+    const friend = friends.find(f => f.id === userId);
+    if (friend && !friend.blocked) {
+      setPartner({
+        id: friend.id,
+        username: friend.username,
+        country: friend.country,
+      });
+      setIsConnected(true);
+      setIsFindingPartner(false);
+      
+      setMessages([
+        {
+          id: nanoid(),
+          sender: "system",
+          text: `Video call initiated with ${friend.username}`,
+          timestamp: Date.now(),
+          isOwn: false,
+        },
+      ]);
+    }
+  };
+
+  const addFriend = (userId: string) => {
+    if (partner && partner.id === userId) {
+      const newFriend: Friend = {
+        id: partner.id,
+        username: partner.username,
+        country: partner.country,
+        status: "online",
+        lastSeen: Date.now(),
+      };
+      
+      const isAlreadyFriend = friends.some(friend => friend.id === partner.id);
+      
+      if (!isAlreadyFriend) {
+        setFriends(prevFriends => [...prevFriends, newFriend]);
+      }
+    }
+  };
+
+  const toggleLocationTracking = () => {
+    setLocationEnabled(prev => !prev);
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -157,10 +298,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isConnected,
         isFindingPartner,
         isTyping,
+        friends,
+        locationEnabled,
         sendMessage,
         setIsTyping,
         findNewPartner,
         reportPartner,
+        toggleLocationTracking,
+        blockUser,
+        unfriendUser,
+        startDirectChat,
+        startVideoCall,
+        addFriend,
       }}
     >
       {children}

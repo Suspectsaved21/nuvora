@@ -1,20 +1,31 @@
 
 import { useContext, useState } from "react";
-import { SkipForward, Flag, X } from "lucide-react";
+import { SkipForward, Flag, X, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import ChatContext from "@/context/ChatContext";
+import { toast } from "@/components/ui/use-toast";
 
 const ChatControls = () => {
-  const { findNewPartner, partner, reportPartner } = useContext(ChatContext);
+  const { findNewPartner, partner, reportPartner, addFriend, locationEnabled } = useContext(ChatContext);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   
   const handleReport = () => {
     reportPartner(reportReason);
     setReportDialogOpen(false);
+  };
+  
+  const handleAddFriend = () => {
+    if (partner) {
+      addFriend(partner.id);
+      toast({
+        title: "Friend Added",
+        description: `${partner.username} was added to your friends list.`,
+      });
+    }
   };
   
   return (
@@ -28,7 +39,17 @@ const ChatControls = () => {
           onClick={findNewPartner}
         >
           <SkipForward size={16} className="mr-2" />
-          Next Person
+          Next Person {locationEnabled && "(Location Based)"}
+        </Button>
+        
+        <Button
+          variant="outline"
+          className="flex-1"
+          onClick={handleAddFriend}
+          disabled={!partner}
+        >
+          <UserPlus size={16} className="mr-2" />
+          Add Friend
         </Button>
         
         <Button

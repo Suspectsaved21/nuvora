@@ -5,9 +5,12 @@ import Navbar from "@/components/layout/Navbar";
 import VideoChat from "@/components/chat/VideoChat";
 import TextChat from "@/components/chat/TextChat";
 import ChatControls from "@/components/chat/ChatControls";
+import FriendsList from "@/components/chat/FriendsList";
+import LocationSettings from "@/components/chat/LocationSettings";
 import AuthForm from "@/components/auth/AuthForm";
 import AuthContext from "@/context/AuthContext";
 import { ChatProvider } from "@/context/ChatContext";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Chat = () => {
   const { user, isLoading } = useContext(AuthContext);
@@ -46,10 +49,24 @@ const Chat = () => {
                 <div className="lg:col-span-2 space-y-6">
                   <VideoChat />
                   <ChatControls />
+                  <LocationSettings />
                 </div>
                 
                 <div className="h-[600px]">
-                  <TextChat />
+                  <Tabs defaultValue="chat" className="h-full">
+                    <TabsList className="w-full">
+                      <TabsTrigger value="chat" className="flex-1">Chat</TabsTrigger>
+                      <TabsTrigger value="friends" className="flex-1">Friends</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="chat" className="h-[550px] mt-4">
+                      <TextChat />
+                    </TabsContent>
+                    
+                    <TabsContent value="friends" className="h-[550px] mt-4">
+                      <FriendsList />
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </div>
             </ChatProvider>

@@ -2,11 +2,12 @@
 import { useRef, useEffect, useContext, useState } from "react";
 import { setupVideoCall } from "@/lib/peerjs";
 import ChatContext from "@/context/ChatContext";
-import { VideoOff, Video } from "lucide-react";
+import { VideoOff, Video, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 
 const VideoChat = () => {
-  const { partner, isConnected } = useContext(ChatContext);
+  const { partner, isConnected, addFriend } = useContext(ChatContext);
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [videoEnabled, setVideoEnabled] = useState(true);
@@ -28,6 +29,16 @@ const VideoChat = () => {
         track.enabled = !track.enabled;
       });
       setVideoEnabled(!videoEnabled);
+    }
+  };
+  
+  const handleAddFriend = () => {
+    if (partner) {
+      addFriend(partner.id);
+      toast({
+        title: "Friend Added",
+        description: `${partner.username} was added to your friends list.`,
+      });
     }
   };
   
@@ -59,7 +70,7 @@ const VideoChat = () => {
           </div>
           
           {/* Video controls */}
-          <div className="absolute bottom-4 left-4">
+          <div className="absolute bottom-4 left-4 flex gap-2">
             <Button
               variant="outline"
               size="icon"
@@ -67,6 +78,16 @@ const VideoChat = () => {
               className="bg-black/50 border-white/20 text-white hover:bg-black/70"
             >
               {videoEnabled ? <Video size={16} /> : <VideoOff size={16} />}
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleAddFriend}
+              className="bg-black/50 border-white/20 text-white hover:bg-black/70"
+              title="Add to Friends"
+            >
+              <UserPlus size={16} />
             </Button>
           </div>
           
