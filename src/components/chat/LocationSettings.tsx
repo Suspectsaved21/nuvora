@@ -1,12 +1,41 @@
 
-import { useContext } from "react";
-import { MapPin, Globe } from "lucide-react";
+import { useContext, useState, useEffect } from "react";
+import { MapPin, Globe, Loader2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import ChatContext from "@/context/ChatContext";
 
 const LocationSettings = () => {
-  const { locationEnabled, toggleLocationTracking } = useContext(ChatContext);
+  const { 
+    locationEnabled, 
+    toggleLocationTracking, 
+    userLocation, 
+    refreshLocation 
+  } = useContext(ChatContext);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Handle manual location refresh
+  const handleRefreshLocation = async () => {
+    setIsRefreshing(true);
+    setError(null);
+    try {
+      await refreshLocation();
+    } catch (err) {
+      setError("Could not retrieve your location. Please check your device permissions.");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Automatically refresh location when enabled
+  useEffect(() => {
+    if (locationEnabled && !userLocation?.address) {
+      handleRefreshLocation();
+    }
+  }, [locationEnabled]);
   
   return (
     <div className="bg-secondary/50 dark:bg-secondary/30 rounded-lg border border-border p-4">
@@ -35,12 +64,52 @@ const LocationSettings = () => {
           />
         </div>
         
+        {error && (
+          <Alert variant="destructive" className="my-2">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        
         {locationEnabled && (
           <div className="p-3 bg-secondary/80 rounded-md text-sm">
-            <p className="mb-2">Your current location settings:</p>
-            <div className="glass-morphism px-3 py-2 rounded flex items-center justify-center">
-              <MapPin size={14} className="mr-2 text-purple" />
-              <span>Location sharing is enabled</span>
+            <div className="flex items-center justify-between mb-2">
+              <p>Your current location:</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefreshLocation}
+                disabled={isRefreshing}
+              >
+                {isRefreshing ? (
+                  <Loader2 size={14} className="mr-1 animate-spin" />
+                ) : (
+                  <MapPin size={14} className="mr-1" />
+                )}
+                Refresh
+              </Button>
+            </div>
+            
+            <div className="glass-morphism px-3 py-2 rounded">
+              {isRefreshing ? (
+                <div className="flex items-center justify-center py-1">
+                  <Loader2 size={16} className="animate-spin mr-2" />
+                  <span>Detecting location...</span>
+                </div>
+              ) : userLocation?.address ? (
+                <div className="space-y-1">
+                  <div className="flex items-center">
+                    <MapPin size={14} className="mr-2 text-purple flex-shrink-0" />
+                    <span className="line-clamp-2">{userLocation.address}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Coordinates: {userLocation.latitude.toFixed(6)}, {userLocation.longitude.toFixed(6)}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-1">
+                  <span>No location detected yet</span>
+                </div>
+              )}
             </div>
           </div>
         )}

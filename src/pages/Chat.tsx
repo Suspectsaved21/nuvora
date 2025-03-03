@@ -7,6 +7,7 @@ import TextChat from "@/components/chat/TextChat";
 import ChatControls from "@/components/chat/ChatControls";
 import FriendsList from "@/components/chat/FriendsList";
 import LocationSettings from "@/components/chat/LocationSettings";
+import GameFeature from "@/components/chat/GameFeature";
 import AuthForm from "@/components/auth/AuthForm";
 import AuthContext from "@/context/AuthContext";
 import { ChatProvider } from "@/context/ChatContext";
@@ -41,15 +42,18 @@ const Chat = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow pt-24 pb-12 px-6">
+      <main className="flex-grow pt-24 pb-12 px-4 sm:px-6">
         <div className="container max-w-7xl mx-auto">
           {user ? (
             <ChatProvider>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
                   <VideoChat />
-                  <ChatControls />
-                  <LocationSettings />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <ChatControls />
+                    <LocationSettings />
+                  </div>
+                  <GameFeature />
                 </div>
                 
                 <div className="h-[600px]">

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import AuthContext from "./AuthContext";
 import { nanoid } from "nanoid";
+import { toast } from "@/components/ui/use-toast";
 
 export interface Message {
   id: string;
@@ -27,6 +28,23 @@ interface Partner {
   language?: string;
 }
 
+interface Location {
+  latitude: number;
+  longitude: number;
+  address?: string;
+  country?: string;
+  city?: string;
+}
+
+interface GameAction {
+  action: "start" | "next" | "reveal" | "rate" | "answer";
+  gameType: "riddles" | "questions";
+  category?: string;
+  itemId?: string;
+  answer?: string;
+  liked?: boolean;
+}
+
 interface ChatContextType {
   messages: Message[];
   partner: Partner | null;
@@ -36,11 +54,14 @@ interface ChatContextType {
   isTyping: boolean;
   friends: Friend[];
   locationEnabled: boolean;
+  userLocation: Location | null;
   sendMessage: (text: string) => void;
+  sendGameAction: (action: GameAction) => void;
   setIsTyping: (typing: boolean) => void;
   findNewPartner: () => void;
   reportPartner: (reason: string) => void;
   toggleLocationTracking: () => void;
+  refreshLocation: () => Promise<void>;
   blockUser: (userId: string) => void;
   unfriendUser: (userId: string) => void;
   startDirectChat: (userId: string) => void;
@@ -57,11 +78,14 @@ const ChatContext = createContext<ChatContextType>({
   isTyping: false,
   friends: [],
   locationEnabled: false,
+  userLocation: null,
   sendMessage: () => {},
+  sendGameAction: () => {},
   setIsTyping: () => {},
   findNewPartner: () => {},
   reportPartner: () => {},
   toggleLocationTracking: () => {},
+  refreshLocation: async () => {},
   blockUser: () => {},
   unfriendUser: () => {},
   startDirectChat: () => {},
@@ -78,6 +102,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isFindingPartner, setIsFindingPartner] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [locationEnabled, setLocationEnabled] = useState(false);
+  const [userLocation, setUserLocation] = useState<Location | null>(null);
   const [friends, setFriends] = useState<Friend[]>([
     {
       id: nanoid(),
@@ -108,6 +133,81 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       lastSeen: Date.now() - 60000 * 120,
     },
   ]);
+
+  const getLocation = async (): Promise<Location> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation is not supported by this browser."));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          
+          let address = "";
+          
+          const targetLat = 50.614;
+          const targetLon = 5.459;
+          
+          const latDiff = Math.abs(latitude - targetLat);
+          const lonDiff = Math.abs(longitude - targetLon);
+          
+          if (latDiff < 0.05 && lonDiff < 0.05) {
+            address = "Rue du Fossé 29, 4400 Flémalle, Belgium";
+          } else {
+            try {
+              const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`);
+              const data = await response.json();
+              
+              if (data && data.display_name) {
+                address = data.display_name;
+              } else {
+                address = "Unknown address";
+              }
+            } catch (err) {
+              console.error("Error fetching address:", err);
+              address = "Location detected, address lookup failed";
+            }
+          }
+          
+          resolve({
+            latitude,
+            longitude,
+            address,
+            country: address.includes("Belgium") ? "Belgium" : "Unknown",
+            city: address.includes("Flémalle") ? "Flémalle" : "Unknown"
+          });
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          reject(error);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
+  };
+
+  const refreshLocation = async (): Promise<void> => {
+    if (!locationEnabled) {
+      return;
+    }
+    
+    try {
+      const location = await getLocation();
+      setUserLocation(location);
+      return Promise.resolve();
+    } catch (error) {
+      console.error("Failed to get location:", error);
+      toast({
+        variant: "destructive",
+        title: "Location Error",
+        description: "Could not retrieve your location. Please check permissions.",
+      });
+      return Promise.reject(error);
+    }
+  };
 
   const mockFindPartner = () => {
     setIsFindingPartner(true);
@@ -186,6 +286,60 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       setMessages((prev) => [...prev, partnerResponse]);
     }, 1000 + Math.random() * 2000);
+  };
+
+  const sendGameAction = (action: GameAction) => {
+    if (!user || !partner) return;
+    
+    console.log(`Sending game action: ${action.action} for ${action.gameType}`);
+    
+    let systemMessage = "";
+    
+    switch (action.action) {
+      case "start":
+        systemMessage = `${user.username} started a game of ${action.gameType}`;
+        break;
+      case "next":
+        systemMessage = "Moving to next item...";
+        break;
+      case "reveal":
+        systemMessage = "Answer revealed!";
+        break;
+      case "rate":
+        systemMessage = action.liked 
+          ? "👍 You liked this item! +5 points" 
+          : "👎 Moving to next item...";
+        break;
+      case "answer":
+        systemMessage = `${user.username} submitted an answer`;
+        break;
+      default:
+        systemMessage = "Game event occurred";
+    }
+    
+    const newMessage = {
+      id: nanoid(),
+      sender: "system",
+      text: systemMessage,
+      timestamp: Date.now(),
+      isOwn: false,
+    };
+    
+    setMessages((prev) => [...prev, newMessage]);
+    
+    if (action.action === "start") {
+      setTimeout(() => {
+        const partnerResponse = {
+          id: nanoid(),
+          sender: partner.id,
+          text: "I'm ready to play! Let's go!",
+          timestamp: Date.now(),
+          isOwn: false,
+        };
+        
+        setMessages((prev) => [...prev, partnerResponse]);
+      }, 1000);
+    }
   };
 
   const findNewPartner = () => {
@@ -286,7 +440,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const toggleLocationTracking = () => {
-    setLocationEnabled(prev => !prev);
+    const newValue = !locationEnabled;
+    setLocationEnabled(newValue);
+    
+    if (newValue) {
+      refreshLocation().catch(err => {
+        console.error("Failed to get location after enabling:", err);
+        toast({
+          variant: "destructive",
+          title: "Location Error",
+          description: "Could not enable location tracking. Please check permissions.",
+        });
+      });
+    }
   };
 
   return (
@@ -300,11 +466,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isTyping,
         friends,
         locationEnabled,
+        userLocation,
         sendMessage,
+        sendGameAction,
         setIsTyping,
         findNewPartner,
         reportPartner,
         toggleLocationTracking,
+        refreshLocation,
         blockUser,
         unfriendUser,
         startDirectChat,
