@@ -103,21 +103,18 @@ const LocationSettings = () => {
                   <Loader2 size={16} className="animate-spin mr-2" />
                   <span>Detecting location...</span>
                 </div>
-              ) : userLocation?.address ? (
+              ) : userLocation?.city && userLocation?.country ? (
                 <div className="space-y-1">
                   <div className="flex items-center">
                     <MapPin size={14} className="mr-2 text-purple flex-shrink-0" />
-                    <span className="line-clamp-2">{userLocation.address}</span>
+                    <span className="line-clamp-2">
+                      {userLocation.city}, {userLocation.country}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="text-xs text-muted-foreground">
                       Coordinates: {userLocation.latitude.toFixed(6)}, {userLocation.longitude.toFixed(6)}
                     </div>
-                    {userLocation.city && userLocation.city !== "Unknown" && (
-                      <div className="text-xs font-medium">
-                        {userLocation.city}, {userLocation.country}
-                      </div>
-                    )}
                   </div>
                 </div>
               ) : (
