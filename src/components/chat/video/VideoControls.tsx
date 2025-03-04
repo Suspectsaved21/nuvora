@@ -28,7 +28,7 @@ const VideoControls = ({
   return (
     <div className={cn(
       "absolute left-0 right-0 flex justify-center items-center gap-2 z-40",
-      isMobile ? "bottom-20" : "bottom-16"
+      isMobile ? "bottom-4 top-auto" : "bottom-16" 
     )}>
       <div className={cn(
         "px-4 py-2 rounded-full flex gap-2",
