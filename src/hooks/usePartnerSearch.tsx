@@ -4,6 +4,7 @@ import { Partner, Message } from "@/types/chat";
 import { nanoid } from "nanoid";
 import { findRandomPartner, createMockPartner } from "@/utils/partnerUtils";
 import ChatContext from "@/context/ChatContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export function usePartnerSearch() {
   const [partner, setPartner] = useState<Partner | null>(null);
@@ -11,11 +12,13 @@ export function usePartnerSearch() {
   const [isConnected, setIsConnected] = useState(false);
   const [isFindingPartner, setIsFindingPartner] = useState(false);
   
+  // Get the chat context for user preferences
+  const chatContext = useContext(ChatContext);
+  
   /**
    * Find a new random partner from the database or create a mock one
    */
   const findPartner = async () => {
-    const { locationEnabled, matchingPreference, userLocation } = useContext(ChatContext);
     setIsFindingPartner(true);
     setIsConnected(false);
     setPartner(null);
@@ -23,8 +26,8 @@ export function usePartnerSearch() {
     try {
       // Set search criteria based on user preferences
       const options = {
-        worldwide: matchingPreference === "worldwide" || !locationEnabled,
-        userCountry: userLocation?.country || null
+        worldwide: chatContext.matchingPreference === "worldwide" || !chatContext.locationEnabled,
+        userCountry: chatContext.userLocation?.country || null
       };
       
       const foundPartner = await findRandomPartner(options);
@@ -48,7 +51,7 @@ export function usePartnerSearch() {
       }
     } catch (error) {
       console.error("Error finding partner:", error);
-      return await mockFindPartner({ worldwide: true });
+      return await mockFindPartner({ worldwide: true, userCountry: null });
     } finally {
       setIsFindingPartner(false);
     }
@@ -160,6 +163,3 @@ export function usePartnerSearch() {
     setIsFindingPartner
   };
 }
-
-// Need to add this import at the top since it's used in startDirectChat
-import { supabase } from "@/integrations/supabase/client";

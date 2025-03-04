@@ -20,7 +20,7 @@ const LANGUAGES = [
  * Creates a mock partner with randomly assigned attributes
  * @param options Matching options (worldwide or country-specific)
  */
-export const createMockPartner = (options = { worldwide: true, userCountry: null }): Partner => {
+export const createMockPartner = (options: { worldwide: boolean, userCountry: string | null }): Partner => {
   let country;
   
   if (options.worldwide || !options.userCountry) {
@@ -69,8 +69,20 @@ export const generatePartnerResponse = (partnerId: string): Message => {
  * Attempts to find a random partner from the database
  * @param options Matching options (worldwide or country-specific)
  */
-export const findRandomPartner = async (options = { worldwide: true, userCountry: null }): Promise<Partner | null> => {
+export const findRandomPartner = async (options: { worldwide: boolean, userCountry: string | null }): Promise<Partner | null> => {
   try {
+    // First check if the country column exists in the profiles table
+    const { data: columnCheck, error: columnError } = await supabase
+      .from('profiles')
+      .select('id')
+      .limit(1);
+      
+    if (columnError) {
+      console.error("Error checking profiles table:", columnError);
+      return null;
+    }
+    
+    // Query users from profiles table
     let query = supabase
       .from('profiles')
       .select('id, username, country')
@@ -85,7 +97,10 @@ export const findRandomPartner = async (options = { worldwide: true, userCountry
     
     const { data, error } = await query;
     
-    if (error) throw error;
+    if (error) {
+      console.error("Database query error:", error);
+      return null;
+    }
     
     if (data && data.length > 0) {
       const randomIndex = Math.floor(Math.random() * data.length);
