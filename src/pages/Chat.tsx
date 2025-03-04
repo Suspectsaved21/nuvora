@@ -10,7 +10,6 @@ import LocationSettings from "@/components/chat/LocationSettings";
 import GameFeature from "@/components/chat/GameFeature";
 import AuthForm from "@/components/auth/AuthForm";
 import AuthContext from "@/context/AuthContext";
-import { ChatProvider } from "@/context/ChatContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -57,52 +56,50 @@ const Chat = () => {
       <main className={`flex-grow ${isMobile ? "pt-0" : "pt-24"} pb-12 px-4 sm:px-6`}>
         <div className="container max-w-7xl mx-auto">
           {user ? (
-            <ChatProvider>
+            <div className={cn(
+              "grid grid-cols-1 gap-6",
+              isMobile ? "" : "lg:grid-cols-3"
+            )}>
               <div className={cn(
-                "grid grid-cols-1 gap-6",
-                isMobile ? "" : "lg:grid-cols-3"
+                isMobile ? "col-span-1" : "lg:col-span-2",
+                "space-y-6"
               )}>
-                <div className={cn(
-                  isMobile ? "col-span-1" : "lg:col-span-2",
-                  "space-y-6"
-                )}>
-                  {/* Video chat takes full width in this column */}
-                  <VideoChat />
-                  
-                  {(!isMobile || !isChatVisible) && (
-                    <>
-                      {showGame ? (
-                        <GameFeature />
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <ChatControls />
-                          <LocationSettings />
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
+                {/* Video chat takes full width in this column */}
+                <VideoChat />
                 
-                {(!isMobile || isChatVisible) && (
-                  <div className="h-[600px]">
-                    <Tabs defaultValue="chat" className="h-full">
-                      <TabsList className="w-full">
-                        <TabsTrigger value="chat" className="flex-1">Chat</TabsTrigger>
-                        <TabsTrigger value="friends" className="flex-1">Friends</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="chat" className="h-[550px] mt-4">
-                        <TextChat />
-                      </TabsContent>
-                      
-                      <TabsContent value="friends" className="h-[550px] mt-4">
-                        <FriendsList />
-                      </TabsContent>
-                    </Tabs>
-                  </div>
+                {(!isMobile || !isChatVisible) && (
+                  <>
+                    {showGame ? (
+                      <GameFeature />
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <ChatControls />
+                        <LocationSettings />
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
-            </ChatProvider>
+              
+              {(!isMobile || isChatVisible) && (
+                <div className="h-[600px]">
+                  <Tabs defaultValue="chat" className="h-full">
+                    <TabsList className="w-full">
+                      <TabsTrigger value="chat" className="flex-1">Chat</TabsTrigger>
+                      <TabsTrigger value="friends" className="flex-1">Friends</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="chat" className="h-[550px] mt-4">
+                      <TextChat />
+                    </TabsContent>
+                    
+                    <TabsContent value="friends" className="h-[550px] mt-4">
+                      <FriendsList />
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="max-w-2xl mx-auto">
               <div className="text-center mb-8">
