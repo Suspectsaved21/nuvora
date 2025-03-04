@@ -14,7 +14,10 @@ export async function fetchFriendsList(userId: string): Promise<Friend[]> {
         *,
         friend:friend_id (
           id,
-          username
+          username,
+          country,
+          online_status,
+          last_seen_at
         )
       `)
       .eq('user_id', userId);
@@ -27,15 +30,16 @@ export async function fetchFriendsList(userId: string): Promise<Friend[]> {
         // Safely access properties with type checking
         const friendData = item.friend as any;
         
-        // Map database status to our Friend interface status
+        // Determine friend status based on online_status from profiles
         let friendStatus: Friend['status'] = 'offline';
         if (item.status === 'blocked') {
           friendStatus = 'blocked';
         } else if (item.status === 'active') {
-          // For now we'll set active friends as online
-          friendStatus = 'online';
+          // Check if they're online using the online_status field
+          friendStatus = friendData?.online_status ? 'online' : 'offline';
         } else if (item.status === 'pending') {
-          friendStatus = 'offline'; // Pending friends show as offline until accepted
+          // Pending friends can still show their online status
+          friendStatus = friendData?.online_status ? 'online' : 'offline';
         }
         
         return {
@@ -44,8 +48,8 @@ export async function fetchFriendsList(userId: string): Promise<Friend[]> {
           status: friendStatus,
           blocked: item.status === 'blocked',
           pending: item.status === 'pending',
-          country: 'Unknown', // This would come from profiles if we had that data
-          lastSeen: new Date().getTime() // This would come from a proper last seen tracking
+          country: friendData?.country || 'Unknown',
+          lastSeen: friendData?.last_seen_at ? new Date(friendData.last_seen_at).getTime() : new Date().getTime()
         } as Friend;
       });
     }
@@ -58,4 +62,28 @@ export async function fetchFriendsList(userId: string): Promise<Friend[]> {
     });
     return [];
   }
+}
+
+/**
+ * Subscribe to real-time updates for friends' online status
+ */
+export function subscribeFriendsOnlineStatus(userId: string, onStatusUpdate: () => void) {
+  // Set up subscription for profiles table updates
+  const channel = supabase
+    .channel('friends-status-updates')
+    .on('postgres_changes', 
+        {
+          event: '*',  // Listen for all changes
+          schema: 'public',
+          table: 'profiles'
+        }, 
+        () => {
+          // When any profile changes, refresh friends list
+          onStatusUpdate();
+        })
+    .subscribe();
+    
+  return () => {
+    supabase.removeChannel(channel);
+  };
 }

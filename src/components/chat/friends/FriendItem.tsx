@@ -1,5 +1,6 @@
 
-import { MessageSquare, Video, UserX, Ban, Clock, UserCheck } from "lucide-react";
+import React from "react";
+import { MessageSquare, Video, UserX, Ban, Clock, UserCheck, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -60,7 +61,11 @@ const FriendItem = ({
               {friend.pending && (
                 <span className="ml-1 flex items-center text-xs">
                   <UserCheck size={10} className="mr-1" />
-                  Waiting for response
+                  {friend.status === 'online' ? (
+                    <span className="text-green-500">Online now</span>
+                  ) : (
+                    "Waiting for response"
+                  )}
                 </span>
               )}
             </div>
@@ -68,14 +73,15 @@ const FriendItem = ({
         </div>
         
         <div className="flex space-x-1">
-          {!isBlockedList && !friend.pending && (
+          {!isBlockedList && (
             <>
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                className={`size-8 ${friend.pending ? 'opacity-50' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
                 onClick={() => startDirectChat(friend.id)}
                 title="Send message"
+                disabled={friend.pending}
               >
                 <MessageSquare size={16} />
               </Button>
@@ -83,10 +89,10 @@ const FriendItem = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                className={`size-8 ${friend.pending ? 'opacity-50' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
                 onClick={() => startVideoCall(friend.id)}
                 title="Start video call"
-                disabled={friend.status === 'offline'}
+                disabled={friend.status === 'offline' || friend.pending}
               >
                 <Video size={16} />
               </Button>

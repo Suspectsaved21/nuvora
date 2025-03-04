@@ -7,7 +7,7 @@ import { usePartnerManagement } from "@/hooks/usePartnerManagement";
 import { Friend, Message, Partner, Location, GameAction } from "@/types/chat";
 import { toast } from "@/components/ui/use-toast";
 import { toast as sonnerToast } from "sonner";
-import { subscribeToFriendRequests, showFriendRequestNotification } from "@/services/friendService";
+import { subscribeToFriendRequests, showFriendRequestNotification } from "@/services/friends/index";
 
 interface ChatContextType {
   messages: Message[];
@@ -111,7 +111,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     
     return cleanup;
-  }, [user]);
+  }, [user, refreshFriends]);
   
   // Wrapper functions to connect all our hooks together
   const findNewPartner = () => {
@@ -125,8 +125,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const startDirectChat = (userId: string) => {
     const friend = friends.find(f => f.id === userId);
-    if (friend && !friend.blocked) {
+    if (friend && !friend.blocked && !friend.pending) {
       initDirectChat(friend.id, friend.username, friend.country);
+    } else if (friend && friend.pending) {
+      sonnerToast.error("Cannot chat with pending friend. Wait for them to accept your request.");
     } else {
       toast({
         variant: "destructive",
@@ -137,8 +139,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const startVideoCall = (userId: string) => {
     const friend = friends.find(f => f.id === userId);
-    if (friend && !friend.blocked) {
+    if (friend && !friend.blocked && !friend.pending && friend.status === 'online') {
       initVideoCall(friend.id, friend.username, friend.country);
+    } else if (friend && friend.pending) {
+      sonnerToast.error("Cannot call pending friend. Wait for them to accept your request.");
+    } else if (friend && friend.status !== 'online') {
+      sonnerToast.error("User is not online. Try again when they're online.");
     } else {
       toast({
         variant: "destructive",

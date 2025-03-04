@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { toast as sonnerToast } from "sonner";
 
 /**
  * Accept a friend request
@@ -49,9 +50,13 @@ export async function acceptFriendRequest(currentUserId: string, friendId: strin
         .eq('id', existingReverse.id);
     }
     
+    // Send a notification to the user who sent the request
+    sonnerToast.success("Friend request accepted!");
+    
     return true;
   } catch (error) {
     console.error("Error accepting friend request:", error);
+    sonnerToast.error("Failed to accept friend request");
     return false;
   }
 }
