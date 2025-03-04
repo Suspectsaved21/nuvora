@@ -7,7 +7,6 @@ import { acceptFriendRequest, declineFriendRequest } from "./friendRequests";
  * Setup realtime subscription for friend requests
  */
 export function subscribeToFriendRequests(userId: string, onNewRequest: (sender: any) => void) {
-  // Enable realtime for the friends table
   const channel = supabase
     .channel('friend-requests')
     .on(
@@ -25,7 +24,7 @@ export function subscribeToFriendRequests(userId: string, onNewRequest: (sender:
             // Get sender information
             const { data: sender } = await supabase
               .from('profiles')
-              .select('id, username, country')
+              .select('id, username')
               .eq('id', payload.new.user_id)
               .single();
               
@@ -54,6 +53,8 @@ export function showFriendRequestNotification(
   currentUserId: string,
   onAccepted: () => void
 ) {
+  // Instead of trying to use React elements in a .ts file, 
+  // use the text-based notification approach that Sonner provides
   sonnerToast(`Friend request from ${senderName}`, {
     duration: 10000,
     id: `friend-request-${senderId}`,
@@ -63,6 +64,7 @@ export function showFriendRequestNotification(
       onClick: async () => {
         const success = await acceptFriendRequest(currentUserId, senderId);
         if (success) {
+          sonnerToast.success(`You are now friends with ${senderName}`);
           onAccepted();
         } else {
           sonnerToast.error("Failed to accept friend request");
@@ -73,7 +75,6 @@ export function showFriendRequestNotification(
       label: "Decline",
       onClick: async () => {
         await declineFriendRequest(currentUserId, senderId);
-        sonnerToast.error(`Friend request from ${senderName} declined`);
       }
     }
   });

@@ -65,7 +65,7 @@ const VideoChat = () => {
       <div 
         ref={videoChatRef}
         className={cn(
-          "relative w-full aspect-video bg-nexablack rounded-lg overflow-hidden omegle-container",
+          "relative w-full aspect-video bg-nexablack rounded-lg overflow-hidden",
           isFullscreen || isLocalFullscreen ? "fixed inset-0 z-50 h-screen aspect-auto" : "",
           isMobile ? "h-[calc(100vh-120px)]" : ""
         )}
