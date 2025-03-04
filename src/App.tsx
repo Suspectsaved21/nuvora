@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { StripeProvider } from "@/context/StripeContext";
 import SubscriptionModal from "@/components/subscription/SubscriptionModal";
@@ -18,7 +18,14 @@ import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import ProfileSettings from "./pages/ProfileSettings";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Get basename from environment if available
 const getBasename = () => {
@@ -45,7 +52,10 @@ const App = () => (
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/profile/settings" element={<ProfileSettings />} />
-              <Route path="*" element={<NotFound />} />
+              
+              {/* Handle 404s by redirecting to NotFound component */}
+              <Route path="/404" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
         </StripeProvider>

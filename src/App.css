@@ -63,9 +63,10 @@ button {
   min-width: 44px;
 }
 
+/* Override for video control buttons to be smaller */
 .video-control-btn {
-  min-height: 44px;
-  min-width: 44px;
+  min-height: 36px !important;
+  min-width: 36px !important;
 }
 
 /* Omegle-like styles */

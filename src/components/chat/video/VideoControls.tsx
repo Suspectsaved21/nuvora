@@ -27,7 +27,7 @@ const VideoControls = ({
   
   return (
     <div className={cn(
-      "absolute left-0 right-0 flex justify-center items-center gap-2 z-40",
+      "absolute left-0 right-0 flex justify-center items-center gap-2 z-50", // Increased z-index
       isMobile ? "bottom-4 top-auto" : "bottom-16" 
     )}>
       <div className={cn(
@@ -40,7 +40,8 @@ const VideoControls = ({
           onClick={toggleVideo}
           className={cn(
             "rounded-full border-white/20 text-white hover:bg-black/70",
-            videoEnabled ? "bg-black/50" : "bg-red-500/70"
+            videoEnabled ? "bg-black/50" : "bg-red-500/70",
+            "min-h-8 min-w-8" // Smaller touch targets for mobile
           )}
         >
           {videoEnabled ? <Video size={16} /> : <VideoOff size={16} />}
@@ -52,7 +53,8 @@ const VideoControls = ({
           onClick={toggleAudio}
           className={cn(
             "rounded-full border-white/20 text-white hover:bg-black/70",
-            audioEnabled ? "bg-black/50" : "bg-red-500/70"
+            audioEnabled ? "bg-black/50" : "bg-red-500/70",
+            "min-h-8 min-w-8" // Smaller touch targets for mobile
           )}
         >
           {audioEnabled ? <Mic size={16} /> : <MicOff size={16} />}
@@ -64,7 +66,8 @@ const VideoControls = ({
           onClick={handleAddFriend}
           className={cn(
             "rounded-full border-white/20 text-white hover:bg-black/70",
-            isMobile ? "bg-green-500/70" : "bg-black/50"
+            isMobile ? "bg-green-500/70" : "bg-black/50",
+            "min-h-8 min-w-8" // Smaller touch targets for mobile
           )}
           title="Add to Friends"
         >
@@ -75,7 +78,10 @@ const VideoControls = ({
           variant="outline"
           size="icon"
           onClick={toggleFullscreen}
-          className="rounded-full bg-black/50 border-white/20 text-white hover:bg-black/70"
+          className={cn(
+            "rounded-full bg-black/50 border-white/20 text-white hover:bg-black/70",
+            "min-h-8 min-w-8" // Smaller touch targets for mobile
+          )}
           title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
         >
           {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}

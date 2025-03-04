@@ -30,12 +30,12 @@ const VideoDisplay = ({
   handleAddFriend,
   isMobile
 }: VideoDisplayProps) => {
-  const { findNewPartner } = useContext(ChatContext);
+  const { findNewPartner, isFindingPartner } = useContext(ChatContext);
   
   return (
     <>
-      {!isConnected ? (
-        // When no connection, show the local video in full screen
+      {!isConnected || isFindingPartner ? (
+        // When no connection or finding partner, show local video prominently
         <div className="relative w-full h-full">
           <video
             ref={localVideoRef}
@@ -45,7 +45,7 @@ const VideoDisplay = ({
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 flex items-center justify-center text-white/70">
-            Waiting for someone to join...
+            {isFindingPartner ? "Finding a new partner..." : "Waiting for someone to join..."}
           </div>
         </div>
       ) : (
@@ -66,6 +66,18 @@ const VideoDisplay = ({
               className="w-full h-full object-cover"
               onClick={toggleFullscreen}
             />
+            
+            {!isFullscreen && !isLocalFullscreen && isMobile && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleFullscreen}
+                className="absolute top-2 right-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-10 min-h-8 min-w-8"
+                title="Enter Fullscreen"
+              >
+                <Maximize size={14} />
+              </Button>
+            )}
           </div>
           
           {/* Local video (user) */}
@@ -86,6 +98,18 @@ const VideoDisplay = ({
               className="w-full h-full object-cover cursor-pointer"
               onClick={toggleLocalFullscreen}
             />
+            
+            {!isFullscreen && !isLocalFullscreen && isMobile && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleLocalFullscreen}
+                className="absolute top-2 right-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-10 min-h-8 min-w-8"
+                title="Enter Fullscreen"
+              >
+                <Maximize size={14} />
+              </Button>
+            )}
             
             {!isFullscreen && !isLocalFullscreen && !isMobile && (
               <Button
