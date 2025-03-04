@@ -7,7 +7,7 @@ import { acceptFriendRequest, declineFriendRequest } from "./friendRequests";
  * Setup realtime subscription for friend requests
  */
 export function subscribeToFriendRequests(userId: string, onNewRequest: (sender: any) => void) {
-  // Enable realtime for the friends table if not already enabled
+  // Enable realtime for the friends table
   const channel = supabase
     .channel('friend-requests')
     .on(
@@ -63,7 +63,6 @@ export function showFriendRequestNotification(
       onClick: async () => {
         const success = await acceptFriendRequest(currentUserId, senderId);
         if (success) {
-          sonnerToast.success(`You are now friends with ${senderName}`);
           onAccepted();
         } else {
           sonnerToast.error("Failed to accept friend request");

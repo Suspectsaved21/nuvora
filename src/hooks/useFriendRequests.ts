@@ -1,6 +1,7 @@
 
 import { useEffect } from "react";
 import { subscribeToFriendRequests, showFriendRequestNotification } from "@/services/friendService";
+import { toast as sonnerToast } from "sonner";
 
 export function useFriendRequests(user: any | null, refreshFriends: () => void) {
   // Set up real-time friend request notifications
@@ -12,7 +13,12 @@ export function useFriendRequests(user: any | null, refreshFriends: () => void) 
         sender.id,
         sender.username,
         user.id,
-        refreshFriends
+        () => {
+          // Refresh friends list after accepting
+          refreshFriends();
+          // Show success notification
+          sonnerToast.success(`You are now friends with ${sender.username}!`);
+        }
       );
     });
     

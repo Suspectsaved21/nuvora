@@ -3,9 +3,12 @@ import { useContext } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ChatContext from "@/context/ChatContext";
 import FriendList from "./friends/FriendList";
+import FriendSearch from "./friends/FriendSearch";
+import AuthContext from "@/context/AuthContext";
 
 const FriendsList = () => {
-  const { friends, blockUser, unfriendUser, startDirectChat, startVideoCall } = useContext(ChatContext);
+  const { friends, blockUser, unfriendUser, startDirectChat, startVideoCall, addFriend, isLoading } = useContext(ChatContext);
+  const { user } = useContext(AuthContext);
   
   const onlineFriends = friends.filter(friend => friend.status === "online" && !friend.blocked);
   const offlineFriends = friends.filter(friend => friend.status === "offline" && !friend.blocked);
@@ -17,6 +20,12 @@ const FriendsList = () => {
         <h3 className="font-semibold">Friends List</h3>
       </div>
       
+      <FriendSearch 
+        currentUserId={user?.id} 
+        onAddFriend={addFriend}
+        isAdding={isLoading}
+      />
+
       <Tabs defaultValue="online" className="flex-1">
         <div className="px-4 pt-2">
           <TabsList className="w-full">
@@ -38,7 +47,7 @@ const FriendsList = () => {
             blockUser={blockUser} 
             unfriendUser={unfriendUser} 
             startDirectChat={startDirectChat} 
-            startVideoCall={startVideoCall}
+            startVideoCall={startVideoCall} 
           />
         </TabsContent>
         
@@ -48,7 +57,7 @@ const FriendsList = () => {
             blockUser={blockUser} 
             unfriendUser={unfriendUser} 
             startDirectChat={startDirectChat} 
-            startVideoCall={startVideoCall}
+            startVideoCall={startVideoCall} 
           />
         </TabsContent>
         
