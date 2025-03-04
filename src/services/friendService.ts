@@ -1,9 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Friend } from "@/types/chat";
 import { toast } from "@/components/ui/use-toast";
 import { toast as sonnerToast } from "sonner";
-import FriendRequestNotification from "@/components/chat/friends/FriendRequestNotification";
 
 /**
  * Fetches friends list for a user from the database
@@ -298,11 +296,11 @@ export function showFriendRequestNotification(
   currentUserId: string,
   onAccepted: () => void
 ) {
-  sonnerToast.custom((toast) => (
-    <FriendRequestNotification
-      senderId={senderId}
-      senderName={senderName}
-      onAccept={async () => {
+  // Using the custom method of sonner without JSX in this .ts file
+  sonnerToast.custom(
+    (toast) => {
+      // This function returns an element rather than JSX directly
+      const acceptHandler = async () => {
         const success = await acceptFriendRequest(currentUserId, senderId);
         if (success) {
           sonnerToast.success(`You are now friends with ${senderName}`);
@@ -311,14 +309,31 @@ export function showFriendRequestNotification(
           sonnerToast.error("Failed to accept friend request");
         }
         sonnerToast.dismiss(toast);
-      }}
-      onDecline={async () => {
+      };
+      
+      const declineHandler = async () => {
         await declineFriendRequest(currentUserId, senderId);
         sonnerToast.dismiss(toast);
-      }}
-    />
-  ), {
-    duration: 10000,
-    id: `friend-request-${senderId}`,
-  });
+      };
+      
+      // Create the props object
+      const props = {
+        senderId,
+        senderName,
+        onAccept: acceptHandler,
+        onDecline: declineHandler
+      };
+      
+      // Return a render function that the toast library will use
+      return {
+        id: `friend-request-${senderId}`,
+        component: "FriendRequestNotification",
+        props
+      };
+    },
+    {
+      duration: 10000,
+      id: `friend-request-${senderId}`,
+    }
+  );
 }

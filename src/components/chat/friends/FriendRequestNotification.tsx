@@ -3,7 +3,6 @@ import React from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { UserPlus, X } from "lucide-react";
-import { addFriendToDb } from "@/services/friendService";
 
 interface FriendRequestNotificationProps {
   senderId: string;
