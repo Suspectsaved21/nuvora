@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast as sonnerToast } from "sonner";
 import { acceptFriendRequest, declineFriendRequest } from "./friendRequests";
