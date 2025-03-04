@@ -2,6 +2,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Friend } from "@/types/chat";
 import { toast } from "@/components/ui/use-toast";
+import { toast as sonnerToast } from "sonner";
+import FriendRequestNotification from "@/components/chat/friends/FriendRequestNotification";
 
 /**
  * Fetches friends list for a user from the database
@@ -34,6 +36,8 @@ export async function fetchFriendsList(userId: string): Promise<Friend[]> {
         } else if (item.status === 'active') {
           // For now we'll set active friends as online
           friendStatus = 'online';
+        } else if (item.status === 'pending') {
+          friendStatus = 'offline'; // Pending friends show as offline until accepted
         }
         
         return {
@@ -41,6 +45,7 @@ export async function fetchFriendsList(userId: string): Promise<Friend[]> {
           username: friendData && friendData.username ? friendData.username : 'Unknown User',
           status: friendStatus,
           blocked: item.status === 'blocked',
+          pending: item.status === 'pending',
           country: 'Unknown', // This would come from profiles if we had that data
           lastSeen: new Date().getTime() // This would come from a proper last seen tracking
         } as Friend;
@@ -119,7 +124,8 @@ export async function removeFriendFromDb(currentUserId: string, targetUserId: st
  */
 export async function addFriendToDb(
   currentUserId: string, 
-  targetUserId: string
+  targetUserId: string,
+  status: 'active' | 'pending' = 'pending'
 ): Promise<boolean> {
   try {
     // Check if the friend already exists
@@ -135,11 +141,18 @@ export async function addFriendToDb(
       if (existingFriend.status === 'blocked') {
         await supabase
           .from('friends')
+          .update({ status })
+          .eq('user_id', currentUserId)
+          .eq('friend_id', targetUserId);
+      } else if (existingFriend.status === 'pending' && status === 'active') {
+        // Accepting a pending request
+        await supabase
+          .from('friends')
           .update({ status: 'active' })
           .eq('user_id', currentUserId)
           .eq('friend_id', targetUserId);
       } else {
-        // Already friends
+        // Already friends or pending
         return false;
       }
     } else {
@@ -149,7 +162,7 @@ export async function addFriendToDb(
         .insert({
           user_id: currentUserId,
           friend_id: targetUserId,
-          status: 'active'
+          status
         });
     }
     
@@ -158,4 +171,154 @@ export async function addFriendToDb(
     console.error("Error adding friend:", error);
     return false;
   }
+}
+
+/**
+ * Accept a friend request
+ */
+export async function acceptFriendRequest(currentUserId: string, friendId: string): Promise<boolean> {
+  try {
+    // First, check if there's a pending request from this user
+    const { data: pendingRequest } = await supabase
+      .from('friends')
+      .select('*')
+      .eq('user_id', friendId)
+      .eq('friend_id', currentUserId)
+      .eq('status', 'pending')
+      .single();
+      
+    if (!pendingRequest) {
+      console.log("No pending request found");
+      return false;
+    }
+    
+    // Update the status of the incoming request to active
+    await supabase
+      .from('friends')
+      .update({ status: 'active' })
+      .eq('id', pendingRequest.id);
+      
+    // Create the reverse relationship if it doesn't exist
+    const { data: existingReverse } = await supabase
+      .from('friends')
+      .select('*')
+      .eq('user_id', currentUserId)
+      .eq('friend_id', friendId)
+      .single();
+      
+    if (!existingReverse) {
+      await supabase
+        .from('friends')
+        .insert({
+          user_id: currentUserId,
+          friend_id: friendId,
+          status: 'active'
+        });
+    } else {
+      await supabase
+        .from('friends')
+        .update({ status: 'active' })
+        .eq('id', existingReverse.id);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Error accepting friend request:", error);
+    return false;
+  }
+}
+
+/**
+ * Decline a friend request
+ */
+export async function declineFriendRequest(currentUserId: string, friendId: string): Promise<boolean> {
+  try {
+    // Delete the pending friend request
+    await supabase
+      .from('friends')
+      .delete()
+      .eq('user_id', friendId)
+      .eq('friend_id', currentUserId)
+      .eq('status', 'pending');
+      
+    return true;
+  } catch (error) {
+    console.error("Error declining friend request:", error);
+    return false;
+  }
+}
+
+/**
+ * Setup realtime subscription for friend requests
+ */
+export function subscribeToFriendRequests(userId: string, onNewRequest: (sender: any) => void) {
+  const channel = supabase
+    .channel('friend-requests')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'friends',
+        filter: `friend_id=eq.${userId}`
+      },
+      async (payload) => {
+        // Only handle pending requests
+        if (payload.new && payload.new.status === 'pending') {
+          try {
+            // Get sender information
+            const { data: sender } = await supabase
+              .from('profiles')
+              .select('id, username')
+              .eq('id', payload.new.user_id)
+              .single();
+              
+            if (sender) {
+              onNewRequest(sender);
+            }
+          } catch (err) {
+            console.error("Error getting sender info:", err);
+          }
+        }
+      }
+    )
+    .subscribe();
+    
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}
+
+/**
+ * Show a friend request notification using Sonner
+ */
+export function showFriendRequestNotification(
+  senderId: string, 
+  senderName: string,
+  currentUserId: string,
+  onAccepted: () => void
+) {
+  sonnerToast.custom((toast) => (
+    <FriendRequestNotification
+      senderId={senderId}
+      senderName={senderName}
+      onAccept={async () => {
+        const success = await acceptFriendRequest(currentUserId, senderId);
+        if (success) {
+          sonnerToast.success(`You are now friends with ${senderName}`);
+          onAccepted();
+        } else {
+          sonnerToast.error("Failed to accept friend request");
+        }
+        sonnerToast.dismiss(toast);
+      }}
+      onDecline={async () => {
+        await declineFriendRequest(currentUserId, senderId);
+        sonnerToast.dismiss(toast);
+      }}
+    />
+  ), {
+    duration: 10000,
+    id: `friend-request-${senderId}`,
+  });
 }

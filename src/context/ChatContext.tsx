@@ -6,6 +6,8 @@ import { useFriendManagement } from "@/hooks/useFriendManagement";
 import { usePartnerManagement } from "@/hooks/usePartnerManagement";
 import { Friend, Message, Partner, Location, GameAction } from "@/types/chat";
 import { toast } from "@/components/ui/use-toast";
+import { toast as sonnerToast } from "sonner";
+import { subscribeToFriendRequests, showFriendRequestNotification } from "@/services/friendService";
 
 interface ChatContextType {
   messages: Message[];
@@ -68,7 +70,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     friends,
     blockUser,
     unfriendUser,
-    addFriend: addFriendToList
+    addFriend: addFriendToList,
+    refreshFriends
   } = useFriendManagement();
   
   const {
@@ -93,6 +96,22 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       findPartner();
     }
   }, [user, partner, isFindingPartner]);
+  
+  // Set up real-time friend request notifications
+  useEffect(() => {
+    if (!user) return;
+    
+    const cleanup = subscribeToFriendRequests(user.id, (sender) => {
+      showFriendRequestNotification(
+        sender.id,
+        sender.username,
+        user.id,
+        refreshFriends
+      );
+    });
+    
+    return cleanup;
+  }, [user]);
   
   // Wrapper functions to connect all our hooks together
   const findNewPartner = () => {
@@ -146,9 +165,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       // Show success notification
-      toast({
-        description: `Friend request sent to ${partner.username}.`
-      });
+      sonnerToast.success(`Friend request sent to ${partner.username}`);
       
       // Send a system message in the chat
       const systemMessage = {

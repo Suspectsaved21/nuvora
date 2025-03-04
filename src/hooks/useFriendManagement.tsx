@@ -15,16 +15,17 @@ export function useFriendManagement() {
   const { unfriendUser, isUnfriending } = useUnfriendUser(setFriends, user?.id);
   const { addFriend, isAdding } = useAddFriend(setFriends, user?.id);
 
+  // Function to refresh the friends list
+  const refreshFriends = async () => {
+    if (!user) return;
+    const friendsList = await fetchFriendsList(user.id);
+    setFriends(friendsList);
+  };
+
   // Fetch friends on mount and when user changes
   useEffect(() => {
     if (!user) return;
-    
-    const loadFriends = async () => {
-      const friendsList = await fetchFriendsList(user.id);
-      setFriends(friendsList);
-    };
-    
-    loadFriends();
+    refreshFriends();
   }, [user]);
 
   return {
@@ -32,6 +33,7 @@ export function useFriendManagement() {
     blockUser,
     unfriendUser,
     addFriend,
+    refreshFriends,
     isLoading: isBlocking || isUnfriending || isAdding
   };
 }

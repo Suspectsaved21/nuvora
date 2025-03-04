@@ -38,24 +38,25 @@ export function useAddFriend(
         }
       }
       
-      // Send the friend request to the database
-      const success = await addFriendToDb(userId, targetUserId);
+      // Send the friend request to the database (as pending)
+      const success = await addFriendToDb(userId, targetUserId, 'pending');
       
       if (!success) {
-        // Already friends
+        // Already friends or pending
         toast({
-          description: "This user is already in your friends list."
+          description: "You already have a pending or active friend request with this user."
         });
         setIsAdding(false);
         return;
       }
       
-      // Update local state with the new friend
+      // Update local state with the new friend as pending
       const newFriend: Friend = {
         id: targetUserId,
         username: username,
-        status: 'online', // Setting as online initially
+        status: 'offline', // Pending friends are shown as offline
         blocked: false,
+        pending: true,
         country: country,
         lastSeen: new Date().getTime()
       };
@@ -65,7 +66,7 @@ export function useAddFriend(
         if (exists) {
           return prevFriends.map(friend => 
             friend.id === targetUserId 
-              ? { ...friend, status: 'online' as const, blocked: false } 
+              ? { ...friend, status: 'offline' as const, blocked: false, pending: true } 
               : friend
           );
         } else {
@@ -73,14 +74,10 @@ export function useAddFriend(
         }
       });
       
-      // Send a friend request notification via the Supabase realtime channel
-      try {
-        // This would be better implemented with a proper notifications system
-        // But for now, we'll use the existing code structure
-        console.log("Friend request sent to:", targetUserId);
-      } catch (err) {
-        console.error("Error sending friend request notification:", err);
-      }
+      // Success message
+      toast({
+        description: `Friend request sent to ${username}.`
+      });
       
     } catch (error) {
       console.error("Error adding friend:", error);
