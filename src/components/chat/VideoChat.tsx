@@ -58,8 +58,8 @@ const VideoChat = () => {
     if (partner) {
       addFriend(partner.id);
       toast({
-        title: "Friend Added",
-        description: `${partner.username} was added to your friends list.`,
+        title: "Friend Request Sent",
+        description: `Friend request sent to ${partner.username}.`,
       });
     }
   };

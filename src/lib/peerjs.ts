@@ -19,6 +19,8 @@ export const initPeer = (userId: string) => {
           { urls: 'stun:stun.l.google.com:19302' },
           { urls: 'stun:stun1.l.google.com:19302' },
           { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:stun3.l.google.com:19302' },
+          { urls: 'stun:stun4.l.google.com:19302' },
           { urls: 'turn:numb.viagenie.ca', username: 'webrtc@live.com', credential: 'muazkh' }
         ]
       }
@@ -35,6 +37,12 @@ export const initPeer = (userId: string) => {
 
     peer.on('disconnected', () => {
       console.log('Peer disconnected from server');
+      // Automatically try to reconnect after a short delay
+      setTimeout(() => {
+        if (peer && peer.disconnected) {
+          peer.reconnect();
+        }
+      }, 3000);
     });
 
     peer.on('close', () => {
@@ -121,28 +129,42 @@ export const setupVideoCall = (
   console.log("Setting up video/audio call");
   
   return new Promise<{ localStream: MediaStream }>((resolve, reject) => {
-    // Get local media stream
-    navigator.mediaDevices
-      .getUserMedia({ 
-        video: !audioOnly, 
-        audio: true 
-      })
-      .then((stream) => {
-        // Store locally for reuse
-        localStream = stream;
-        
-        // Set local video
-        if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream;
-          localVideoRef.current.muted = true; // Avoid feedback loop
-        }
-        
-        resolve({ localStream: stream });
-      })
-      .catch((err) => {
-        console.error("Error accessing media devices:", err);
-        reject(err);
-      });
+    // Get local media stream with retry mechanism
+    const getMediaWithRetry = (retries = 3) => {
+      navigator.mediaDevices
+        .getUserMedia({ 
+          video: !audioOnly ? { 
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: "user"
+          } : false, 
+          audio: true 
+        })
+        .then((stream) => {
+          // Store locally for reuse
+          localStream = stream;
+          
+          // Set local video
+          if (localVideoRef.current) {
+            localVideoRef.current.srcObject = stream;
+            localVideoRef.current.muted = true; // Avoid feedback loop
+            localVideoRef.current.play().catch(err => console.error("Error playing local video:", err));
+          }
+          
+          resolve({ localStream: stream });
+        })
+        .catch((err) => {
+          console.error("Error accessing media devices:", err);
+          if (retries > 0) {
+            console.log(`Retrying getUserMedia (${retries} attempts left)...`);
+            setTimeout(() => getMediaWithRetry(retries - 1), 1000);
+          } else {
+            reject(err);
+          }
+        });
+    };
+    
+    getMediaWithRetry();
   });
 };
 
@@ -153,6 +175,7 @@ export const handleRemoteStream = (
   console.log("Setting remote stream to video element", remoteStream.id);
   if (remoteVideoRef.current) {
     remoteVideoRef.current.srcObject = remoteStream;
+    remoteVideoRef.current.play().catch(err => console.error("Error playing remote video:", err));
   } else {
     console.error("Remote video reference is null");
   }

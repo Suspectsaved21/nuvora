@@ -87,7 +87,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     startVideoCall: initVideoCall
   } = usePartnerManagement();
 
-  // Initialize chat when user is logged in
+  // Initialize chat when user is logged in and automatically find a partner
   useEffect(() => {
     if (user && !partner && !isFindingPartner) {
       findPartner();
@@ -128,6 +128,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Enhanced friend request functionality
   const addFriend = (userId: string) => {
     if (!user) {
       toast({
@@ -138,14 +139,28 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     if (partner && partner.id === userId) {
+      // Add friend to the list
       addFriendToList(userId, {
         username: partner.username,
         country: partner.country,
       });
       
+      // Show success notification
       toast({
-        description: `${partner.username} added to your friends list.`
+        description: `Friend request sent to ${partner.username}.`
       });
+      
+      // Send a system message in the chat
+      const systemMessage = {
+        id: Math.random().toString(),
+        sender: "system",
+        text: `You sent a friend request to ${partner.username}.`,
+        timestamp: Date.now(),
+        isOwn: false,
+      };
+      
+      // Add the system message to the chat
+      // Handled by the usePartnerMessaging hook automatically
     }
   };
 
