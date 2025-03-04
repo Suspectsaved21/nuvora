@@ -1,4 +1,3 @@
-
 import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
@@ -8,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import AuthContext from "@/context/AuthContext";
 import { Link } from "react-router-dom";
 import FriendsList from "@/components/chat/FriendsList";
-import { ChatProvider } from "@/context/ChatContext";
+import { ChatProvider } from "@/context/chat";
 
 const Friends = () => {
   const { user } = useContext(AuthContext);

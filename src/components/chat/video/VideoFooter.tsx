@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserCircle, GamepadIcon, MessageCircle, Settings, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import ChatContext from '@/context/ChatContext';
+import { ChatContext } from '@/context/chat';
 import AuthContext from '@/context/AuthContext';
 import { useStripe } from '@/context/StripeContext';
 import { Button } from '@/components/ui/button';

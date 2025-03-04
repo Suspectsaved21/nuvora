@@ -1,4 +1,3 @@
-
 import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
@@ -9,7 +8,7 @@ import AuthContext from "@/context/AuthContext";
 import { Link } from "react-router-dom";
 import GameFeature from "@/components/chat/GameFeature";
 import { useStripe } from "@/context/StripeContext";
-import { ChatProvider } from "@/context/ChatContext";
+import { ChatProvider } from "@/context/chat";
 
 const Games = () => {
   const { user, hasActiveSubscription } = useContext(AuthContext);
