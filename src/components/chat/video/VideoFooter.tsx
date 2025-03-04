@@ -7,6 +7,7 @@ import ChatContext from '@/context/ChatContext';
 import AuthContext from '@/context/AuthContext';
 import { useStripe } from '@/context/StripeContext';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/use-toast';
 
 interface VideoFooterProps {
   isFullscreen: boolean;
@@ -25,7 +26,14 @@ const VideoFooter = ({
   const navigate = useNavigate();
 
   const handleGameClick = () => {
-    navigate('/chat', { state: { showGame: true }});
+    if (user?.isPremium) {
+      navigate('/games');
+    } else {
+      setShowSubscriptionModal(true);
+      toast({
+        description: "Games require a premium subscription (€1.99/month)",
+      });
+    }
   };
 
   return (
@@ -75,7 +83,7 @@ const VideoFooter = ({
           className="flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent"
           asChild
         >
-          <Link to="/chat">
+          <Link to="/friends">
             <Users size={24} />
             <span className="text-xs mt-1">Friends</span>
           </Link>

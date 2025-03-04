@@ -9,6 +9,10 @@ import { StripeProvider } from "@/context/StripeContext";
 import SubscriptionModal from "@/components/subscription/SubscriptionModal";
 import Index from "./pages/Index";
 import Chat from "./pages/Chat";
+import Profile from "./pages/Profile";
+import Games from "./pages/Games";
+import Friends from "./pages/Friends";
+import Settings from "./pages/Settings";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
@@ -34,6 +38,10 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/chat" element={<Chat />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/games" element={<Games />} />
+              <Route path="/friends" element={<Friends />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/profile/settings" element={<ProfileSettings />} />

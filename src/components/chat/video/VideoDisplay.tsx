@@ -54,9 +54,7 @@ const VideoDisplay = ({
           {/* Remote video (partner) */}
           <div className={cn(
             "absolute transition-all duration-300 ease-in-out",
-            isMobile 
-              ? "inset-0" // Full screen on mobile
-              : "inset-0 w-1/2" // 50% width on desktop (left half)
+            isMobile ? "inset-0" : "inset-0 w-1/2" // Full width on mobile, 50% on desktop
           )}>
             <video
               ref={remoteVideoRef}
