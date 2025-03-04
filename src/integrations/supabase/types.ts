@@ -131,6 +131,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          country: string | null
           created_at: string | null
           id: string
           is_guest: boolean | null
@@ -138,6 +139,7 @@ export type Database = {
           username: string
         }
         Insert: {
+          country?: string | null
           created_at?: string | null
           id: string
           is_guest?: boolean | null
@@ -145,6 +147,7 @@ export type Database = {
           username: string
         }
         Update: {
+          country?: string | null
           created_at?: string | null
           id?: string
           is_guest?: boolean | null
