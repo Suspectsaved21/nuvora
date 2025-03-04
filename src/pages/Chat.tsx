@@ -1,6 +1,4 @@
-
 import { useContext, useEffect } from "react";
-import { Navigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import VideoChat from "@/components/chat/VideoChat";
 import TextChat from "@/components/chat/TextChat";
@@ -12,13 +10,12 @@ import AuthForm from "@/components/auth/AuthForm";
 import AuthContext from "@/context/AuthContext";
 import { ChatProvider } from "@/context/ChatContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Chat = () => {
   const { user, isLoading } = useContext(AuthContext);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
-  // Handle page reload to reinitialize video
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
