@@ -15,7 +15,9 @@ const VideoChat = () => {
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [peerInstance, setPeerInstance] = useState<any>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isLocalFullscreen, setIsLocalFullscreen] = useState(false);
   const videoChatRef = useRef<HTMLDivElement>(null);
+  const localVideoChatRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     if (!isConnected || !partner) return;
@@ -137,11 +139,48 @@ const VideoChat = () => {
       }
     }
   };
+
+  const toggleLocalFullscreen = () => {
+    if (!localVideoChatRef.current) return;
+    
+    if (!isLocalFullscreen) {
+      // If we're entering fullscreen for local video
+      if (localVideoChatRef.current.requestFullscreen) {
+        localVideoChatRef.current.requestFullscreen()
+          .then(() => setIsLocalFullscreen(true))
+          .catch(err => console.error("Local fullscreen error:", err));
+      } else if ((localVideoChatRef.current as any).webkitRequestFullscreen) {
+        // Safari
+        (localVideoChatRef.current as any).webkitRequestFullscreen();
+        setIsLocalFullscreen(true);
+      } else if ((localVideoChatRef.current as any).msRequestFullscreen) {
+        // IE11
+        (localVideoChatRef.current as any).msRequestFullscreen();
+        setIsLocalFullscreen(true);
+      }
+    } else {
+      // If we're exiting fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen()
+          .then(() => setIsLocalFullscreen(false))
+          .catch(err => console.error("Exit local fullscreen error:", err));
+      } else if ((document as any).webkitExitFullscreen) {
+        // Safari
+        (document as any).webkitExitFullscreen();
+        setIsLocalFullscreen(false);
+      } else if ((document as any).msExitFullscreen) {
+        // IE11
+        (document as any).msExitFullscreen();
+        setIsLocalFullscreen(false);
+      }
+    }
+  };
   
   // Listen for fullscreen change events
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      setIsFullscreen(!!document.fullscreenElement && document.fullscreenElement === videoChatRef.current);
+      setIsLocalFullscreen(!!document.fullscreenElement && document.fullscreenElement === localVideoChatRef.current);
     };
     
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -181,7 +220,13 @@ const VideoChat = () => {
           />
           
           {/* Local video is smaller and in the corner */}
-          <div className="absolute bottom-4 right-4 w-1/4 aspect-video rounded-lg overflow-hidden shadow-lg border border-white/10">
+          <div 
+            ref={localVideoChatRef}
+            className={cn(
+              "absolute bottom-4 right-4 w-1/4 aspect-video rounded-lg overflow-hidden shadow-lg border border-white/10",
+              isLocalFullscreen ? "fixed inset-0 z-50 w-full h-screen aspect-auto" : ""
+            )}
+          >
             <video
               ref={localVideoRef}
               autoPlay
@@ -189,6 +234,17 @@ const VideoChat = () => {
               muted
               className="w-full h-full object-cover"
             />
+            
+            {/* Local video fullscreen button */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleLocalFullscreen}
+              className="absolute top-2 right-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-10"
+              title={isLocalFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+            >
+              {isLocalFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+            </Button>
           </div>
           
           {/* Video/audio controls */}
