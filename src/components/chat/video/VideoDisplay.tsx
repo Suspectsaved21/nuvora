@@ -1,6 +1,6 @@
 
 import { useRef, useEffect } from "react";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Maximize, Minimize } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
