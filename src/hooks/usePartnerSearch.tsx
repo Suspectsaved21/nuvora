@@ -1,8 +1,9 @@
 
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Partner, Message } from "@/types/chat";
 import { nanoid } from "nanoid";
 import { findRandomPartner, createMockPartner } from "@/utils/partnerUtils";
+import ChatContext from "@/context/ChatContext";
 
 export function usePartnerSearch() {
   const [partner, setPartner] = useState<Partner | null>(null);
@@ -14,12 +15,19 @@ export function usePartnerSearch() {
    * Find a new random partner from the database or create a mock one
    */
   const findPartner = async () => {
+    const { locationEnabled, matchingPreference, userLocation } = useContext(ChatContext);
     setIsFindingPartner(true);
     setIsConnected(false);
     setPartner(null);
     
     try {
-      const foundPartner = await findRandomPartner();
+      // Set search criteria based on user preferences
+      const options = {
+        worldwide: matchingPreference === "worldwide" || !locationEnabled,
+        userCountry: userLocation?.country || null
+      };
+      
+      const foundPartner = await findRandomPartner(options);
       
       if (foundPartner) {
         setPartner(foundPartner);
@@ -30,17 +38,17 @@ export function usePartnerSearch() {
           systemMessage: {
             id: nanoid(),
             sender: "system",
-            text: `You are now connected with ${foundPartner.username}`,
+            text: `You are now connected with ${foundPartner.username} from ${foundPartner.country}`,
             timestamp: Date.now(),
             isOwn: false,
           }
         };
       } else {
-        return await mockFindPartner();
+        return await mockFindPartner(options);
       }
     } catch (error) {
       console.error("Error finding partner:", error);
-      return await mockFindPartner();
+      return await mockFindPartner({ worldwide: true });
     } finally {
       setIsFindingPartner(false);
     }
@@ -49,14 +57,14 @@ export function usePartnerSearch() {
   /**
    * Create a mock partner when database search fails
    */
-  const mockFindPartner = () => {
+  const mockFindPartner = (options = { worldwide: true, userCountry: null }) => {
     setIsFindingPartner(true);
     setIsConnected(false);
     setPartner(null);
     
     return new Promise<{ partner: Partner, systemMessage: Message }>((resolve) => {
       setTimeout(() => {
-        const mockPartner = createMockPartner();
+        const mockPartner = createMockPartner(options);
         
         setPartner(mockPartner);
         setIsConnected(true);
@@ -67,7 +75,7 @@ export function usePartnerSearch() {
           systemMessage: {
             id: nanoid(),
             sender: "system",
-            text: `You are now connected with ${mockPartner.username}`,
+            text: `You are now connected with ${mockPartner.username} from ${mockPartner.country}`,
             timestamp: Date.now(),
             isOwn: false,
           }
@@ -113,7 +121,7 @@ export function usePartnerSearch() {
       systemMessage: {
         id: nanoid(),
         sender: "system",
-        text: `You are now connected with ${username}`,
+        text: `You are now connected with ${username}${country ? ` from ${country}` : ''}`,
         timestamp: Date.now(),
         isOwn: false,
       }
@@ -130,7 +138,7 @@ export function usePartnerSearch() {
         systemMessage: {
           id: nanoid(),
           sender: "system",
-          text: `Video call initiated with ${username}`,
+          text: `Video call initiated with ${username}${country ? ` from ${country}` : ''}`,
           timestamp: Date.now(),
           isOwn: false,
         }

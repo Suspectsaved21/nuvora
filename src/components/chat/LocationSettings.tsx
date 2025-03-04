@@ -5,6 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import ChatContext from "@/context/ChatContext";
 
 const LocationSettings = () => {
@@ -12,7 +13,9 @@ const LocationSettings = () => {
     locationEnabled, 
     toggleLocationTracking, 
     userLocation, 
-    refreshLocation 
+    refreshLocation,
+    matchingPreference,
+    setMatchingPreference
   } = useContext(ChatContext);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +58,7 @@ const LocationSettings = () => {
                 Location Matching
               </Label>
               <p className="text-sm text-muted-foreground">
-                Match with people in your geographical region
+                Match with people based on location
               </p>
             </div>
           </div>
@@ -65,6 +68,26 @@ const LocationSettings = () => {
             onCheckedChange={toggleLocationTracking}
           />
         </div>
+        
+        {locationEnabled && (
+          <div className="pl-8 space-y-3">
+            <RadioGroup 
+              value={matchingPreference} 
+              onValueChange={setMatchingPreference}
+              className="space-y-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="regional" id="regional" />
+                <Label htmlFor="regional">Regional (same country)</Label>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="worldwide" id="worldwide" />
+                <Label htmlFor="worldwide">Worldwide (global)</Label>
+              </div>
+            </RadioGroup>
+          </div>
+        )}
         
         {error && (
           <Alert variant="destructive" className="my-2">
