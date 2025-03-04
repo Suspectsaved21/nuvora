@@ -33,13 +33,6 @@ const VideoChat = () => {
     toggleAudio
   } = useVideoCall(isConnected, partner);
   
-  // Auto fullscreen for mobile
-  useEffect(() => {
-    if (isMobile && videoChatRef.current) {
-      requestFullscreen(videoChatRef.current);
-    }
-  }, [isMobile, requestFullscreen]);
-  
   // Handle page reload warning
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -74,7 +67,7 @@ const VideoChat = () => {
         ref={videoChatRef}
         className={cn(
           "relative w-full aspect-video bg-nexablack rounded-lg overflow-hidden",
-          isFullscreen || isMobile ? "fixed inset-0 z-50 h-screen aspect-auto" : ""
+          isFullscreen || isLocalFullscreen ? "fixed inset-0 z-50 h-screen aspect-auto" : ""
         )}
       >
         <div className="w-full h-full" ref={localVideoChatRef}>
@@ -92,19 +85,21 @@ const VideoChat = () => {
           />
         </div>
         
-        {/* Only show video controls when connected or in special cases */}
-        <VideoControls
-          videoEnabled={videoEnabled}
-          audioEnabled={audioEnabled}
-          isFullscreen={isFullscreen}
-          toggleVideo={toggleVideo}
-          toggleAudio={toggleAudio}
-          toggleFullscreen={toggleFullscreen}
-          handleAddFriend={handleAddFriend}
-        />
+        {/* Only show video controls when connected */}
+        {isConnected && (
+          <VideoControls
+            videoEnabled={videoEnabled}
+            audioEnabled={audioEnabled}
+            isFullscreen={isFullscreen || isLocalFullscreen}
+            toggleVideo={toggleVideo}
+            toggleAudio={toggleAudio}
+            toggleFullscreen={isLocalFullscreen ? toggleLocalFullscreen : toggleFullscreen}
+            handleAddFriend={handleAddFriend}
+          />
+        )}
 
         <VideoFooter 
-          isFullscreen={isFullscreen}
+          isFullscreen={isFullscreen || isLocalFullscreen}
           toggleChatVisibility={toggleChatVisibility}
           isChatVisible={isChatVisible}
         />

@@ -12,6 +12,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
+  touch-action: manipulation; /* Improve touch responsiveness */
 }
 
 /* Glass morphism effect used throughout the app */
@@ -49,11 +50,33 @@ html, body {
   background-color: var(--purple-dark);
 }
 
+/* Touch enhancements for video elements */
+video {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+}
+
+/* Improved button tap targets for mobile */
+button {
+  min-height: 44px; /* Minimum touch target size */
+  min-width: 44px;
+}
+
+.video-control-btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+  
+  /* Make sure inputs and controls are big enough for touch */
+  input, button, .btn, .control {
+    font-size: 16px; /* Prevent iOS zoom on focus */
   }
 }
 
@@ -71,6 +94,11 @@ html, body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Transitions for video elements */
+.video-transition {
+  transition: all 0.3s ease-in-out;
 }
 
 /* Keep some original utility classes that might be useful */

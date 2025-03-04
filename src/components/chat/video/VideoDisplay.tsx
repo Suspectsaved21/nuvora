@@ -49,12 +49,13 @@ const VideoDisplay = ({
           </div>
         </div>
       ) : (
-        // When connected, show split screen or mobile layout
+        // When connected, show split screen on both desktop and mobile
         <div className="relative w-full h-full">
           {/* Remote video (partner) */}
           <div className={cn(
             "absolute transition-all duration-300 ease-in-out",
-            isMobile ? "inset-0" : "inset-0 w-1/2" // Full width on mobile, 50% on desktop
+            isLocalFullscreen ? "w-1/4 h-1/4 bottom-4 right-4 z-20 rounded-lg border border-white/10" : "inset-0 w-1/2",
+            isFullscreen ? "inset-0 w-full h-full z-30" : ""
           )}>
             <video
               ref={remoteVideoRef}
@@ -69,13 +70,8 @@ const VideoDisplay = ({
           <div 
             className={cn(
               "transition-all duration-300 ease-in-out",
-              isLocalFullscreen 
-                ? "fixed inset-0 z-50 w-full h-screen aspect-auto" 
-                : isMobile 
-                  ? "absolute bottom-16 right-4 w-1/3 aspect-video rounded-lg" 
-                  : "absolute top-0 right-0 w-1/2 h-full", // 50% width on desktop (right half)
-              "overflow-hidden shadow-lg",
-              isMobile ? "border border-white/10" : ""
+              isFullscreen ? "w-1/4 h-1/4 bottom-4 right-4 z-40 rounded-lg border border-white/10" : "absolute top-0 right-0 w-1/2 h-full",
+              isLocalFullscreen ? "fixed inset-0 z-50 w-full h-full" : ""
             )}
           >
             <video
@@ -84,22 +80,37 @@ const VideoDisplay = ({
               playsInline
               muted
               className="w-full h-full object-cover"
+              onClick={toggleLocalFullscreen}
             />
             
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={toggleLocalFullscreen}
-              className="absolute top-2 right-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-10"
-              title={isLocalFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-            >
-              {isLocalFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-            </Button>
+            {!isFullscreen && !isLocalFullscreen && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleLocalFullscreen}
+                className="absolute top-2 right-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-10"
+                title="Enter Fullscreen"
+              >
+                <Maximize size={16} />
+              </Button>
+            )}
+            
+            {isLocalFullscreen && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleLocalFullscreen}
+                className="absolute top-2 right-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-60"
+                title="Exit Fullscreen"
+              >
+                <Minimize size={16} />
+              </Button>
+            )}
           </div>
           
-          {/* Partner info overlay */}
-          {partner && (
-            <div className="absolute top-4 left-4 glass-morphism px-3 py-1 rounded-full text-sm text-white z-10 flex items-center">
+          {/* Partner info overlay - show on top of everything */}
+          {partner && !isLocalFullscreen && (
+            <div className="absolute top-4 left-4 glass-morphism px-3 py-1 rounded-full text-sm text-white z-40 flex items-center">
               <span>{partner.username} · {partner.country || 'Unknown'}</span>
               <Button
                 variant="outline"
@@ -113,28 +124,58 @@ const VideoDisplay = ({
             </div>
           )}
           
-          {/* Next/Previous User Navigation */}
-          <div className="absolute inset-y-0 left-0 flex items-center z-10">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="ml-2 bg-black/50 border-white/20 text-white hover:bg-black/70"
-              onClick={findNewPartner}
+          {/* Next/Previous User Navigation - adjust z-index to ensure visibility */}
+          {!isLocalFullscreen && (
+            <>
+              <div className="absolute inset-y-0 left-0 flex items-center z-40">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="ml-2 bg-black/50 border-white/20 text-white hover:bg-black/70"
+                  onClick={findNewPartner}
+                >
+                  <ChevronLeft size={24} />
+                </Button>
+              </div>
+              
+              <div className="absolute inset-y-0 right-0 flex items-center z-40">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="mr-2 bg-black/50 border-white/20 text-white hover:bg-black/70"
+                  onClick={findNewPartner}
+                >
+                  <ChevronRight size={24} />
+                </Button>
+              </div>
+            </>
+          )}
+
+          {/* Fullscreen exit button for the remote video */}
+          {isFullscreen && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleFullscreen}
+              className="absolute top-2 right-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-40"
+              title="Exit Fullscreen"
             >
-              <ChevronLeft size={24} />
+              <Minimize size={16} />
             </Button>
-          </div>
-          
-          <div className="absolute inset-y-0 right-0 flex items-center z-10">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="mr-2 bg-black/50 border-white/20 text-white hover:bg-black/70"
-              onClick={findNewPartner}
+          )}
+
+          {/* Fullscreen enter button for the remote video */}
+          {!isFullscreen && !isLocalFullscreen && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleFullscreen}
+              className="absolute top-2 left-[calc(50%-1.5rem)] bg-black/50 border-white/20 text-white hover:bg-black/70 z-10"
+              title="Enter Fullscreen"
             >
-              <ChevronRight size={24} />
+              <Maximize size={16} />
             </Button>
-          </div>
+          )}
         </div>
       )}
     </>
