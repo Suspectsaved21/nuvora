@@ -20,13 +20,13 @@ const VideoFooter = ({
   toggleChatVisibility,
   isChatVisible
 }: VideoFooterProps) => {
-  const { user } = useContext(AuthContext);
+  const { user, hasActiveSubscription } = useContext(AuthContext);
   const { isConnected } = useContext(ChatContext);
   const { setShowSubscriptionModal } = useStripe();
   const navigate = useNavigate();
 
   const handleGameClick = () => {
-    if (user?.isPremium) {
+    if (user && hasActiveSubscription()) {
       navigate('/games');
     } else {
       setShowSubscriptionModal(true);
