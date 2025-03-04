@@ -49,7 +49,7 @@ const VideoDisplay = ({
           </div>
         </div>
       ) : (
-        // When connected, use Omegle-like layout on mobile and split screen on desktop
+        // When connected, use Omegle-like layout on mobile
         <div className="relative w-full h-full">
           {/* Remote video (partner) */}
           <div className={cn(
@@ -83,7 +83,7 @@ const VideoDisplay = ({
               autoPlay
               playsInline
               muted
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover cursor-pointer"
               onClick={toggleLocalFullscreen}
             />
             

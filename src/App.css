@@ -54,6 +54,7 @@ html, body {
 video {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+  cursor: pointer; /* Show pointer cursor on hover */
 }
 
 /* Improved button tap targets for mobile */
@@ -107,6 +108,14 @@ button {
   padding: 10px;
   background: rgba(0, 0, 0, 0.5);
   z-index: 20;
+}
+
+/* Video fullscreen tap areas */
+.video-tap-area {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  cursor: pointer;
 }
 
 /* Responsive adjustments */
