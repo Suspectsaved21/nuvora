@@ -5,6 +5,7 @@ import { UserCircle, GamepadIcon, MessageCircle, Settings, Users } from 'lucide-
 import { cn } from '@/lib/utils';
 import ChatContext from '@/context/ChatContext';
 import AuthContext from '@/context/AuthContext';
+import { useStripe } from '@/context/StripeContext';
 import { Button } from '@/components/ui/button';
 
 interface VideoFooterProps {
@@ -19,7 +20,12 @@ const VideoFooter = ({
   isChatVisible
 }: VideoFooterProps) => {
   const { user } = useContext(AuthContext);
+  const { setShowSubscriptionModal } = useStripe();
   const navigate = useNavigate();
+
+  const handleGameClick = () => {
+    navigate('/chat', { state: { showGame: true }});
+  };
 
   return (
     <div className={cn(
@@ -41,7 +47,7 @@ const VideoFooter = ({
         <Button
           variant="ghost"
           className="flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent"
-          onClick={() => navigate('/chat', { state: { showGame: true }})}
+          onClick={handleGameClick}
         >
           <GamepadIcon size={24} />
           <span className="text-xs mt-1">Games</span>

@@ -50,9 +50,13 @@ const VideoDisplay = ({
           
           <div 
             className={cn(
-              "absolute bottom-4 right-4 w-1/4 aspect-video rounded-lg overflow-hidden shadow-lg border border-white/10",
-              isLocalFullscreen ? "fixed inset-0 z-50 w-full h-screen aspect-auto" : "",
-              isMobile ? "w-1/3" : "w-1/4"
+              "absolute",
+              isLocalFullscreen 
+                ? "fixed inset-0 z-50 w-full h-screen aspect-auto" 
+                : isMobile 
+                  ? "bottom-16 right-4 w-1/3 aspect-video rounded-lg" 
+                  : "bottom-4 right-4 w-1/4 aspect-video rounded-lg",
+              "overflow-hidden shadow-lg border border-white/10"
             )}
           >
             <video
