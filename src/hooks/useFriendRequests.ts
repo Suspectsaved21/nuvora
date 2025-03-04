@@ -1,9 +1,8 @@
 
 import { useEffect } from "react";
-import { User } from "@/types/auth";
 import { subscribeToFriendRequests, showFriendRequestNotification } from "@/services/friendService";
 
-export function useFriendRequests(user: User | null, refreshFriends: () => void) {
+export function useFriendRequests(user: any | null, refreshFriends: () => void) {
   // Set up real-time friend request notifications
   useEffect(() => {
     if (!user) return;

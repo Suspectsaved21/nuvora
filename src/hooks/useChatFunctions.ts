@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Friend, Partner } from "@/types/chat";
 import { toast } from "@/components/ui/use-toast";
-import { sonnerToast } from "sonner";
+import { toast as sonnerToast } from "sonner";
 
 export function useChatFunctions(
   user: any | null,
