@@ -20,6 +20,7 @@ const VideoFooter = ({
   isChatVisible
 }: VideoFooterProps) => {
   const { user } = useContext(AuthContext);
+  const { isConnected } = useContext(ChatContext);
   const { setShowSubscriptionModal } = useStripe();
   const navigate = useNavigate();
 
@@ -56,7 +57,12 @@ const VideoFooter = ({
         {toggleChatVisibility && (
           <Button
             variant="ghost"
-            className="flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent"
+            className={cn(
+              "flex flex-col items-center hover:bg-transparent",
+              isChatVisible 
+                ? "text-white" 
+                : "text-white/80 hover:text-white"
+            )}
             onClick={toggleChatVisibility}
           >
             <MessageCircle size={24} />

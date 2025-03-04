@@ -66,6 +66,7 @@ const Chat = () => {
                   isMobile ? "col-span-1" : "lg:col-span-2",
                   "space-y-6"
                 )}>
+                  {/* Video chat takes full width in this column */}
                   <VideoChat />
                   
                   {(!isMobile || !isChatVisible) && (

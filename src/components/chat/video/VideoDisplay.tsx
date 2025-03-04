@@ -35,28 +35,49 @@ const VideoDisplay = ({
   return (
     <>
       {!isConnected ? (
-        <div className="absolute inset-0 flex items-center justify-center text-white">
-          Waiting for connection...
-        </div>
-      ) : (
-        <>
+        // When no connection, show the local video in full screen
+        <div className="relative w-full h-full">
           <video
-            ref={remoteVideoRef}
+            ref={localVideoRef}
             autoPlay
             playsInline
-            className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-            onClick={toggleFullscreen}
+            muted
+            className="absolute inset-0 w-full h-full object-cover"
           />
+          <div className="absolute inset-0 flex items-center justify-center text-white/70">
+            Waiting for someone to join...
+          </div>
+        </div>
+      ) : (
+        // When connected, show split screen or mobile layout
+        <div className="relative w-full h-full">
+          {/* Remote video (partner) */}
+          <div className={cn(
+            "absolute transition-all duration-300 ease-in-out",
+            isMobile 
+              ? "inset-0" // Full screen on mobile
+              : "inset-0 w-1/2" // 50% width on desktop (left half)
+          )}>
+            <video
+              ref={remoteVideoRef}
+              autoPlay
+              playsInline
+              className="w-full h-full object-cover"
+              onClick={toggleFullscreen}
+            />
+          </div>
           
+          {/* Local video (user) */}
           <div 
             className={cn(
-              "absolute",
+              "transition-all duration-300 ease-in-out",
               isLocalFullscreen 
                 ? "fixed inset-0 z-50 w-full h-screen aspect-auto" 
                 : isMobile 
-                  ? "bottom-16 right-4 w-1/3 aspect-video rounded-lg" 
-                  : "bottom-4 right-4 w-1/4 aspect-video rounded-lg",
-              "overflow-hidden shadow-lg border border-white/10"
+                  ? "absolute bottom-16 right-4 w-1/3 aspect-video rounded-lg" 
+                  : "absolute top-0 right-0 w-1/2 h-full", // 50% width on desktop (right half)
+              "overflow-hidden shadow-lg",
+              isMobile ? "border border-white/10" : ""
             )}
           >
             <video
@@ -78,35 +99,36 @@ const VideoDisplay = ({
             </Button>
           </div>
           
+          {/* Partner info overlay */}
           {partner && (
-            <div className="absolute top-4 left-4 glass-morphism px-3 py-1 rounded-full text-sm text-white">
+            <div className="absolute top-4 left-4 glass-morphism px-3 py-1 rounded-full text-sm text-white z-10">
               {partner.username} · {partner.country}
             </div>
           )}
           
           {/* Next/Previous User Navigation */}
-          <div className="absolute inset-y-0 left-0 flex items-center">
+          <div className="absolute inset-y-0 left-0 flex items-center z-10">
             <Button 
               variant="outline" 
               size="icon" 
-              className="ml-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-10"
+              className="ml-2 bg-black/50 border-white/20 text-white hover:bg-black/70"
               onClick={findNewPartner}
             >
               <ChevronLeft size={24} />
             </Button>
           </div>
           
-          <div className="absolute inset-y-0 right-0 flex items-center">
+          <div className="absolute inset-y-0 right-0 flex items-center z-10">
             <Button 
               variant="outline" 
               size="icon" 
-              className="mr-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-10"
+              className="mr-2 bg-black/50 border-white/20 text-white hover:bg-black/70"
               onClick={findNewPartner}
             >
               <ChevronRight size={24} />
             </Button>
           </div>
-        </>
+        </div>
       )}
     </>
   );

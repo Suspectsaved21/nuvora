@@ -77,7 +77,7 @@ const VideoChat = () => {
           isFullscreen || isMobile ? "fixed inset-0 z-50 h-screen aspect-auto" : ""
         )}
       >
-        <div ref={localVideoChatRef}>
+        <div className="w-full h-full" ref={localVideoChatRef}>
           <VideoDisplay
             isConnected={isConnected}
             remoteVideoRef={remoteVideoRef}
@@ -92,17 +92,16 @@ const VideoChat = () => {
           />
         </div>
         
-        {isConnected && (
-          <VideoControls
-            videoEnabled={videoEnabled}
-            audioEnabled={audioEnabled}
-            isFullscreen={isFullscreen}
-            toggleVideo={toggleVideo}
-            toggleAudio={toggleAudio}
-            toggleFullscreen={toggleFullscreen}
-            handleAddFriend={handleAddFriend}
-          />
-        )}
+        {/* Only show video controls when connected or in special cases */}
+        <VideoControls
+          videoEnabled={videoEnabled}
+          audioEnabled={audioEnabled}
+          isFullscreen={isFullscreen}
+          toggleVideo={toggleVideo}
+          toggleAudio={toggleAudio}
+          toggleFullscreen={toggleFullscreen}
+          handleAddFriend={handleAddFriend}
+        />
 
         <VideoFooter 
           isFullscreen={isFullscreen}
