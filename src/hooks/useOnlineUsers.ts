@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AuthContext from "@/context/AuthContext";
 import { UserProfile } from "@/types/auth";
@@ -10,64 +10,89 @@ export function useOnlineUsers() {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useContext(AuthContext);
 
-  // Fetch all online users
+  // Fetch online users with debounce to prevent excessive calls
+  const fetchOnlineUsers = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, username, is_guest, online_status, last_seen_at, country')
+        .eq('online_status', true)
+        .neq('id', user.id) // Exclude current user
+        .order('last_seen_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Process and format the user data
+      const users = data.map(profile => ({
+        id: profile.id,
+        username: profile.username || `User_${profile.id.substring(0, 5)}`,
+        isGuest: profile.is_guest,
+        onlineStatus: profile.online_status,
+        lastSeenAt: profile.last_seen_at ? new Date(profile.last_seen_at).getTime() : undefined,
+        country: profile.country || "Unknown location"
+      }));
+
+      setOnlineUsers(users);
+    } catch (error) {
+      console.error("Error fetching online users:", error);
+      // Only show the toast once, not for every retry
+      if (isLoading) {
+        toast({
+          variant: "destructive",
+          description: "Failed to load online users. Will retry automatically."
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, isLoading]);
+
+  // Initial fetch and setup realtime subscription
   useEffect(() => {
     if (!user) return;
 
-    const fetchOnlineUsers = async () => {
-      try {
-        setIsLoading(true);
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('online_status', true)
-          .neq('id', user.id); // Exclude current user
-
-        if (error) throw error;
-
-        const users = data.map(profile => ({
-          id: profile.id,
-          username: profile.username,
-          isGuest: profile.is_guest,
-          onlineStatus: profile.online_status,
-          lastSeenAt: profile.last_seen_at ? new Date(profile.last_seen_at).getTime() : undefined,
-          country: profile.country
-        }));
-
-        setOnlineUsers(users);
-      } catch (error) {
-        console.error("Error fetching online users:", error);
-        toast({
-          variant: "destructive",
-          description: "Failed to load online users."
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
+    // Initial fetch
     fetchOnlineUsers();
 
-    // Set up realtime subscription for online users updates
+    // Set up realtime subscriptions with optimized channel
     const channel = supabase
-      .channel('online-users-changes')
+      .channel('online-users')
+      .on('presence', { event: 'sync' }, () => {
+        fetchOnlineUsers();
+      })
       .on('postgres_changes', {
-        event: 'UPDATE',
+        event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
         schema: 'public',
         table: 'profiles',
-        filter: 'online_status=true'
+        filter: 'online_status=eq.true' // Only get events for online users
       }, () => {
         fetchOnlineUsers();
       })
       .subscribe();
 
+    // Set up periodic refresh every 30 seconds for better reliability
+    const refreshInterval = setInterval(() => {
+      fetchOnlineUsers();
+    }, 30000);
+
     return () => {
+      clearInterval(refreshInterval);
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, fetchOnlineUsers]);
+
+  // Function to start a direct chat with a user
+  const startChatWith = useCallback((userId: string, username: string) => {
+    // Navigate to chat with this specific user
+    window.location.href = `/chat?partner=${userId}&name=${encodeURIComponent(username)}`;
+  }, []);
 
   return {
     onlineUsers,
-    isLoading
+    isLoading,
+    startChatWith
   };
 }

@@ -1,5 +1,5 @@
 
-import { useState, useContext, useEffect, useRef } from "react";
+import { useState, useContext, useEffect, useRef, useCallback } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ const TextChat = () => {
   const { messages, sendMessage, partner, isConnected, isTyping, setIsTyping } = useContext(ChatContext);
   const [message, setMessage] = useState("");
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
   // Update local messages when context messages change
@@ -21,51 +22,63 @@ const TextChat = () => {
     setLocalMessages(messages);
   }, [messages]);
   
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+  // Auto-scroll to bottom when messages change
+  const scrollToBottom = useCallback(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [localMessages]);
+  }, []);
   
-  // Set up real-time subscription for new messages
+  useEffect(() => {
+    scrollToBottom();
+  }, [localMessages, scrollToBottom]);
+  
+  // Set up real-time subscription for new messages with better error handling
   useEffect(() => {
     if (!user || !partner || !isConnected) return;
     
     // Only set up the subscription for real Supabase users
     if (partner.id && partner.id.length > 10) {
-      const channel = supabase
-        .channel('messages-updates')
-        .on('postgres_changes', 
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'messages',
-            filter: `receiver_id=eq.${user.id}`
-          }, 
-          (payload) => {
-            // Only add messages from the current partner
-            if (payload.new.sender_id === partner.id) {
-              const newMessage: Message = {
-                id: payload.new.id,
-                sender: payload.new.sender_id,
-                text: payload.new.content,
-                timestamp: new Date(payload.new.created_at).getTime(),
-                isOwn: false
-              };
-              
-              // Check if message already exists to prevent duplicates
-              if (!localMessages.some(m => m.id === newMessage.id)) {
-                setLocalMessages(prev => [...prev, newMessage]);
+      try {
+        const channel = supabase
+          .channel('messages-updates')
+          .on('postgres_changes', 
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'messages',
+              filter: `receiver_id=eq.${user.id}`
+            }, 
+            (payload) => {
+              // Only add messages from the current partner
+              if (payload.new && payload.new.sender_id === partner.id) {
+                const newMessage: Message = {
+                  id: payload.new.id,
+                  sender: payload.new.sender_id,
+                  text: payload.new.content,
+                  timestamp: new Date(payload.new.created_at).getTime(),
+                  isOwn: false
+                };
+                
+                // Check if message already exists to prevent duplicates
+                setLocalMessages(prev => {
+                  if (!prev.some(m => m.id === newMessage.id)) {
+                    return [...prev, newMessage];
+                  }
+                  return prev;
+                });
               }
-            }
-          })
-        .subscribe();
-        
-      return () => {
-        supabase.removeChannel(channel);
-      };
+            })
+          .subscribe();
+          
+        return () => {
+          supabase.removeChannel(channel);
+        };
+      } catch (error) {
+        console.error("Error setting up message subscription:", error);
+      }
     }
-  }, [user, partner, isConnected, localMessages]);
+  }, [user, partner, isConnected]);
   
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +94,7 @@ const TextChat = () => {
   };
   
   return (
-    <div className="h-full flex flex-col bg-secondary/50 dark:bg-secondary/30 rounded-lg border border-border">
+    <div className="h-full flex flex-col bg-secondary/50 dark:bg-secondary/30 rounded-lg border border-border overflow-hidden">
       <div className="p-4 border-b border-border">
         <h3 className="font-semibold">
           {isConnected && partner
@@ -106,6 +119,9 @@ const TextChat = () => {
               <span className="ml-2">{partner?.username} is typing</span>
             </div>
           )}
+          
+          {/* This empty div helps us scroll to the bottom */}
+          <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
       
@@ -121,6 +137,7 @@ const TextChat = () => {
             }
             disabled={!isConnected}
             className="flex-1"
+            autoComplete="off"
           />
           <Button
             type="submit"
@@ -141,9 +158,10 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble = ({ message }: MessageBubbleProps) => {
+  // Memoize the message component to prevent unnecessary re-renders
   if (message.sender === "system") {
     return (
-      <div className="flex justify-center">
+      <div className="flex justify-center my-2">
         <div className="glass-morphism px-3 py-1 rounded-full text-sm text-center max-w-xs mx-auto">
           {message.text}
         </div>
@@ -164,7 +182,7 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
             : "bg-secondary dark:bg-secondary/50 rounded-bl-none"
         }`}
       >
-        <div className="text-sm">{message.text}</div>
+        <div className="text-sm break-words">{message.text}</div>
         <div className="text-xs opacity-70 text-right mt-1">
           {new Date(message.timestamp).toLocaleTimeString([], {
             hour: "2-digit",

@@ -96,8 +96,8 @@ const Navbar = () => {
         ) : null}
       </div>
       
-      {user && (
-        <nav className={cn("hidden md:block px-4", isMobile ? "py-2" : "py-1")}>
+      {user && !isMobile && (
+        <nav className="container px-4 py-1">
           <ul className="flex items-center space-x-4">
             <li>
               <NavLink
