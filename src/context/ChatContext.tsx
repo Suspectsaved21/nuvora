@@ -4,34 +4,10 @@ import AuthContext from "./AuthContext";
 import { useLocationTracking } from "@/hooks/useLocationTracking";
 import { useFriendManagement } from "@/hooks/useFriendManagement";
 import { usePartnerManagement } from "@/hooks/usePartnerManagement";
-import { Friend, Message, Partner, Location, GameAction } from "@/types/chat";
-import { toast } from "@/components/ui/use-toast";
-import { toast as sonnerToast } from "sonner";
-import { subscribeToFriendRequests, showFriendRequestNotification } from "@/services/friendService";
-
-interface ChatContextType {
-  messages: Message[];
-  partner: Partner | null;
-  isConnecting: boolean;
-  isConnected: boolean;
-  isFindingPartner: boolean;
-  isTyping: boolean;
-  friends: Friend[];
-  locationEnabled: boolean;
-  userLocation: Location | null;
-  sendMessage: (text: string) => void;
-  sendGameAction: (action: GameAction) => void;
-  setIsTyping: (typing: boolean) => void;
-  findNewPartner: () => void;
-  reportPartner: (reason: string) => void;
-  toggleLocationTracking: () => void;
-  refreshLocation: () => Promise<void>;
-  blockUser: (userId: string) => void;
-  unfriendUser: (userId: string) => void;
-  startDirectChat: (userId: string) => void;
-  startVideoCall: (userId: string) => void;
-  addFriend: (userId: string) => void;
-}
+import { useFriendRequests } from "@/hooks/useFriendRequests";
+import { useChatFunctions } from "@/hooks/useChatFunctions";
+import { ChatContextType } from "@/types/chatContext";
+import { Message, GameAction } from "@/types/chat";
 
 const ChatContext = createContext<ChatContextType>({
   messages: [],
@@ -59,6 +35,8 @@ const ChatContext = createContext<ChatContextType>({
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useContext(AuthContext);
+  
+  // Hooks for different functionalities
   const { 
     locationEnabled, 
     userLocation, 
@@ -90,6 +68,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     startVideoCall: initVideoCall
   } = usePartnerManagement();
 
+  // Set up friend request notifications
+  useFriendRequests(user, refreshFriends);
+
+  // Get common chat functions
+  const {
+    sendMessage: messageSender,
+    startDirectChat: chatStarter,
+    startVideoCall: callStarter,
+    addFriend: friendAdder
+  } = useChatFunctions(user, partner, friends, addFriendToList);
+
   // Initialize chat when user is logged in and automatically find a partner
   useEffect(() => {
     if (user && !partner && !isFindingPartner) {
@@ -97,88 +86,25 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user, partner, isFindingPartner]);
   
-  // Set up real-time friend request notifications
-  useEffect(() => {
-    if (!user) return;
-    
-    const cleanup = subscribeToFriendRequests(user.id, (sender) => {
-      showFriendRequestNotification(
-        sender.id,
-        sender.username,
-        user.id,
-        refreshFriends
-      );
-    });
-    
-    return cleanup;
-  }, [user]);
-  
-  // Wrapper functions to connect all our hooks together
+  // Wrapper functions
   const findNewPartner = () => {
     findPartner();
   };
 
   const sendMessage = (text: string) => {
-    if (!user) return;
-    sendPartnerMessage(text, user.id);
+    messageSender(text, sendPartnerMessage);
   };
 
   const startDirectChat = (userId: string) => {
-    const friend = friends.find(f => f.id === userId);
-    if (friend && !friend.blocked) {
-      initDirectChat(friend.id, friend.username, friend.country);
-    } else {
-      toast({
-        variant: "destructive",
-        description: "Could not start chat with this user."
-      });
-    }
+    chatStarter(userId, initDirectChat);
   };
 
   const startVideoCall = (userId: string) => {
-    const friend = friends.find(f => f.id === userId);
-    if (friend && !friend.blocked) {
-      initVideoCall(friend.id, friend.username, friend.country);
-    } else {
-      toast({
-        variant: "destructive",
-        description: "Could not start video call with this user."
-      });
-    }
+    callStarter(userId, initVideoCall);
   };
 
-  // Enhanced friend request functionality
   const addFriend = (userId: string) => {
-    if (!user) {
-      toast({
-        variant: "destructive",
-        description: "You need to be logged in to add friends."
-      });
-      return;
-    }
-    
-    if (partner && partner.id === userId) {
-      // Add friend to the list
-      addFriendToList(userId, {
-        username: partner.username,
-        country: partner.country,
-      });
-      
-      // Show success notification
-      sonnerToast.success(`Friend request sent to ${partner.username}`);
-      
-      // Send a system message in the chat
-      const systemMessage = {
-        id: Math.random().toString(),
-        sender: "system",
-        text: `You sent a friend request to ${partner.username}.`,
-        timestamp: Date.now(),
-        isOwn: false,
-      };
-      
-      // Add the system message to the chat
-      // Handled by the usePartnerMessaging hook automatically
-    }
+    friendAdder(userId);
   };
 
   return (
