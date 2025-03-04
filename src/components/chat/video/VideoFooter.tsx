@@ -25,8 +25,8 @@ const VideoFooter = ({
   
   return (
     <div className={cn(
-      "absolute bottom-0 left-0 right-0 flex justify-around items-center h-16 bg-black/50 text-white z-30",
-      isFullscreen ? "hidden" : ""
+      "absolute bottom-0 left-0 right-0 flex justify-around items-center h-16 bg-black/50 text-white z-30"
+      // Removed conditional hiding when in fullscreen
     )}>
       <Link to="/profile">
         <div className="flex flex-col items-center hover:text-gray-300">
