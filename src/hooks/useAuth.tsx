@@ -13,7 +13,8 @@ export function useAuth() {
     fetchUserProfile, 
     updateUsername, 
     subscribeUser,
-    hasActiveSubscription 
+    hasActiveSubscription,
+    updateOnlineStatus
   } = useUserProfile();
 
   // Check for existing session on load
@@ -26,6 +27,8 @@ export function useAuth() {
       
       if (session?.user) {
         await fetchUserProfile(session.user);
+        // Set user as online when authenticated
+        updateOnlineStatus(true);
       }
       
       // Listen for auth changes
@@ -33,6 +36,8 @@ export function useAuth() {
         async (event, session) => {
           if (session?.user) {
             await fetchUserProfile(session.user);
+            // Set user as online when authenticated
+            updateOnlineStatus(true);
           } else {
             setUser(null);
           }
@@ -48,7 +53,28 @@ export function useAuth() {
     };
 
     initializeAuth();
-  }, []);
+
+    // Set up beforeunload event to set user offline when closing browser
+    const handleBeforeUnload = () => {
+      if (user && !user.isGuest) {
+        // Use a synchronous request to update status before page unloads
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `${window.location.origin}/api/set-offline`, false);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({ userId: user.id }));
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      // Set user as offline when component unmounts
+      if (user && !user.isGuest) {
+        updateOnlineStatus(false);
+      }
+    };
+  }, [user]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -153,6 +179,11 @@ export function useAuth() {
   };
 
   const signOut = async () => {
+    if (user && !user.isGuest) {
+      // Set user as offline before signing out
+      await updateOnlineStatus(false);
+    }
+    
     if (user?.isGuest) {
       // For guest users, just clear local storage
       localStorage.removeItem("nuvora-guest-user");
@@ -180,6 +211,7 @@ export function useAuth() {
     signOut,
     updateUsername,
     subscribeUser,
-    hasActiveSubscription
+    hasActiveSubscription,
+    updateOnlineStatus
   };
 }
