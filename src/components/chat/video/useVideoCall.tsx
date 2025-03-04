@@ -11,62 +11,101 @@ export function useVideoCall(isConnected: boolean, partner: { id: string } | nul
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [peerInstance, setPeerInstance] = useState<any>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [initError, setInitError] = useState<Error | null>(null);
   const { findNewPartner } = useContext(ChatContext);
   const { user } = useContext(AuthContext);
   
   // Automatically set up the video call when the component mounts
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setIsInitializing(false);
+      return;
+    }
     
     let localStreamRef: MediaStream | null = null;
     let peer: any = null;
+    let isCancelled = false;
     
     const initializeVideoCall = async () => {
       try {
+        setIsInitializing(true);
+        setInitError(null);
+        
         // Initialize the peer with the user's ID
         const userId = `user_${user.id}`;
         peer = initPeer(userId);
+        
+        if (isCancelled) return;
         setPeerInstance(peer);
         
         // Set up the video call with local and remote video elements
         const { localStream } = await setupVideoCall(localVideoRef, remoteVideoRef);
+        if (isCancelled) {
+          if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+          }
+          return;
+        }
+        
         localStreamRef = localStream;
         
         // Handle incoming calls
         peer.onIncomingCall((call: any) => {
           console.log("Received incoming call from:", call.peer);
-          peer.answerCall(call, localStream);
-          
-          call.on('stream', (remoteStream: MediaStream) => {
-            console.log("Received remote stream from call");
-            handleRemoteStream(remoteVideoRef, remoteStream);
-          });
-          
-          call.on('close', () => {
-            console.log('Call closed by remote peer');
-            // Find a new partner when the call is closed
-            findNewPartner();
-          });
-          
-          call.on('error', (err: any) => {
-            console.error("Call error:", err);
-            toast({
-              variant: "destructive",
-              description: "Call error occurred. Please try again."
+          try {
+            peer.answerCall(call, localStream);
+            
+            call.on('stream', (remoteStream: MediaStream) => {
+              console.log("Received remote stream from call");
+              handleRemoteStream(remoteVideoRef, remoteStream);
             });
-          });
+            
+            call.on('close', () => {
+              console.log('Call closed by remote peer');
+              // Find a new partner when the call is closed
+              if (!isCancelled) {
+                findNewPartner();
+              }
+            });
+            
+            call.on('error', (err: any) => {
+              console.error("Call error:", err);
+              if (!isCancelled) {
+                toast({
+                  variant: "destructive",
+                  description: "Call error occurred. Reconnecting..."
+                });
+                findNewPartner();
+              }
+            });
+          } catch (error) {
+            console.error("Error answering call:", error);
+            if (!isCancelled) {
+              toast({
+                variant: "destructive",
+                description: "Failed to answer call. Please refresh the page."
+              });
+            }
+          }
         });
         
         // If we have a partner, attempt to connect to them
-        if (partner && isConnected) {
+        if (partner && isConnected && !isCancelled) {
           connectToPartner(partner.id, peer, localStream);
         }
+        
+        setIsInitializing(false);
       } catch (error) {
         console.error("Error setting up video call:", error);
-        toast({
-          variant: "destructive",
-          description: "Failed to set up video call. Please check your camera and microphone permissions."
-        });
+        if (!isCancelled) {
+          setInitError(error as Error);
+          toast({
+            variant: "destructive",
+            description: "Failed to set up video call. Please check your camera and microphone permissions."
+          });
+          setIsInitializing(false);
+        }
       }
     };
     
@@ -74,6 +113,8 @@ export function useVideoCall(isConnected: boolean, partner: { id: string } | nul
     
     // Clean up when the component unmounts
     return () => {
+      isCancelled = true;
+      
       if (localStreamRef) {
         cleanupMedia();
       }
@@ -81,12 +122,14 @@ export function useVideoCall(isConnected: boolean, partner: { id: string } | nul
       if (peer) {
         peer.destroy();
       }
+      
+      setIsInitializing(false);
     };
   }, [user]);
   
   // Connect to partner when they change or connection status changes
   useEffect(() => {
-    if (!peerInstance || !partner || !isConnected) return;
+    if (!peerInstance || !partner || !isConnected || isInitializing || initError) return;
     
     const connectWithRetry = async () => {
       try {
@@ -96,11 +139,16 @@ export function useVideoCall(isConnected: boolean, partner: { id: string } | nul
         }
       } catch (error) {
         console.error("Error connecting to partner:", error);
+        toast({
+          variant: "destructive",
+          description: "Failed to connect to partner. Trying someone else..."
+        });
+        findNewPartner();
       }
     };
     
     connectWithRetry();
-  }, [partner, isConnected, peerInstance]);
+  }, [partner, isConnected, peerInstance, isInitializing, initError]);
   
   // Function to connect to a specific partner
   const connectToPartner = async (partnerId: string, peer: any, localStream: MediaStream) => {
@@ -124,12 +172,19 @@ export function useVideoCall(isConnected: boolean, partner: { id: string } | nul
         
         call.on('error', (err: any) => {
           console.error("Call connection error:", err);
+          toast({
+            variant: "destructive",
+            description: "Connection lost. Finding a new partner..."
+          });
+          findNewPartner();
         });
       } else {
         console.error("Failed to create call");
+        throw new Error("Failed to create call");
       }
     } catch (error) {
       console.error("Error connecting to partner:", error);
+      throw error;
     }
   };
 
@@ -161,6 +216,8 @@ export function useVideoCall(isConnected: boolean, partner: { id: string } | nul
     videoEnabled,
     audioEnabled,
     toggleVideo,
-    toggleAudio
+    toggleAudio,
+    isInitializing,
+    initError
   };
 }
