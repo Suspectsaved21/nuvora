@@ -1,19 +1,14 @@
 
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { Partner, Message } from "@/types/chat";
 import { nanoid } from "nanoid";
 import { findRandomPartner, createMockPartner } from "@/utils/partnerUtils";
-import ChatContext from "@/context/ChatContext";
-import { supabase } from "@/integrations/supabase/client";
 
 export function usePartnerSearch() {
   const [partner, setPartner] = useState<Partner | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [isFindingPartner, setIsFindingPartner] = useState(false);
-  
-  // Get the chat context for user preferences
-  const chatContext = useContext(ChatContext);
   
   /**
    * Find a new random partner from the database or create a mock one
@@ -24,13 +19,7 @@ export function usePartnerSearch() {
     setPartner(null);
     
     try {
-      // Set search criteria based on user preferences
-      const options = {
-        worldwide: chatContext.matchingPreference === "worldwide" || !chatContext.locationEnabled,
-        userCountry: chatContext.userLocation?.country || null
-      };
-      
-      const foundPartner = await findRandomPartner(options);
+      const foundPartner = await findRandomPartner();
       
       if (foundPartner) {
         setPartner(foundPartner);
@@ -41,17 +30,17 @@ export function usePartnerSearch() {
           systemMessage: {
             id: nanoid(),
             sender: "system",
-            text: `You are now connected with ${foundPartner.username} from ${foundPartner.country}`,
+            text: `You are now connected with ${foundPartner.username}`,
             timestamp: Date.now(),
             isOwn: false,
           }
         };
       } else {
-        return await mockFindPartner(options);
+        return await mockFindPartner();
       }
     } catch (error) {
       console.error("Error finding partner:", error);
-      return await mockFindPartner({ worldwide: true, userCountry: null });
+      return await mockFindPartner();
     } finally {
       setIsFindingPartner(false);
     }
@@ -60,14 +49,14 @@ export function usePartnerSearch() {
   /**
    * Create a mock partner when database search fails
    */
-  const mockFindPartner = (options: { worldwide: boolean, userCountry: string | null }) => {
+  const mockFindPartner = () => {
     setIsFindingPartner(true);
     setIsConnected(false);
     setPartner(null);
     
     return new Promise<{ partner: Partner, systemMessage: Message }>((resolve) => {
       setTimeout(() => {
-        const mockPartner = createMockPartner(options);
+        const mockPartner = createMockPartner();
         
         setPartner(mockPartner);
         setIsConnected(true);
@@ -78,7 +67,7 @@ export function usePartnerSearch() {
           systemMessage: {
             id: nanoid(),
             sender: "system",
-            text: `You are now connected with ${mockPartner.username} from ${mockPartner.country}`,
+            text: `You are now connected with ${mockPartner.username}`,
             timestamp: Date.now(),
             isOwn: false,
           }
@@ -124,7 +113,7 @@ export function usePartnerSearch() {
       systemMessage: {
         id: nanoid(),
         sender: "system",
-        text: `You are now connected with ${username}${country ? ` from ${country}` : ''}`,
+        text: `You are now connected with ${username}`,
         timestamp: Date.now(),
         isOwn: false,
       }
@@ -141,7 +130,7 @@ export function usePartnerSearch() {
         systemMessage: {
           id: nanoid(),
           sender: "system",
-          text: `Video call initiated with ${username}${country ? ` from ${country}` : ''}`,
+          text: `Video call initiated with ${username}`,
           timestamp: Date.now(),
           isOwn: false,
         }
@@ -163,3 +152,6 @@ export function usePartnerSearch() {
     setIsFindingPartner
   };
 }
+
+// Need to add this import at the top since it's used in startDirectChat
+import { supabase } from "@/integrations/supabase/client";

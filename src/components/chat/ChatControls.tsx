@@ -1,16 +1,14 @@
-
 import { useContext, useState } from "react";
-import { SkipForward, Flag, UserPlus, Globe } from "lucide-react";
+import { SkipForward, Flag, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import ChatContext from "@/context/ChatContext";
 import { toast } from "@/components/ui/use-toast";
 
 const ChatControls = () => {
-  const { findNewPartner, partner, reportPartner, addFriend, locationEnabled, matchingPreference } = useContext(ChatContext);
+  const { findNewPartner, partner, reportPartner, addFriend, locationEnabled } = useContext(ChatContext);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   
@@ -40,13 +38,7 @@ const ChatControls = () => {
           onClick={findNewPartner}
         >
           <SkipForward size={16} className="mr-2" />
-          Next Person
-          {locationEnabled && (
-            <Badge variant="outline" className="ml-2 bg-secondary/50">
-              <Globe size={12} className="mr-1" />
-              {matchingPreference === "regional" ? "Regional" : "Worldwide"}
-            </Badge>
-          )}
+          Next Person {locationEnabled && "(Location Based)"}
         </Button>
         
         <Button

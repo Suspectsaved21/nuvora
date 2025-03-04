@@ -3,39 +3,19 @@ import { nanoid } from "nanoid";
 import { Partner, Message } from "@/types/chat";
 import { supabase } from "@/integrations/supabase/client";
 
-// List of countries for random selection when creating mock partners
-const COUNTRIES = [
-  "USA", "Canada", "UK", "Australia", "Germany", "Japan", "France", "Italy", 
-  "Spain", "Brazil", "Mexico", "Russia", "China", "India", "South Korea",
-  "Egypt", "Nigeria", "Kenya", "South Africa", "Argentina", "Chile"
-];
-
-// List of languages for random selection
-const LANGUAGES = [
-  "English", "Spanish", "French", "German", "Japanese", "Chinese", 
-  "Russian", "Arabic", "Portuguese", "Italian", "Korean"
-];
-
 /**
  * Creates a mock partner with randomly assigned attributes
- * @param options Matching options (worldwide or country-specific)
  */
-export const createMockPartner = (options: { worldwide: boolean, userCountry: string | null }): Partner => {
-  let country;
-  
-  if (options.worldwide || !options.userCountry) {
-    // Select random country if worldwide matching or user country is unknown
-    country = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
-  } else {
-    // For regional matching, use the user's country
-    country = options.userCountry;
-  }
-  
+export const createMockPartner = (): Partner => {
   return {
     id: nanoid(),
     username: `User_${Math.floor(Math.random() * 10000)}`,
-    country: country,
-    language: LANGUAGES[Math.floor(Math.random() * LANGUAGES.length)],
+    country: ["USA", "Canada", "UK", "Australia", "Germany", "Japan"][
+      Math.floor(Math.random() * 6)
+    ],
+    language: ["English", "Spanish", "French", "German", "Japanese"][
+      Math.floor(Math.random() * 5)
+    ],
   };
 };
 
@@ -52,8 +32,6 @@ export const generatePartnerResponse = (partnerId: string): Message => {
     "Where are you from?",
     "What do you do for fun?",
     "What's the weather like there?",
-    "Have you traveled much?",
-    "What languages do you speak?",
   ];
   
   return {
@@ -67,42 +45,31 @@ export const generatePartnerResponse = (partnerId: string): Message => {
 
 /**
  * Attempts to find a random partner from the database
- * @param options Matching options (worldwide or country-specific)
  */
-export const findRandomPartner = async (options: { worldwide: boolean, userCountry: string | null }): Promise<Partner | null> => {
+export const findRandomPartner = async (): Promise<Partner | null> => {
   try {
-    // Query users from profiles table
-    let query = supabase
+    const { data, error } = await supabase
       .from('profiles')
-      .select('id, username, country')
+      .select('id, username')
       .not('is_guest', 'eq', true)
       .order('created_at', { ascending: false })
       .limit(20);
     
-    // If regional matching is enabled and we know the user's country, filter by country
-    if (!options.worldwide && options.userCountry) {
-      query = query.eq('country', options.userCountry);
-    }
-    
-    const { data, error } = await query;
-    
-    if (error) {
-      console.error("Database query error:", error);
-      return null;
-    }
+    if (error) throw error;
     
     if (data && data.length > 0) {
       const randomIndex = Math.floor(Math.random() * data.length);
       const randomUser = data[randomIndex];
       
-      // Use the country from the database if available, otherwise assign random one
-      const country = randomUser.country || COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
-      
       return {
         id: randomUser.id,
         username: randomUser.username,
-        country: country,
-        language: LANGUAGES[Math.floor(Math.random() * LANGUAGES.length)],
+        country: ["USA", "Canada", "UK", "Australia", "Germany", "Japan"][
+          Math.floor(Math.random() * 6)
+        ],
+        language: ["English", "Spanish", "French", "German", "Japanese"][
+          Math.floor(Math.random() * 5)
+        ],
       };
     }
     

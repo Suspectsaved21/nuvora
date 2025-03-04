@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useEffect, useContext } from "react";
 import AuthContext from "./AuthContext";
-import { useLocationTracking, MatchingPreference } from "@/hooks/useLocationTracking";
+import { useLocationTracking } from "@/hooks/useLocationTracking";
 import { useFriendManagement } from "@/hooks/useFriendManagement";
 import { usePartnerManagement } from "@/hooks/usePartnerManagement";
 import { Friend, Message, Partner, Location, GameAction } from "@/types/chat";
@@ -17,8 +17,6 @@ interface ChatContextType {
   friends: Friend[];
   locationEnabled: boolean;
   userLocation: Location | null;
-  matchingPreference: MatchingPreference;
-  setMatchingPreference: (preference: MatchingPreference) => void;
   sendMessage: (text: string) => void;
   sendGameAction: (action: GameAction) => void;
   setIsTyping: (typing: boolean) => void;
@@ -43,8 +41,6 @@ const ChatContext = createContext<ChatContextType>({
   friends: [],
   locationEnabled: false,
   userLocation: null,
-  matchingPreference: "regional",
-  setMatchingPreference: () => {},
   sendMessage: () => {},
   sendGameAction: () => {},
   setIsTyping: () => {},
@@ -65,9 +61,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     locationEnabled, 
     userLocation, 
     refreshLocation, 
-    toggleLocationTracking,
-    matchingPreference,
-    setMatchingPreference
+    toggleLocationTracking 
   } = useLocationTracking();
   
   const {
@@ -167,8 +161,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         friends,
         locationEnabled,
         userLocation,
-        matchingPreference,
-        setMatchingPreference,
         sendMessage,
         sendGameAction,
         setIsTyping,

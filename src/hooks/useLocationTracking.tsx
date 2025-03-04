@@ -3,12 +3,9 @@ import { useState } from "react";
 import { Location } from "@/types/chat";
 import { toast } from "@/components/ui/use-toast";
 
-export type MatchingPreference = "regional" | "worldwide";
-
 export function useLocationTracking() {
   const [locationEnabled, setLocationEnabled] = useState(false);
   const [userLocation, setUserLocation] = useState<Location | null>(null);
-  const [matchingPreference, setMatchingPreference] = useState<MatchingPreference>("regional");
 
   const getLocation = async (): Promise<Location> => {
     return new Promise((resolve, reject) => {
@@ -175,8 +172,6 @@ export function useLocationTracking() {
     locationEnabled,
     userLocation,
     refreshLocation,
-    toggleLocationTracking,
-    matchingPreference,
-    setMatchingPreference
+    toggleLocationTracking
   };
 }
