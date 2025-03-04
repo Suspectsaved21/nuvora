@@ -54,27 +54,51 @@ export function showFriendRequestNotification(
   currentUserId: string,
   onAccepted: () => void
 ) {
-  sonnerToast(`Friend request from ${senderName}`, {
-    duration: 10000,
-    id: `friend-request-${senderId}`,
-    description: "Would you like to accept this friend request?",
-    action: {
-      label: "Accept",
-      onClick: async () => {
-        const success = await acceptFriendRequest(currentUserId, senderId);
-        if (success) {
-          onAccepted();
-        } else {
-          sonnerToast.error("Failed to accept friend request");
-        }
-      }
-    },
-    cancel: {
-      label: "Decline",
-      onClick: async () => {
-        await declineFriendRequest(currentUserId, senderId);
-        sonnerToast.error(`Friend request from ${senderName} declined`);
-      }
+  sonnerToast.custom(
+    (id) => (
+      <div className="bg-background border border-border rounded-lg p-4 shadow-lg w-full max-w-md">
+        <div className="flex items-start gap-4">
+          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+            {senderName.charAt(0).toUpperCase()}
+          </div>
+          <div className="flex-1">
+            <div className="font-semibold mb-1">Friend Request</div>
+            <p className="text-sm text-muted-foreground mb-3">
+              {senderName} would like to add you as a friend
+            </p>
+            <div className="flex gap-2">
+              <button 
+                onClick={async () => {
+                  const success = await acceptFriendRequest(currentUserId, senderId);
+                  sonnerToast.dismiss(id);
+                  if (success) {
+                    onAccepted();
+                  } else {
+                    sonnerToast.error("Failed to accept friend request");
+                  }
+                }}
+                className="bg-primary text-primary-foreground px-3 py-1 rounded text-sm font-medium"
+              >
+                Accept
+              </button>
+              <button 
+                onClick={async () => {
+                  await declineFriendRequest(currentUserId, senderId);
+                  sonnerToast.dismiss(id);
+                  sonnerToast.error(`Friend request from ${senderName} declined`);
+                }}
+                className="bg-secondary text-secondary-foreground px-3 py-1 rounded text-sm font-medium"
+              >
+                Decline
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    ),
+    {
+      id: `friend-request-${senderId}`,
+      duration: 10000,
     }
-  });
+  );
 }

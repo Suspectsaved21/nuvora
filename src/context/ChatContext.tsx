@@ -19,6 +19,7 @@ const ChatContext = createContext<ChatContextType>({
   friends: [],
   locationEnabled: false,
   userLocation: null,
+  isLoading: false,
   sendMessage: () => {},
   sendGameAction: () => {},
   setIsTyping: () => {},
@@ -49,7 +50,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     blockUser,
     unfriendUser,
     addFriend: addFriendToList,
-    refreshFriends
+    refreshFriends,
+    isLoading
   } = useFriendManagement();
   
   const {
@@ -119,6 +121,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         friends,
         locationEnabled,
         userLocation,
+        isLoading,
         sendMessage,
         sendGameAction,
         setIsTyping,

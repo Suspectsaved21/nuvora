@@ -9,6 +9,7 @@ import { useAddFriend } from "@/hooks/useAddFriend";
 
 export function useFriendManagement() {
   const [friends, setFriends] = useState<Friend[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useContext(AuthContext);
   
   const { blockUser, isBlocking } = useBlockUser(setFriends, user?.id);
@@ -18,8 +19,10 @@ export function useFriendManagement() {
   // Function to refresh the friends list
   const refreshFriends = async () => {
     if (!user) return;
+    setIsLoading(true);
     const friendsList = await fetchFriendsList(user.id);
     setFriends(friendsList);
+    setIsLoading(false);
   };
 
   // Fetch friends on mount and when user changes
@@ -34,6 +37,6 @@ export function useFriendManagement() {
     unfriendUser,
     addFriend,
     refreshFriends,
-    isLoading: isBlocking || isUnfriending || isAdding
+    isLoading: isLoading || isBlocking || isUnfriending || isAdding
   };
 }
