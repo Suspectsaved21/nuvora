@@ -9,7 +9,6 @@ import { useVideoCall } from "./video/useVideoCall";
 import VideoDisplay from "./video/VideoDisplay";
 import VideoControls from "./video/VideoControls";
 import VideoFooter from "./video/VideoFooter";
-import { Maximize, Minimize } from "lucide-react";
 
 const VideoChat = () => {
   const { partner, isConnected, addFriend } = useContext(ChatContext);
@@ -67,7 +66,8 @@ const VideoChat = () => {
         ref={videoChatRef}
         className={cn(
           "relative w-full aspect-video bg-nexablack rounded-lg overflow-hidden",
-          isFullscreen || isLocalFullscreen ? "fixed inset-0 z-50 h-screen aspect-auto" : ""
+          isFullscreen || isLocalFullscreen ? "fixed inset-0 z-50 h-screen aspect-auto" : "",
+          isMobile ? "h-[calc(100vh-120px)]" : ""
         )}
       >
         <div className="w-full h-full" ref={localVideoChatRef}>

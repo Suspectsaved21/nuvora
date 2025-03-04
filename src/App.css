@@ -67,6 +67,48 @@ button {
   min-width: 44px;
 }
 
+/* Omegle-like styles */
+.omegle-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.local-video-omegle {
+  position: absolute;
+  bottom: 80px;
+  right: 10px;
+  width: 30%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  z-index: 10;
+}
+
+.remote-video-omegle {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Omegle-style control buttons */
+.omegle-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 20;
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .container {
@@ -77,6 +119,13 @@ button {
   /* Make sure inputs and controls are big enough for touch */
   input, button, .btn, .control {
     font-size: 16px; /* Prevent iOS zoom on focus */
+  }
+  
+  /* Omegle-style layout for mobile */
+  .local-video-omegle {
+    width: 30%;
+    bottom: 70px;
+    right: 10px;
   }
 }
 

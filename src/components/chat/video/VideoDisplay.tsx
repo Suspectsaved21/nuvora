@@ -49,12 +49,14 @@ const VideoDisplay = ({
           </div>
         </div>
       ) : (
-        // When connected, show split screen on both desktop and mobile
+        // When connected, use Omegle-like layout on mobile and split screen on desktop
         <div className="relative w-full h-full">
           {/* Remote video (partner) */}
           <div className={cn(
             "absolute transition-all duration-300 ease-in-out",
-            isLocalFullscreen ? "w-1/4 h-1/4 bottom-4 right-4 z-20 rounded-lg border border-white/10" : "inset-0 w-1/2",
+            isMobile && !isFullscreen && !isLocalFullscreen ? "inset-0 w-full h-full" : "",
+            !isMobile && !isFullscreen && !isLocalFullscreen ? "inset-0 w-1/2" : "",
+            isLocalFullscreen ? "w-1/4 h-1/4 bottom-4 right-4 z-20 rounded-lg border border-white/10" : "",
             isFullscreen ? "inset-0 w-full h-full z-30" : ""
           )}>
             <video
@@ -70,7 +72,9 @@ const VideoDisplay = ({
           <div 
             className={cn(
               "transition-all duration-300 ease-in-out",
-              isFullscreen ? "w-1/4 h-1/4 bottom-4 right-4 z-40 rounded-lg border border-white/10" : "absolute top-0 right-0 w-1/2 h-full",
+              isMobile && !isFullscreen && !isLocalFullscreen ? "absolute w-1/3 h-1/3 bottom-20 right-2 rounded-lg border border-white/20 overflow-hidden shadow-lg z-10" : "",
+              !isMobile && !isFullscreen && !isLocalFullscreen ? "absolute top-0 right-0 w-1/2 h-full" : "",
+              isFullscreen ? "w-1/4 h-1/4 bottom-4 right-4 z-40 rounded-lg border border-white/10" : "",
               isLocalFullscreen ? "fixed inset-0 z-50 w-full h-full" : ""
             )}
           >
@@ -83,7 +87,7 @@ const VideoDisplay = ({
               onClick={toggleLocalFullscreen}
             />
             
-            {!isFullscreen && !isLocalFullscreen && (
+            {!isFullscreen && !isLocalFullscreen && !isMobile && (
               <Button
                 variant="outline"
                 size="icon"
@@ -165,7 +169,7 @@ const VideoDisplay = ({
           )}
 
           {/* Fullscreen enter button for the remote video */}
-          {!isFullscreen && !isLocalFullscreen && (
+          {!isFullscreen && !isLocalFullscreen && !isMobile && (
             <Button
               variant="outline"
               size="icon"

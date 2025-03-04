@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Video, VideoOff, Mic, MicOff, UserPlus, Maximize, Minimize } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface VideoControlsProps {
   videoEnabled: boolean;
@@ -22,9 +23,17 @@ const VideoControls = ({
   toggleFullscreen,
   handleAddFriend
 }: VideoControlsProps) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <div className="absolute bottom-16 left-0 right-0 flex justify-center items-center gap-2 z-40">
-      <div className="glass-morphism px-4 py-2 rounded-full flex gap-2">
+    <div className={cn(
+      "absolute left-0 right-0 flex justify-center items-center gap-2 z-40",
+      isMobile ? "bottom-20" : "bottom-16"
+    )}>
+      <div className={cn(
+        "px-4 py-2 rounded-full flex gap-2",
+        isMobile ? "bg-black/70" : "glass-morphism"
+      )}>
         <Button
           variant="outline"
           size="icon"
@@ -53,7 +62,10 @@ const VideoControls = ({
           variant="outline"
           size="icon"
           onClick={handleAddFriend}
-          className="rounded-full bg-black/50 border-white/20 text-white hover:bg-black/70"
+          className={cn(
+            "rounded-full border-white/20 text-white hover:bg-black/70",
+            isMobile ? "bg-green-500/70" : "bg-black/50"
+          )}
           title="Add to Friends"
         >
           <UserPlus size={16} />
