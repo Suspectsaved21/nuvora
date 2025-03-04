@@ -60,7 +60,7 @@ export function usePartnerSearch() {
   /**
    * Create a mock partner when database search fails
    */
-  const mockFindPartner = (options = { worldwide: true, userCountry: null }) => {
+  const mockFindPartner = (options: { worldwide: boolean, userCountry: string | null }) => {
     setIsFindingPartner(true);
     setIsConnected(false);
     setPartner(null);

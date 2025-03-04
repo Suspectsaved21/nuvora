@@ -71,17 +71,6 @@ export const generatePartnerResponse = (partnerId: string): Message => {
  */
 export const findRandomPartner = async (options: { worldwide: boolean, userCountry: string | null }): Promise<Partner | null> => {
   try {
-    // First check if the country column exists in the profiles table
-    const { data: columnCheck, error: columnError } = await supabase
-      .from('profiles')
-      .select('id')
-      .limit(1);
-      
-    if (columnError) {
-      console.error("Error checking profiles table:", columnError);
-      return null;
-    }
-    
     // Query users from profiles table
     let query = supabase
       .from('profiles')
