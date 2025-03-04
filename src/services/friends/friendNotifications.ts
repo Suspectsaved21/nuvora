@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast as sonnerToast } from "sonner";
 import { acceptFriendRequest, declineFriendRequest } from "./friendRequests";
@@ -53,38 +52,29 @@ export function showFriendRequestNotification(
   currentUserId: string,
   onAccepted: () => void
 ) {
-  // Using the custom method of sonner without JSX in this .ts file
-  sonnerToast.custom(
-    (id) => {
-      // This function returns an object for Sonner to render
-      return {
-        id: `friend-request-${senderId}`,
-        // Let Sonner know which component to render
-        component: "FriendRequestNotification",
-        // Pass props to the component
-        props: {
-          senderId,
-          senderName,
-          onAccept: async () => {
-            const success = await acceptFriendRequest(currentUserId, senderId);
-            if (success) {
-              sonnerToast.success(`You are now friends with ${senderName}`);
-              onAccepted();
-            } else {
-              sonnerToast.error("Failed to accept friend request");
-            }
-            sonnerToast.dismiss(id);
-          },
-          onDecline: async () => {
-            await declineFriendRequest(currentUserId, senderId);
-            sonnerToast.dismiss(id);
-          }
+  // Instead of trying to use React elements in a .ts file, 
+  // use the text-based notification approach that Sonner provides
+  sonnerToast(`Friend request from ${senderName}`, {
+    duration: 10000,
+    id: `friend-request-${senderId}`,
+    description: "Would you like to accept this friend request?",
+    action: {
+      label: "Accept",
+      onClick: async () => {
+        const success = await acceptFriendRequest(currentUserId, senderId);
+        if (success) {
+          sonnerToast.success(`You are now friends with ${senderName}`);
+          onAccepted();
+        } else {
+          sonnerToast.error("Failed to accept friend request");
         }
-      };
+      }
     },
-    {
-      duration: 10000,
-      id: `friend-request-${senderId}`,
+    cancel: {
+      label: "Decline",
+      onClick: async () => {
+        await declineFriendRequest(currentUserId, senderId);
+      }
     }
-  );
+  });
 }
