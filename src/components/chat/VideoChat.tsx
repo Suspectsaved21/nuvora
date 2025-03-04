@@ -2,9 +2,10 @@
 import { useRef, useEffect, useContext, useState } from "react";
 import { initPeer, setupVideoCall, handleRemoteStream, cleanupMedia } from "@/lib/peerjs";
 import ChatContext from "@/context/ChatContext";
-import { VideoOff, Video, UserPlus, Mic, MicOff } from "lucide-react";
+import { VideoOff, Video, UserPlus, Mic, MicOff, Maximize, Minimize } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 const VideoChat = () => {
   const { partner, isConnected, addFriend } = useContext(ChatContext);
@@ -13,6 +14,8 @@ const VideoChat = () => {
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [peerInstance, setPeerInstance] = useState<any>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const videoChatRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     if (!isConnected || !partner) return;
@@ -99,8 +102,69 @@ const VideoChat = () => {
     }
   };
   
+  const toggleFullscreen = () => {
+    if (!videoChatRef.current) return;
+    
+    if (!isFullscreen) {
+      // If we're entering fullscreen
+      if (videoChatRef.current.requestFullscreen) {
+        videoChatRef.current.requestFullscreen()
+          .then(() => setIsFullscreen(true))
+          .catch(err => console.error("Fullscreen error:", err));
+      } else if ((videoChatRef.current as any).webkitRequestFullscreen) {
+        // Safari
+        (videoChatRef.current as any).webkitRequestFullscreen();
+        setIsFullscreen(true);
+      } else if ((videoChatRef.current as any).msRequestFullscreen) {
+        // IE11
+        (videoChatRef.current as any).msRequestFullscreen();
+        setIsFullscreen(true);
+      }
+    } else {
+      // If we're exiting fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen()
+          .then(() => setIsFullscreen(false))
+          .catch(err => console.error("Exit fullscreen error:", err));
+      } else if ((document as any).webkitExitFullscreen) {
+        // Safari
+        (document as any).webkitExitFullscreen();
+        setIsFullscreen(false);
+      } else if ((document as any).msExitFullscreen) {
+        // IE11
+        (document as any).msExitFullscreen();
+        setIsFullscreen(false);
+      }
+    }
+  };
+  
+  // Listen for fullscreen change events
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
+  }, []);
+  
   return (
-    <div className="relative w-full aspect-video bg-nexablack rounded-lg overflow-hidden">
+    <div 
+      ref={videoChatRef}
+      className={cn(
+        "relative w-full aspect-video bg-nexablack rounded-lg overflow-hidden",
+        isFullscreen ? "fixed inset-0 z-50 h-screen aspect-auto" : ""
+      )}
+    >
       {!isConnected ? (
         <div className="absolute inset-0 flex items-center justify-center text-white">
           Waiting for connection...
@@ -112,7 +176,8 @@ const VideoChat = () => {
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+            onClick={toggleFullscreen}
           />
           
           {/* Local video is smaller and in the corner */}
@@ -154,6 +219,16 @@ const VideoChat = () => {
               title="Add to Friends"
             >
               <UserPlus size={16} />
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleFullscreen}
+              className="bg-black/50 border-white/20 text-white hover:bg-black/70"
+              title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+            >
+              {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
             </Button>
           </div>
           
