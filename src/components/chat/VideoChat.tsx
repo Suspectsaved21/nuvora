@@ -1,5 +1,5 @@
 
-import { useRef, useEffect, useContext } from "react";
+import { useRef, useEffect, useContext, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import ChatContext from "@/context/ChatContext";
@@ -8,6 +8,7 @@ import { useFullscreen } from "./video/useFullscreen";
 import { useVideoCall } from "./video/useVideoCall";
 import VideoDisplay from "./video/VideoDisplay";
 import VideoControls from "./video/VideoControls";
+import VideoFooter from "./video/VideoFooter";
 import { Maximize, Minimize } from "lucide-react";
 
 const VideoChat = () => {
@@ -15,6 +16,7 @@ const VideoChat = () => {
   const videoChatRef = useRef<HTMLDivElement>(null);
   const localVideoChatRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const [isChatVisible, setIsChatVisible] = useState(!isMobile);
   
   const { isFullscreen, toggleFullscreen, requestFullscreen } = useFullscreen(videoChatRef);
   const { 
@@ -61,42 +63,54 @@ const VideoChat = () => {
       });
     }
   };
+
+  const toggleChatVisibility = () => {
+    setIsChatVisible(!isChatVisible);
+  };
   
   return (
-    <div 
-      ref={videoChatRef}
-      className={cn(
-        "relative w-full aspect-video bg-nexablack rounded-lg overflow-hidden",
-        isFullscreen || isMobile ? "fixed inset-0 z-50 h-screen aspect-auto" : ""
-      )}
-    >
-      <div ref={localVideoChatRef}>
-        <VideoDisplay
-          isConnected={isConnected}
-          remoteVideoRef={remoteVideoRef}
-          localVideoRef={localVideoRef}
-          partner={partner}
+    <>
+      <div 
+        ref={videoChatRef}
+        className={cn(
+          "relative w-full aspect-video bg-nexablack rounded-lg overflow-hidden",
+          isFullscreen || isMobile ? "fixed inset-0 z-50 h-screen aspect-auto" : ""
+        )}
+      >
+        <div ref={localVideoChatRef}>
+          <VideoDisplay
+            isConnected={isConnected}
+            remoteVideoRef={remoteVideoRef}
+            localVideoRef={localVideoRef}
+            partner={partner}
+            isFullscreen={isFullscreen}
+            isLocalFullscreen={isLocalFullscreen}
+            toggleFullscreen={toggleFullscreen}
+            toggleLocalFullscreen={toggleLocalFullscreen}
+            handleAddFriend={handleAddFriend}
+            isMobile={isMobile}
+          />
+        </div>
+        
+        {isConnected && (
+          <VideoControls
+            videoEnabled={videoEnabled}
+            audioEnabled={audioEnabled}
+            isFullscreen={isFullscreen}
+            toggleVideo={toggleVideo}
+            toggleAudio={toggleAudio}
+            toggleFullscreen={toggleFullscreen}
+            handleAddFriend={handleAddFriend}
+          />
+        )}
+
+        <VideoFooter 
           isFullscreen={isFullscreen}
-          isLocalFullscreen={isLocalFullscreen}
-          toggleFullscreen={toggleFullscreen}
-          toggleLocalFullscreen={toggleLocalFullscreen}
-          handleAddFriend={handleAddFriend}
-          isMobile={isMobile}
+          toggleChatVisibility={toggleChatVisibility}
+          isChatVisible={isChatVisible}
         />
       </div>
-      
-      {isConnected && (
-        <VideoControls
-          videoEnabled={videoEnabled}
-          audioEnabled={audioEnabled}
-          isFullscreen={isFullscreen}
-          toggleVideo={toggleVideo}
-          toggleAudio={toggleAudio}
-          toggleFullscreen={toggleFullscreen}
-          handleAddFriend={handleAddFriend}
-        />
-      )}
-    </div>
+    </>
   );
 };
 

@@ -1,8 +1,9 @@
 
-import { useRef, useEffect } from "react";
-import { UserPlus, Maximize, Minimize } from "lucide-react";
+import { useRef, useEffect, useContext } from "react";
+import { UserPlus, Maximize, Minimize, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import ChatContext from "@/context/ChatContext";
 
 interface VideoDisplayProps {
   isConnected: boolean;
@@ -29,6 +30,8 @@ const VideoDisplay = ({
   handleAddFriend,
   isMobile
 }: VideoDisplayProps) => {
+  const { findNewPartner } = useContext(ChatContext);
+  
   return (
     <>
       {!isConnected ? (
@@ -76,6 +79,29 @@ const VideoDisplay = ({
               {partner.username} · {partner.country}
             </div>
           )}
+          
+          {/* Next/Previous User Navigation */}
+          <div className="absolute inset-y-0 left-0 flex items-center">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="ml-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-10"
+              onClick={findNewPartner}
+            >
+              <ChevronLeft size={24} />
+            </Button>
+          </div>
+          
+          <div className="absolute inset-y-0 right-0 flex items-center">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="mr-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-10"
+              onClick={findNewPartner}
+            >
+              <ChevronRight size={24} />
+            </Button>
+          </div>
         </>
       )}
     </>
