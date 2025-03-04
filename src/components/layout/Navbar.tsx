@@ -1,3 +1,4 @@
+
 import { useState, useContext } from "react";
 import { NavLink } from "react-router-dom";
 import {
@@ -18,6 +19,27 @@ const Navbar = () => {
   const { user, signOut, hasActiveSubscription } = useContext(AuthContext);
   const isMobile = useIsMobile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Create a function to get menu items that includes conditional items based on subscription
+  const getMenuItems = () => {
+    const items = [
+      { title: "Chat", path: "/chat", icon: MessageSquare },
+      { title: "Friends", path: "/friends", icon: Users },
+      { title: "Online Users", path: "/online-users", icon: UserPlus },
+    ];
+    
+    // Only add Games menu item for users with active subscription
+    if (hasActiveSubscription()) {
+      items.push({ title: "Games", path: "/games", icon: GamepadIcon });
+    }
+    
+    items.push(
+      { title: "Profile", path: "/profile", icon: User },
+      { title: "Settings", path: "/settings", icon: Settings }
+    );
+    
+    return items;
+  };
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur border-b border-border">
@@ -43,7 +65,7 @@ const Navbar = () => {
                     </SheetDescription>
                   </SheetHeader>
                   <nav className="grid gap-4 mt-4">
-                    {menuItems.map((item) => (
+                    {getMenuItems().map((item) => (
                       <NavLink
                         key={item.title}
                         to={item.path}
@@ -147,13 +169,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-// Update the mobile menu items array to include the Online Users page
-const menuItems = [
-  { title: "Chat", path: "/chat", icon: MessageSquare },
-  { title: "Friends", path: "/friends", icon: Users },
-  { title: "Online Users", path: "/online-users", icon: UserPlus },
-  ...(hasActiveSubscription() ? [{ title: "Games", path: "/games", icon: GamepadIcon }] : []),
-  { title: "Profile", path: "/profile", icon: User },
-  { title: "Settings", path: "/settings", icon: Settings },
-];
