@@ -1,7 +1,7 @@
 
 import { useContext } from "react";
 import { Gamepad, Lock } from "lucide-react";
-import ChatContext from "@/context/ChatContext";
+import { ChatContext } from "@/context/chat";
 import AuthContext from "@/context/AuthContext";
 import { useGame } from "@/hooks/useGame";
 import { useStripe } from "@/context/StripeContext";

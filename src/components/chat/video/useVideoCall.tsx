@@ -1,7 +1,7 @@
 
 import { useRef, useState, useEffect, useContext } from "react";
 import { initPeer, setupVideoCall, handleRemoteStream, cleanupMedia } from "@/lib/peerjs";
-import ChatContext from "@/context/ChatContext";
+import { ChatContext } from "@/context/chat";
 import { toast } from "@/components/ui/use-toast";
 import AuthContext from "@/context/AuthContext";
 

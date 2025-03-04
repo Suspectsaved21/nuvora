@@ -4,7 +4,7 @@ import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ChatContext from "@/context/ChatContext";
+import { ChatContext } from "@/context/chat";
 import { Message } from "@/types/chat";
 import AuthContext from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";

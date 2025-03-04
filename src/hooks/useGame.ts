@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useContext } from "react";
 import { toast } from "@/components/ui/use-toast";
-import ChatContext from "@/context/ChatContext";
+import { ChatContext } from "@/context/chat";
 import { GameType, GameItem } from "@/types/game";
 import { SAMPLE_RIDDLES, SAMPLE_QUESTIONS } from "@/data/gameData";
 

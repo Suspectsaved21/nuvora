@@ -1,9 +1,8 @@
-
 import { useRef, useEffect, useContext } from "react";
 import { UserPlus, Maximize, Minimize, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import ChatContext from "@/context/ChatContext";
+import { ChatContext } from "@/context/chat";
 
 interface VideoDisplayProps {
   isConnected: boolean;
@@ -35,7 +34,6 @@ const VideoDisplay = ({
   return (
     <>
       {!isConnected || isFindingPartner ? (
-        // When no connection or finding partner, show local video prominently
         <div className="relative w-full h-full">
           <video
             ref={localVideoRef}
@@ -49,9 +47,7 @@ const VideoDisplay = ({
           </div>
         </div>
       ) : (
-        // When connected, use Omegle-like horizontal split layout on mobile
         <div className="relative w-full h-full">
-          {/* Remote video (partner) */}
           <div className={cn(
             "absolute transition-all duration-300 ease-in-out",
             isMobile && !isFullscreen && !isLocalFullscreen ? "inset-0 w-full h-1/2 top-0" : "",
@@ -80,7 +76,6 @@ const VideoDisplay = ({
             )}
           </div>
           
-          {/* Local video (user) */}
           <div 
             className={cn(
               "transition-all duration-300 ease-in-out",
@@ -136,7 +131,6 @@ const VideoDisplay = ({
             )}
           </div>
           
-          {/* Partner info overlay - show on top of everything */}
           {partner && !isLocalFullscreen && (
             <div className="absolute top-4 left-4 glass-morphism px-3 py-1 rounded-full text-sm text-white z-40 flex items-center">
               <span>{partner.username} · {partner.country || 'Unknown'}</span>
@@ -152,7 +146,6 @@ const VideoDisplay = ({
             </div>
           )}
           
-          {/* Next/Previous User Navigation - adjust z-index to ensure visibility */}
           {!isLocalFullscreen && (
             <>
               <div className="absolute inset-y-0 left-0 flex items-center z-40">
@@ -179,7 +172,6 @@ const VideoDisplay = ({
             </>
           )}
 
-          {/* Fullscreen exit button for the remote video */}
           {isFullscreen && (
             <Button
               variant="outline"
@@ -192,7 +184,6 @@ const VideoDisplay = ({
             </Button>
           )}
 
-          {/* Fullscreen enter button for the remote video */}
           {!isFullscreen && !isLocalFullscreen && !isMobile && (
             <Button
               variant="outline"

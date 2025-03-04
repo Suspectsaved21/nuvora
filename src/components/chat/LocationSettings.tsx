@@ -1,11 +1,10 @@
-
 import { useContext, useState, useEffect } from "react";
 import { MapPin, Globe, Loader2, RefreshCcw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import ChatContext from "@/context/ChatContext";
+import { ChatContext } from "@/context/chat";
 
 const LocationSettings = () => {
   const { 
@@ -17,13 +16,11 @@ const LocationSettings = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Handle manual location refresh
   const handleRefreshLocation = async () => {
     setIsRefreshing(true);
     setError(null);
     try {
       await refreshLocation();
-      // Toast success message
       console.log("Location refreshed successfully:", userLocation);
     } catch (err) {
       setError("Could not retrieve your location. Please check your device permissions.");
@@ -32,7 +29,6 @@ const LocationSettings = () => {
     }
   };
 
-  // Automatically refresh location when enabled
   useEffect(() => {
     if (locationEnabled && !userLocation?.address) {
       handleRefreshLocation();

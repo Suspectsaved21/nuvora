@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import ChatContext from "@/context/ChatContext";
+import { ChatContext } from "@/context/chat";
 import FriendList from "./friends/FriendList";
 
 const FriendsList = () => {
