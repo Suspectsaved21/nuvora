@@ -1,5 +1,5 @@
 
-import { MessageSquare, Video, UserX, Ban, Clock, UserCheck, MoreHorizontal } from "lucide-react";
+import { MessageSquare, Video, UserX, Ban, Clock, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +10,6 @@ import {
 import { Friend } from "@/types/chat";
 import { getTimeAgo } from "@/utils/dateUtils";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface FriendItemProps {
   friend: Friend;
@@ -34,14 +33,12 @@ const FriendItem = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="relative">
-            <Avatar>
-              <AvatarFallback className="bg-primary/10 text-primary">
-                {friend.username.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-foreground font-semibold">
+              {friend.username.charAt(0).toUpperCase()}
+            </div>
             
             {!isBlockedList && (
-              <div className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-background ${friend.status === 'online' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+              <div className={`absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-background ${friend.status === 'online' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
             )}
           </div>
           
@@ -70,7 +67,7 @@ const FriendItem = ({
           </div>
         </div>
         
-        <div className="flex items-center space-x-1">
+        <div className="flex space-x-1">
           {!isBlockedList && !friend.pending && (
             <>
               <Button
@@ -103,7 +100,11 @@ const FriendItem = ({
                 size="icon"
                 className="size-8 opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <MoreHorizontal size={16} />
+                <svg width="15" height="3" viewBox="0 0 15 3" fill="none" xmlns="http://www.w3.org/2000/svg" className="fill-current">
+                  <path d="M1.5 3C2.32843 3 3 2.32843 3 1.5C3 0.671573 2.32843 0 1.5 0C0.671573 0 0 0.671573 0 1.5C0 2.32843 0.671573 3 1.5 3Z" />
+                  <path d="M7.5 3C8.32843 3 9 2.32843 9 1.5C9 0.671573 8.32843 0 7.5 0C6.67157 0 6 0.671573 6 1.5C6 2.32843 6.67157 3 7.5 3Z" />
+                  <path d="M13.5 3C14.3284 3 15 2.32843 15 1.5C15 0.671573 14.3284 0 13.5 0C12.6716 0 12 0.671573 12 1.5C12 2.32843 12.6716 3 13.5 3Z" />
+                </svg>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

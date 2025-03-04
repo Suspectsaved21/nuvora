@@ -11,7 +11,6 @@ export interface ChatContextType {
   friends: Friend[];
   locationEnabled: boolean;
   userLocation: Location | null;
-  isLoading: boolean;
   sendMessage: (text: string) => void;
   sendGameAction: (action: GameAction) => void;
   setIsTyping: (typing: boolean) => void;
