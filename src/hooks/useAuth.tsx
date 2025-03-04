@@ -108,8 +108,14 @@ export function useAuth() {
 
   const signInWithSocial = async (provider: string) => {
     try {
+      // Map instagram to a supported provider (github) until we properly implement it
+      const mappedProvider = provider === 'instagram' ? 'github' : provider;
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: provider as any,
+        provider: mappedProvider as any,
+        options: {
+          redirectTo: window.location.origin + '/chat'
+        }
       });
 
       if (error) throw error;
