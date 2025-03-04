@@ -12,9 +12,11 @@ import AuthForm from "@/components/auth/AuthForm";
 import AuthContext from "@/context/AuthContext";
 import { ChatProvider } from "@/context/ChatContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useMobile } from "@/hooks/use-mobile";
 
 const Chat = () => {
   const { user, isLoading } = useContext(AuthContext);
+  const isMobile = useMobile();
   
   // Handle page reload to reinitialize video
   useEffect(() => {
@@ -42,7 +44,7 @@ const Chat = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow pt-24 pb-12 px-4 sm:px-6">
+      <main className={`flex-grow ${isMobile ? "pt-16" : "pt-24"} pb-12 px-4 sm:px-6`}>
         <div className="container max-w-7xl mx-auto">
           {user ? (
             <ChatProvider>

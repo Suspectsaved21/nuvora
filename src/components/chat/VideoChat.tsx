@@ -1,4 +1,3 @@
-
 import { useRef, useEffect, useContext, useState } from "react";
 import { initPeer, setupVideoCall, handleRemoteStream, cleanupMedia } from "@/lib/peerjs";
 import ChatContext from "@/context/ChatContext";
@@ -6,6 +5,7 @@ import { VideoOff, Video, UserPlus, Mic, MicOff, Maximize, Minimize } from "luci
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { useMobile } from "@/hooks/use-mobile";
 
 const VideoChat = () => {
   const { partner, isConnected, addFriend } = useContext(ChatContext);
@@ -18,6 +18,13 @@ const VideoChat = () => {
   const [isLocalFullscreen, setIsLocalFullscreen] = useState(false);
   const videoChatRef = useRef<HTMLDivElement>(null);
   const localVideoChatRef = useRef<HTMLDivElement>(null);
+  const isMobile = useMobile();
+  
+  useEffect(() => {
+    if (isMobile && videoChatRef.current) {
+      requestFullscreen(videoChatRef.current);
+    }
+  }, [isMobile]);
   
   useEffect(() => {
     if (!isConnected || !partner) return;
@@ -30,7 +37,6 @@ const VideoChat = () => {
       try {
         const { localStream } = await setupVideoCall(localVideoRef, remoteVideoRef);
         
-        // Set up to receive calls
         peer.onIncomingCall((call) => {
           peer.answerCall(call, localStream);
           
@@ -43,7 +49,6 @@ const VideoChat = () => {
           });
         });
         
-        // If we have a partner, initiate the call
         if (partner && partner.id) {
           const partnerId = `partner_${partner.id}`;
           const call = peer.connect(partnerId);
@@ -104,39 +109,41 @@ const VideoChat = () => {
     }
   };
   
+  const requestFullscreen = (element: HTMLElement) => {
+    if (element.requestFullscreen) {
+      element.requestFullscreen()
+        .then(() => setIsFullscreen(true))
+        .catch(err => console.error("Fullscreen error:", err));
+    } else if ((element as any).webkitRequestFullscreen) {
+      (element as any).webkitRequestFullscreen();
+      setIsFullscreen(true);
+    } else if ((element as any).msRequestFullscreen) {
+      (element as any).msRequestFullscreen();
+      setIsFullscreen(true);
+    }
+  };
+
+  const exitFullscreen = () => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen()
+        .then(() => setIsFullscreen(false))
+        .catch(err => console.error("Exit fullscreen error:", err));
+    } else if ((document as any).webkitExitFullscreen) {
+      (document as any).webkitExitFullscreen();
+      setIsFullscreen(false);
+    } else if ((document as any).msExitFullscreen) {
+      (document as any).msExitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+  
   const toggleFullscreen = () => {
     if (!videoChatRef.current) return;
     
     if (!isFullscreen) {
-      // If we're entering fullscreen
-      if (videoChatRef.current.requestFullscreen) {
-        videoChatRef.current.requestFullscreen()
-          .then(() => setIsFullscreen(true))
-          .catch(err => console.error("Fullscreen error:", err));
-      } else if ((videoChatRef.current as any).webkitRequestFullscreen) {
-        // Safari
-        (videoChatRef.current as any).webkitRequestFullscreen();
-        setIsFullscreen(true);
-      } else if ((videoChatRef.current as any).msRequestFullscreen) {
-        // IE11
-        (videoChatRef.current as any).msRequestFullscreen();
-        setIsFullscreen(true);
-      }
+      requestFullscreen(videoChatRef.current);
     } else {
-      // If we're exiting fullscreen
-      if (document.exitFullscreen) {
-        document.exitFullscreen()
-          .then(() => setIsFullscreen(false))
-          .catch(err => console.error("Exit fullscreen error:", err));
-      } else if ((document as any).webkitExitFullscreen) {
-        // Safari
-        (document as any).webkitExitFullscreen();
-        setIsFullscreen(false);
-      } else if ((document as any).msExitFullscreen) {
-        // IE11
-        (document as any).msExitFullscreen();
-        setIsFullscreen(false);
-      }
+      exitFullscreen();
     }
   };
 
@@ -144,39 +151,12 @@ const VideoChat = () => {
     if (!localVideoChatRef.current) return;
     
     if (!isLocalFullscreen) {
-      // If we're entering fullscreen for local video
-      if (localVideoChatRef.current.requestFullscreen) {
-        localVideoChatRef.current.requestFullscreen()
-          .then(() => setIsLocalFullscreen(true))
-          .catch(err => console.error("Local fullscreen error:", err));
-      } else if ((localVideoChatRef.current as any).webkitRequestFullscreen) {
-        // Safari
-        (localVideoChatRef.current as any).webkitRequestFullscreen();
-        setIsLocalFullscreen(true);
-      } else if ((localVideoChatRef.current as any).msRequestFullscreen) {
-        // IE11
-        (localVideoChatRef.current as any).msRequestFullscreen();
-        setIsLocalFullscreen(true);
-      }
+      requestFullscreen(localVideoChatRef.current);
     } else {
-      // If we're exiting fullscreen
-      if (document.exitFullscreen) {
-        document.exitFullscreen()
-          .then(() => setIsLocalFullscreen(false))
-          .catch(err => console.error("Exit local fullscreen error:", err));
-      } else if ((document as any).webkitExitFullscreen) {
-        // Safari
-        (document as any).webkitExitFullscreen();
-        setIsLocalFullscreen(false);
-      } else if ((document as any).msExitFullscreen) {
-        // IE11
-        (document as any).msExitFullscreen();
-        setIsLocalFullscreen(false);
-      }
+      exitFullscreen();
     }
   };
   
-  // Listen for fullscreen change events
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement && document.fullscreenElement === videoChatRef.current);
@@ -201,7 +181,7 @@ const VideoChat = () => {
       ref={videoChatRef}
       className={cn(
         "relative w-full aspect-video bg-nexablack rounded-lg overflow-hidden",
-        isFullscreen ? "fixed inset-0 z-50 h-screen aspect-auto" : ""
+        isFullscreen || isMobile ? "fixed inset-0 z-50 h-screen aspect-auto" : ""
       )}
     >
       {!isConnected ? (
@@ -210,7 +190,6 @@ const VideoChat = () => {
         </div>
       ) : (
         <>
-          {/* Remote video takes up the full container */}
           <video
             ref={remoteVideoRef}
             autoPlay
@@ -219,12 +198,12 @@ const VideoChat = () => {
             onClick={toggleFullscreen}
           />
           
-          {/* Local video is smaller and in the corner */}
           <div 
             ref={localVideoChatRef}
             className={cn(
               "absolute bottom-4 right-4 w-1/4 aspect-video rounded-lg overflow-hidden shadow-lg border border-white/10",
-              isLocalFullscreen ? "fixed inset-0 z-50 w-full h-screen aspect-auto" : ""
+              isLocalFullscreen ? "fixed inset-0 z-50 w-full h-screen aspect-auto" : "",
+              isMobile ? "w-1/3" : "w-1/4"
             )}
           >
             <video
@@ -235,7 +214,6 @@ const VideoChat = () => {
               className="w-full h-full object-cover"
             />
             
-            {/* Local video fullscreen button */}
             <Button
               variant="outline"
               size="icon"
@@ -247,7 +225,6 @@ const VideoChat = () => {
             </Button>
           </div>
           
-          {/* Video/audio controls */}
           <div className="absolute bottom-4 left-4 flex gap-2">
             <Button
               variant="outline"
@@ -288,7 +265,6 @@ const VideoChat = () => {
             </Button>
           </div>
           
-          {/* Partner info */}
           {partner && (
             <div className="absolute top-4 left-4 glass-morphism px-3 py-1 rounded-full text-sm text-white">
               {partner.username} · {partner.country}
