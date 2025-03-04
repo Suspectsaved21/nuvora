@@ -11,9 +11,6 @@ export interface UserProfile {
     plan?: string;
     expiry?: number;
   };
-  onlineStatus?: boolean;
-  lastSeenAt?: number;
-  country?: string;
 }
 
 export interface AuthContextType {
@@ -27,5 +24,4 @@ export interface AuthContextType {
   updateUsername: (newUsername: string) => Promise<void>;
   subscribeUser: () => Promise<void>;
   hasActiveSubscription: () => boolean;
-  updateOnlineStatus: (status: boolean) => Promise<void>;
 }

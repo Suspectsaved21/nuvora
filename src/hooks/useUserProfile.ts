@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,8 +41,7 @@ export function useUserProfile() {
           username: username,
           isGuest: false,
           provider: authUser.app_metadata.provider,
-          subscription: { status: "inactive" },
-          onlineStatus: false
+          subscription: { status: "inactive" }
         };
         
         setUser(defaultUserProfile);
@@ -61,10 +61,7 @@ export function useUserProfile() {
             status: subscriptionStatus,
             plan: data.subscriptions.plan,
             expiry: data.subscriptions.end_date ? new Date(data.subscriptions.end_date).getTime() : undefined
-          } : { status: "inactive" },
-          onlineStatus: data.online_status,
-          lastSeenAt: data.last_seen_at ? new Date(data.last_seen_at).getTime() : undefined,
-          country: data.country
+          } : { status: "inactive" }
         };
         
         setUser(userProfile);
@@ -81,8 +78,7 @@ export function useUserProfile() {
         username: username,
         isGuest: false,
         provider: authUser.app_metadata.provider,
-        subscription: { status: "inactive" },
-        onlineStatus: false
+        subscription: { status: "inactive" }
       };
       
       setUser(fallbackUserProfile);
@@ -176,32 +172,6 @@ export function useUserProfile() {
            (!user.subscription.expiry || user.subscription.expiry > Date.now());
   };
 
-  const updateOnlineStatus = async (status: boolean) => {
-    if (!user || user.isGuest) return;
-    
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ online_status: status })
-        .eq('id', user.id);
-      
-      if (error) throw error;
-      
-      // Update local state
-      setUser(prevUser => {
-        if (!prevUser) return null;
-        return {
-          ...prevUser,
-          onlineStatus: status,
-          lastSeenAt: Date.now()
-        };
-      });
-      
-    } catch (error) {
-      console.error("Update online status error:", error);
-    }
-  };
-
   return {
     user,
     setUser,
@@ -210,7 +180,6 @@ export function useUserProfile() {
     fetchUserProfile,
     updateUsername,
     subscribeUser,
-    hasActiveSubscription,
-    updateOnlineStatus
+    hasActiveSubscription
   };
 }

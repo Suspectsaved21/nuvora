@@ -1,170 +1,62 @@
 
-import { useState, useContext } from "react";
-import { NavLink } from "react-router-dom";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, MessageSquare, Users, User, Settings, GamepadIcon, UserPlus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useContext } from "react";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import AuthContext from "@/context/AuthContext";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { VideoIcon } from "lucide-react";
 
 const Navbar = () => {
-  const { user, signOut, hasActiveSubscription } = useContext(AuthContext);
-  const isMobile = useIsMobile();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // Create a function to get menu items that includes conditional items based on subscription
-  const getMenuItems = () => {
-    const items = [
-      { title: "Chat", path: "/chat", icon: MessageSquare },
-      { title: "Friends", path: "/friends", icon: Users },
-      { title: "Online Users", path: "/online-users", icon: UserPlus },
-    ];
-    
-    // Only add Games menu item for users with active subscription
-    if (hasActiveSubscription()) {
-      items.push({ title: "Games", path: "/games", icon: GamepadIcon });
-    }
-    
-    items.push(
-      { title: "Profile", path: "/profile", icon: User },
-      { title: "Settings", path: "/settings", icon: Settings }
-    );
-    
-    return items;
-  };
+  const { user, signOut } = useContext(AuthContext);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur border-b border-border">
-      <div className="container flex items-center justify-between h-16 px-4">
-        <NavLink to="/" className="font-bold text-xl">
-          Nuvora
-        </NavLink>
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-morphism px-6 py-4">
+      <div className="container max-w-7xl mx-auto flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2">
+          <VideoIcon className="h-6 w-6 text-purple-500" />
+          <span className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-purple-600">
+            Nuvora
+          </span>
+        </Link>
         
-        {user ? (
-          <div className="flex items-center space-x-4">
-            {isMobile ? (
-              <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="sm:w-64">
-                  <SheetHeader>
-                    <SheetTitle>Menu</SheetTitle>
-                    <SheetDescription>
-                      Navigate through the app.
-                    </SheetDescription>
-                  </SheetHeader>
-                  <nav className="grid gap-4 mt-4">
-                    {getMenuItems().map((item) => (
-                      <NavLink
-                        key={item.title}
-                        to={item.path}
-                        className={({ isActive }) =>
-                          cn(
-                            "flex items-center space-x-2 rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                            isActive ? "bg-accent text-accent-foreground" : "text-foreground/60"
-                          )
-                        }
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    ))}
-                    <Button variant="ghost" className="justify-start" onClick={signOut}>
-                      Sign Out
-                    </Button>
-                  </nav>
-                </SheetContent>
-              </Sheet>
-            ) : (
-              <Button variant="ghost" onClick={signOut}>
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
+            <Link to="/privacy" className="text-sm hover:text-purple">
+              Privacy
+            </Link>
+            <Link to="/terms" className="text-sm hover:text-purple">
+              Terms
+            </Link>
+          </div>
+          
+          <ThemeToggle />
+          
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Link to="/chat">
+                <Button variant="outline" size="sm" className="hidden md:inline-flex">
+                  Start Chatting
+                </Button>
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={signOut}
+                className="text-sm"
+              >
                 Sign Out
               </Button>
-            )}
-          </div>
-        ) : null}
+            </div>
+          ) : (
+            <Link to="/chat">
+              <Button className="bg-purple hover:bg-purple-dark transition-colors">
+                Get Started
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
-      
-      {user && !isMobile && (
-        <nav className="container px-4 py-1">
-          <ul className="flex items-center space-x-4">
-            <li>
-              <NavLink
-                to="/chat"
-                className={({ isActive }) =>
-                  cn(
-                    "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-accent text-accent-foreground"
-                      : "text-foreground/60 hover:text-foreground hover:bg-accent/50"
-                  )
-                }
-              >
-                Chat
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/friends"
-                className={({ isActive }) =>
-                  cn(
-                    "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-accent text-accent-foreground"
-                      : "text-foreground/60 hover:text-foreground hover:bg-accent/50"
-                  )
-                }
-              >
-                Friends
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/online-users"
-                className={({ isActive }) =>
-                  cn(
-                    "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-accent text-accent-foreground"
-                      : "text-foreground/60 hover:text-foreground hover:bg-accent/50"
-                  )
-                }
-              >
-                Online Users
-              </NavLink>
-            </li>
-            {hasActiveSubscription() && (
-              <li>
-                <NavLink
-                  to="/games"
-                  className={({ isActive }) =>
-                    cn(
-                      "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-accent text-accent-foreground"
-                        : "text-foreground/60 hover:text-foreground hover:bg-accent/50"
-                    )
-                  }
-                >
-                  Games
-                </NavLink>
-              </li>
-            )}
-          </ul>
-        </nav>
-      )}
-    </div>
+    </nav>
   );
 };
 

@@ -1,6 +1,6 @@
 
-import { useContext, useEffect, useState, useCallback } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import VideoChat from "@/components/chat/VideoChat";
 import TextChat from "@/components/chat/TextChat";
@@ -10,48 +10,25 @@ import LocationSettings from "@/components/chat/LocationSettings";
 import GameFeature from "@/components/chat/GameFeature";
 import AuthForm from "@/components/auth/AuthForm";
 import AuthContext from "@/context/AuthContext";
-import ChatContext from "@/context/ChatContext";
+import { ChatProvider } from "@/context/ChatContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 const Chat = () => {
   const { user, isLoading } = useContext(AuthContext);
-  const { startDirectChat, startVideoCall } = useContext(ChatContext);
   const isMobile = useIsMobile();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
   const [isChatVisible, setIsChatVisible] = useState(!isMobile);
   const [showGame, setShowGame] = useState(false);
   
-  // Handle direct chat or video call initialization from URL params
-  const initializeFromParams = useCallback(() => {
-    const partnerId = searchParams.get('partner');
-    const partnerName = searchParams.get('name');
-    const isVideo = searchParams.get('video') === 'true';
-    
-    if (partnerId && partnerName && user) {
-      if (isVideo) {
-        startVideoCall(partnerId);
-      } else {
-        startDirectChat(partnerId);
-      }
-    }
-  }, [searchParams, user, startDirectChat, startVideoCall]);
-  
-  // Initialize from URL params when component mounts or params change
   useEffect(() => {
-    initializeFromParams();
-  }, [initializeFromParams]);
-  
-  // Check if location state contains showGame property
-  useEffect(() => {
+    // Check if location state contains showGame property
     if (location.state && location.state.showGame) {
       setShowGame(true);
     }
   }, [location]);
   
-  // Handle page exit confirmation
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
@@ -80,50 +57,52 @@ const Chat = () => {
       <main className={`flex-grow ${isMobile ? "pt-0" : "pt-24"} pb-12 px-4 sm:px-6`}>
         <div className="container max-w-7xl mx-auto">
           {user ? (
-            <div className={cn(
-              "grid grid-cols-1 gap-6",
-              isMobile ? "" : "lg:grid-cols-3"
-            )}>
+            <ChatProvider>
               <div className={cn(
-                isMobile ? "col-span-1" : "lg:col-span-2",
-                "space-y-6"
+                "grid grid-cols-1 gap-6",
+                isMobile ? "" : "lg:grid-cols-3"
               )}>
-                {/* Video chat takes full width in this column */}
-                <VideoChat />
+                <div className={cn(
+                  isMobile ? "col-span-1" : "lg:col-span-2",
+                  "space-y-6"
+                )}>
+                  {/* Video chat takes full width in this column */}
+                  <VideoChat />
+                  
+                  {(!isMobile || !isChatVisible) && (
+                    <>
+                      {showGame ? (
+                        <GameFeature />
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <ChatControls />
+                          <LocationSettings />
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
                 
-                {(!isMobile || !isChatVisible) && (
-                  <>
-                    {showGame ? (
-                      <GameFeature />
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <ChatControls />
-                        <LocationSettings />
-                      </div>
-                    )}
-                  </>
+                {(!isMobile || isChatVisible) && (
+                  <div className="h-[600px]">
+                    <Tabs defaultValue="chat" className="h-full">
+                      <TabsList className="w-full">
+                        <TabsTrigger value="chat" className="flex-1">Chat</TabsTrigger>
+                        <TabsTrigger value="friends" className="flex-1">Friends</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="chat" className="h-[550px] mt-4">
+                        <TextChat />
+                      </TabsContent>
+                      
+                      <TabsContent value="friends" className="h-[550px] mt-4">
+                        <FriendsList />
+                      </TabsContent>
+                    </Tabs>
+                  </div>
                 )}
               </div>
-              
-              {(!isMobile || isChatVisible) && (
-                <div className="h-[600px]">
-                  <Tabs defaultValue="chat" className="h-full">
-                    <TabsList className="w-full">
-                      <TabsTrigger value="chat" className="flex-1">Chat</TabsTrigger>
-                      <TabsTrigger value="friends" className="flex-1">Friends</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="chat" className="h-[550px] mt-4 overflow-hidden">
-                      <TextChat />
-                    </TabsContent>
-                    
-                    <TabsContent value="friends" className="h-[550px] mt-4 overflow-hidden">
-                      <FriendsList />
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              )}
-            </div>
+            </ChatProvider>
           ) : (
             <div className="max-w-2xl mx-auto">
               <div className="text-center mb-8">

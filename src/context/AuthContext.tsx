@@ -14,7 +14,6 @@ const AuthContext = createContext<AuthContextType>({
   updateUsername: async () => {},
   subscribeUser: async () => {},
   hasActiveSubscription: () => false,
-  updateOnlineStatus: async () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

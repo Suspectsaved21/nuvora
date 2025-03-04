@@ -135,8 +135,6 @@ export type Database = {
           created_at: string | null
           id: string
           is_guest: boolean | null
-          last_seen_at: string | null
-          online_status: boolean | null
           updated_at: string | null
           username: string
         }
@@ -145,8 +143,6 @@ export type Database = {
           created_at?: string | null
           id: string
           is_guest?: boolean | null
-          last_seen_at?: string | null
-          online_status?: boolean | null
           updated_at?: string | null
           username: string
         }
@@ -155,8 +151,6 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_guest?: boolean | null
-          last_seen_at?: string | null
-          online_status?: boolean | null
           updated_at?: string | null
           username?: string
         }
