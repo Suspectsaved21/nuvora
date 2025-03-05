@@ -1,7 +1,5 @@
-
 import Peer from "peerjs";
 import { toast } from "sonner";
-import { supabase } from "@/supabaseClient";
 
 export const createPeerConnection = () => {
   const peer = new Peer({
@@ -85,70 +83,15 @@ export const connectToPeer = async (peer: Peer, peerId: string) => {
   }
 };
 
-// Register a user as waiting for a match
+// Real-time subscription functionality removed - these functions will be re-implemented later
 export const registerAsWaiting = async (peerId: string) => {
-  try {
-    console.log("Registering as waiting with peer ID:", peerId);
-    
-    const { data, error } = await supabase
-      .from("waiting_users")
-      .insert([{ peer_id: peerId, is_available: true }]);
-      
-    if (error) throw error;
-    
-    console.log("Successfully registered as waiting");
-    return true;
-  } catch (error) {
-    console.error("Error registering as waiting:", error);
-    toast.error("Failed to join waiting list");
-    return false;
-  }
+  return true;
 };
 
-// Remove a user from the waiting list
 export const removeFromWaitingList = async (peerId: string) => {
-  try {
-    console.log("Removing from waiting list, peer ID:", peerId);
-    
-    const { error } = await supabase
-      .from("waiting_users")
-      .delete()
-      .eq("peer_id", peerId);
-      
-    if (error) throw error;
-    
-    console.log("Successfully removed from waiting list");
-    return true;
-  } catch (error) {
-    console.error("Error removing from waiting list:", error);
-    return false;
-  }
+  return true;
 };
 
-// Find a match from the waiting list
 export const findMatch = async (ownPeerId: string) => {
-  try {
-    console.log("Finding a match for peer ID:", ownPeerId);
-    
-    const { data, error } = await supabase
-      .from("waiting_users")
-      .select("peer_id")
-      .neq("peer_id", ownPeerId)
-      .eq("is_available", true)
-      .limit(1);
-      
-    if (error) throw error;
-    
-    if (data && data.length > 0) {
-      console.log("Match found:", data[0].peer_id);
-      return data[0].peer_id;
-    }
-    
-    console.log("No match found");
-    return null;
-  } catch (error) {
-    console.error("Error finding match:", error);
-    toast.error("Failed to find a match");
-    return null;
-  }
+  return null;
 };

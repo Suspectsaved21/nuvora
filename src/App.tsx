@@ -8,9 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { StripeProvider } from "@/context/StripeContext";
 import SubscriptionModal from "@/components/subscription/SubscriptionModal";
-import { createPeerConnection, connectToPeer, registerAsWaiting, removeFromWaitingList, findMatch } from "@/utils/peer";
-import { supabase } from "@/supabaseClient";
-import { useWaitingUsers } from "@/hooks/useWaitingUsers";
+import { createPeerConnection, connectToPeer } from "@/utils/peer";
 import { toast } from "sonner";
 import Peer from "peerjs";
 
@@ -50,8 +48,7 @@ const App = () => {
   const [searchingForMatch, setSearchingForMatch] = useState(false);
   const [currentCall, setCurrentCall] = useState<any>(null);
   
-  // Get real-time waiting users
-  const { waitingUsers } = useWaitingUsers(peerId);
+  // Real-time waiting users subscription removed
 
   useEffect(() => {
     const initializePeer = async () => {
@@ -94,11 +91,6 @@ const App = () => {
                 setMatchFound(true);
                 setSearchingForMatch(false);
                 
-                // Remove from waiting list if we were waiting
-                if (peerId) {
-                  removeFromWaitingList(peerId);
-                }
-                
                 toast.success("Connected to video chat");
               });
               
@@ -118,11 +110,7 @@ const App = () => {
     initializePeer();
 
     return () => {
-      // Clean up when component unmounts
-      if (peerId) {
-        removeFromWaitingList(peerId);
-      }
-      
+      // Clean up when component unmounts      
       if (currentCall) {
         currentCall.close();
       }
@@ -133,30 +121,7 @@ const App = () => {
     };
   }, []);
 
-  // Auto-connect to a match when new waiting users appear
-  useEffect(() => {
-    const autoConnect = async () => {
-      if (searchingForMatch && waitingUsers.length > 0 && peer && peerId && !matchFound) {
-        console.log("Auto-connecting to new waiting user:", waitingUsers[0].peer_id);
-        
-        try {
-          const call = await connectToPeer(peer, waitingUsers[0].peer_id);
-          setCurrentCall(call);
-          setMatchFound(true);
-          
-          // Remove both users from waiting list
-          await removeFromWaitingList(peerId);
-          await removeFromWaitingList(waitingUsers[0].peer_id);
-          
-          setSearchingForMatch(false);
-        } catch (error) {
-          console.error("Auto-connect failed:", error);
-        }
-      }
-    };
-    
-    autoConnect();
-  }, [waitingUsers, searchingForMatch, peer, peerId, matchFound]);
+  // Removed auto-connect to matches functionality
 
   const findMatchHandler = async () => {
     if (!peer || !peerId) {
@@ -172,33 +137,13 @@ const App = () => {
     setSearchingForMatch(true);
     toast.info("Looking for someone to chat with...");
     
-    try {
-      // Register as waiting
-      await registerAsWaiting(peerId);
-      
-      // Try to find an immediate match
-      const matchedPeerId = await findMatch(peerId);
-      
-      if (matchedPeerId) {
-        console.log("Match found immediately with:", matchedPeerId);
-        const call = await connectToPeer(peer, matchedPeerId);
-        setCurrentCall(call);
-        setMatchFound(true);
-        
-        // Remove both users from waiting list
-        await removeFromWaitingList(peerId);
-        await removeFromWaitingList(matchedPeerId);
-        
-        setSearchingForMatch(false);
-      } else {
-        console.log("No immediate match found, waiting for someone to connect...");
-        // We'll wait for the real-time subscription to notify us of new users
-      }
-    } catch (error) {
-      console.error("Error in match finding:", error);
+    // Real-time matching functionality removed
+    
+    // Simulate finding a match for demo purposes
+    setTimeout(() => {
       setSearchingForMatch(false);
-      toast.error("Failed to find a match");
-    }
+      toast.error("No matches found. Try again later.");
+    }, 5000);
   };
 
   const endCall = async () => {
@@ -258,9 +203,7 @@ const App = () => {
                         
                         {searchingForMatch && (
                           <p className="text-sm text-gray-500 animate-pulse">
-                            {waitingUsers.length > 0 
-                              ? `Found ${waitingUsers.length} people waiting, connecting...` 
-                              : "Waiting for someone to join..."}
+                            Waiting for someone to join...
                           </p>
                         )}
                       </div>
