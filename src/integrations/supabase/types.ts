@@ -9,6 +9,89 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      active_users: {
+        Row: {
+          country: string | null
+          gender: string | null
+          id: string
+          last_seen: string
+          match_status: string | null
+          match_time: string | null
+          matched_user_id: string | null
+          peer_id: string | null
+          status: string
+        }
+        Insert: {
+          country?: string | null
+          gender?: string | null
+          id?: string
+          last_seen?: string
+          match_status?: string | null
+          match_time?: string | null
+          matched_user_id?: string | null
+          peer_id?: string | null
+          status?: string
+        }
+        Update: {
+          country?: string | null
+          gender?: string | null
+          id?: string
+          last_seen?: string
+          match_status?: string | null
+          match_time?: string | null
+          matched_user_id?: string | null
+          peer_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "active_users_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
+            referencedRelation: "active_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chats: {
+        Row: {
+          created_at: string | null
+          id: number
+          message: string
+          receiver_id: string | null
+          sender_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          message: string
+          receiver_id?: string | null
+          sender_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          message?: string
+          receiver_id?: string | null
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chats_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "active_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "active_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friends: {
         Row: {
           created_at: string | null
@@ -206,6 +289,30 @@ export type Database = {
           },
         ]
       }
+      waiting_users: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_available: boolean
+          peer_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_available?: boolean
+          peer_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_available?: boolean
+          peer_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -216,6 +323,12 @@ export type Database = {
           user_uuid: string
         }
         Returns: boolean
+      }
+      random_matching: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          peer_id: string
+        }[]
       }
     }
     Enums: {
