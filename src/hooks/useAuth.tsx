@@ -21,72 +21,30 @@ export function useAuth() {
     const initializeAuth = async () => {
       setIsLoading(true);
       
-      try {
-        // Check for existing session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error("Session error:", sessionError);
-          throw sessionError;
-        }
-        
-        if (session?.user) {
-          try {
-            await fetchUserProfile(session.user);
-          } catch (profileError) {
-            console.error("Profile fetching error:", profileError);
-            // Continue anyway, don't block the app
-            toast({
-              variant: "destructive",
-              description: "Failed to load your profile. Some features may be limited.",
-            });
-          }
-        }
-        
-        // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (event, session) => {
-            if (session?.user) {
-              try {
-                await fetchUserProfile(session.user);
-              } catch (error) {
-                console.error("Auth state change profile fetch error:", error);
-                // Continue without blocking
-              }
-            } else {
-              setUser(null);
-            }
-          }
-        );
-        
-        // Check for guest user in local storage if no authenticated user
-        if (!session?.user) {
-          const guestUserJson = localStorage.getItem("nuvora-guest-user");
-          if (guestUserJson) {
-            try {
-              const guestUser = JSON.parse(guestUserJson);
-              setUser(guestUser);
-            } catch (error) {
-              console.error("Failed to parse guest user:", error);
-              localStorage.removeItem("nuvora-guest-user");
-            }
-          }
-        }
-        
-        // Cleanup subscription on unmount
-        return () => {
-          subscription.unsubscribe();
-        };
-      } catch (error) {
-        console.error("Auth initialization error:", error);
-        // Show error toast but don't block the app
-        toast({
-          variant: "destructive",
-          description: "Authentication service is currently unavailable. You can still use the app as a guest.",
-        });
-      } finally {
-        setIsLoading(false);
+      // Check for existing session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        await fetchUserProfile(session.user);
       }
+      
+      // Listen for auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user) {
+            await fetchUserProfile(session.user);
+          } else {
+            setUser(null);
+          }
+        }
+      );
+      
+      setIsLoading(false);
+      
+      // Cleanup subscription on unmount
+      return () => {
+        subscription.unsubscribe();
+      };
     };
 
     initializeAuth();
@@ -150,14 +108,8 @@ export function useAuth() {
 
   const signInWithSocial = async (provider: string) => {
     try {
-      // Map instagram to a supported provider (github) until we properly implement it
-      const mappedProvider = provider === 'instagram' ? 'github' : provider;
-      
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: mappedProvider as any,
-        options: {
-          redirectTo: window.location.origin + '/chat'
-        }
+        provider: provider as any,
       });
 
       if (error) throw error;

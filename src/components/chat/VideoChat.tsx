@@ -2,7 +2,7 @@
 import { useRef, useEffect, useContext, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import { ChatContext } from "@/context/chat";
+import ChatContext from "@/context/ChatContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useFullscreen } from "./video/useFullscreen";
 import { useVideoCall } from "./video/useVideoCall";

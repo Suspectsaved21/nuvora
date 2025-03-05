@@ -9,7 +9,7 @@ import AuthContext from "@/context/AuthContext";
 import { Link } from "react-router-dom";
 import GameFeature from "@/components/chat/GameFeature";
 import { useStripe } from "@/context/StripeContext";
-import { ChatProvider } from "@/context/chat";
+import { ChatProvider } from "@/context/ChatContext";
 
 const Games = () => {
   const { user, hasActiveSubscription } = useContext(AuthContext);

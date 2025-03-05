@@ -115,7 +115,7 @@ export function useOnlineStatus(userId?: string) {
           clearInterval(intervalId);
           
           // Set status to offline and remove channel
-          const promise = supabase
+          supabase
             .from('profiles')
             .update({ 
               online_status: false,
@@ -126,12 +126,10 @@ export function useOnlineStatus(userId?: string) {
               if (channel) {
                 supabase.removeChannel(channel);
               }
+            })
+            .catch(error => {
+              console.error("Error cleaning up online status:", error);
             });
-            
-          // Convert to a standard Promise to ensure catch is available
-          Promise.resolve(promise).catch(error => {
-            console.error("Error cleaning up online status:", error);
-          });
         };
       } catch (error) {
         console.error("Error in online status tracking:", error);

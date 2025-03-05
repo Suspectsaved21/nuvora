@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import AuthContext from "@/context/AuthContext";
-import { Facebook, Mail, Github } from "lucide-react";
+import { Facebook, Mail, Instagram } from "lucide-react";
 
 const AuthForm = () => {
   const { signIn, signUp, continueAsGuest, signInWithSocial } = useContext(AuthContext);
@@ -72,7 +72,7 @@ const AuthForm = () => {
     continueAsGuest();
     toast({
       title: "Welcome!",
-      description: "You're now using Nuvora as a guest.",
+      description: "You're now using Nexaconnect as a guest.",
     });
   };
 
@@ -172,12 +172,12 @@ const AuthForm = () => {
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => handleSocialSignIn('github')}
+                onClick={() => handleSocialSignIn('instagram')}
                 disabled={isLoading}
                 className="flex items-center justify-center"
               >
-                <Github className="h-4 w-4 mr-2" />
-                <span className="sr-only sm:not-sr-only sm:text-xs">GitHub</span>
+                <Instagram className="h-4 w-4 mr-2" />
+                <span className="sr-only sm:not-sr-only sm:text-xs">Instagram</span>
               </Button>
             </div>
           </div>
@@ -251,12 +251,12 @@ const AuthForm = () => {
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => handleSocialSignIn('github')}
+                onClick={() => handleSocialSignIn('instagram')}
                 disabled={isLoading}
                 className="flex items-center justify-center"
               >
-                <Github className="h-4 w-4 mr-2" />
-                <span className="sr-only sm:not-sr-only sm:text-xs">GitHub</span>
+                <Instagram className="h-4 w-4 mr-2" />
+                <span className="sr-only sm:not-sr-only sm:text-xs">Instagram</span>
               </Button>
             </div>
           </div>

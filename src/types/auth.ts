@@ -1,17 +1,7 @@
 
-export interface UserProfile {
-  id: string;
-  username: string;
-  isGuest: boolean;
-  provider?: string;
-  subscription?: {
-    status: "active" | "inactive" | "canceled";
-    plan?: string;
-    expiry?: number;
-  };
-}
+import { User } from "@supabase/supabase-js";
 
-export interface User {
+export interface UserProfile {
   id: string;
   username: string;
   isGuest: boolean;

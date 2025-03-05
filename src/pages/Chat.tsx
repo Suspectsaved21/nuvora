@@ -1,3 +1,4 @@
+
 import { useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
@@ -9,7 +10,7 @@ import LocationSettings from "@/components/chat/LocationSettings";
 import GameFeature from "@/components/chat/GameFeature";
 import AuthForm from "@/components/auth/AuthForm";
 import AuthContext from "@/context/AuthContext";
-import { ChatProvider } from "@/context/chat";
+import { ChatProvider } from "@/context/ChatContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ const Chat = () => {
   const [showGame, setShowGame] = useState(false);
   
   useEffect(() => {
+    // Check if location state contains showGame property
     if (location.state && location.state.showGame) {
       setShowGame(true);
     }
@@ -64,6 +66,7 @@ const Chat = () => {
                   isMobile ? "col-span-1" : "lg:col-span-2",
                   "space-y-6"
                 )}>
+                  {/* Video chat takes full width in this column */}
                   <VideoChat />
                   
                   {(!isMobile || !isChatVisible) && (

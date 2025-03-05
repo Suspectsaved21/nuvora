@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useStripe } from "@/context/StripeContext";
 import { useLocationTracking } from "@/hooks/useLocationTracking";
-import { ChatProvider } from "@/context/chat";
+import { ChatProvider } from "@/context/ChatContext";
 import LocationSettings from "@/components/chat/LocationSettings";
 
 const Settings = () => {

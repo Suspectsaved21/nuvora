@@ -8,7 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import AuthContext from "@/context/AuthContext";
 import { Link } from "react-router-dom";
 import FriendsList from "@/components/chat/FriendsList";
-import { ChatProvider } from "@/context/chat";
+import { ChatProvider } from "@/context/ChatContext";
 
 const Friends = () => {
   const { user } = useContext(AuthContext);
