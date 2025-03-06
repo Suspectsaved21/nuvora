@@ -19,6 +19,19 @@
     <link rel="apple-touch-icon" href="/lovable-uploads/3bf177b0-93cb-4190-868c-cce798ac60cc.png" />
     <link rel="apple-touch-icon-precomposed" href="/lovable-uploads/3bf177b0-93cb-4190-868c-cce798ac60cc.png" />
     <meta name="msapplication-TileImage" content="/lovable-uploads/3bf177b0-93cb-4190-868c-cce798ac60cc.png" />
+    <script>
+      // This script handles deep linking for SPA routes
+      (function() {
+        try {
+          // Log navigation for debugging
+          if (window.location.pathname !== '/' && !window.location.pathname.includes('.')) {
+            console.log('Handling direct navigation to: ' + window.location.pathname);
+          }
+        } catch (e) {
+          console.error('Navigation script error:', e);
+        }
+      })();
+    </script>
   </head>
 
   <body>
