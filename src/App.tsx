@@ -59,7 +59,7 @@ const App = () => (
               
               {/* Handle 404s by redirecting to NotFound component */}
               <Route path="/404" element={<NotFound />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </StripeProvider>
