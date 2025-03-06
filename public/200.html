@@ -26,6 +26,9 @@
           // This script helps with direct URL navigation
           if (window.location.pathname !== '/' && !window.location.pathname.includes('.')) {
             console.log('Handling direct navigation to: ' + window.location.pathname);
+            
+            // Window interface is extended in vite-env.d.ts to include this property
+            window.initialPath = window.location.pathname + window.location.search + window.location.hash;
           }
         } catch (e) {
           console.error('Navigation script error:', e);

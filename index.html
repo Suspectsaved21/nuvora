@@ -28,6 +28,7 @@
             console.log('Handling direct navigation to: ' + window.location.pathname);
             
             // For client-side routing, store the original path to redirect after app load
+            // Window interface is extended in vite-env.d.ts to include this property
             window.initialPath = window.location.pathname + window.location.search + window.location.hash;
           }
         } catch (e) {
