@@ -9,6 +9,7 @@ import { useVideoCall } from "./video/useVideoCall";
 import VideoDisplay from "./video/VideoDisplay";
 import VideoControls from "./video/VideoControls";
 import VideoFooter from "./video/VideoFooter";
+import OnlineUsersCount from "./OnlineUsersCount";
 
 const VideoChat = () => {
   const { partner, isConnected, addFriend } = useContext(ChatContext);
@@ -62,6 +63,11 @@ const VideoChat = () => {
   
   return (
     <>
+      {/* Online Users Count Banner */}
+      <div className="w-full mb-4 py-2 px-4 rounded-md bg-black/20 backdrop-blur-sm text-center">
+        <OnlineUsersCount />
+      </div>
+      
       <div 
         ref={videoChatRef}
         className={cn(

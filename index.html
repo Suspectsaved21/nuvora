@@ -26,6 +26,9 @@
           // Log navigation for debugging
           if (window.location.pathname !== '/' && !window.location.pathname.includes('.')) {
             console.log('Handling direct navigation to: ' + window.location.pathname);
+            
+            // For client-side routing, store the original path to redirect after app load
+            window.initialPath = window.location.pathname + window.location.search + window.location.hash;
           }
         } catch (e) {
           console.error('Navigation script error:', e);

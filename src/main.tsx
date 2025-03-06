@@ -18,6 +18,10 @@ if (!rootElement) {
     // Handle potential SPA routing issues
     if (window.location.pathname !== '/' && !window.location.pathname.includes('.')) {
       console.log('Direct navigation to SPA route:', window.location.pathname);
+      
+      // Store the path for app to handle after initialization
+      // This is handled by the router in App.tsx
+      window.initialPath = window.location.pathname + window.location.search + window.location.hash;
     }
     
     root.render(<App />);

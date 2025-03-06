@@ -22,9 +22,9 @@ const VideoChat = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow py-16 px-4 sm:px-6">
+      <main className="flex-grow py-10 px-4 sm:px-6">
         <div className="container max-w-7xl mx-auto">
-          <div className="mb-8 flex items-center">
+          <div className="mb-6 flex items-center">
             <Link to="/">
               <Button variant="ghost" className="p-0 mr-4">
                 <ArrowLeft className="h-5 w-5" />
