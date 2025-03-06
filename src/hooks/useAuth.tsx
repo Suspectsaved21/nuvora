@@ -31,6 +31,7 @@ export function useAuth() {
       // Listen for auth changes
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
+          console.log("Auth state changed:", event);
           if (session?.user) {
             await fetchUserProfile(session.user);
           } else {
@@ -52,6 +53,7 @@ export function useAuth() {
 
   const signIn = async (email: string, password: string) => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -61,15 +63,39 @@ export function useAuth() {
       
       if (data.user) {
         await fetchUserProfile(data.user);
+        
+        // Update online status immediately upon login
+        await supabase
+          .from('profiles')
+          .update({ online_status: true })
+          .eq('id', data.user.id);
       }
     } catch (error: any) {
       console.error("Sign in error:", error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const signUp = async (email: string, password: string) => {
     try {
+      setIsLoading(true);
+      
+      // First check if the user already exists
+      const { data: existingUsers, error: checkError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', email.split("@")[0])
+        .limit(1);
+        
+      if (checkError) throw checkError;
+      
+      if (existingUsers && existingUsers.length > 0) {
+        throw new Error("Username already exists. Please use a different email address.");
+      }
+      
+      // Proceed with sign up
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -77,6 +103,7 @@ export function useAuth() {
           data: {
             username: email.split("@")[0],
           },
+          emailRedirectTo: window.location.origin,
         },
       });
 
@@ -84,7 +111,6 @@ export function useAuth() {
       
       // For immediate access: Create a temporary user profile
       if (data.user) {
-        // Instead of waiting for email verification, give immediate access
         // Create a user profile object similar to what fetchUserProfile would return
         const tempUserProfile = {
           id: data.user.id,
@@ -97,12 +123,18 @@ export function useAuth() {
         setUser(tempUserProfile);
         
         toast({
-          description: "Account created! You can now use the app.",
+          description: "Verification email sent! Please check your inbox and verify your email to fully activate your account.",
         });
       }
     } catch (error: any) {
       console.error("Sign up error:", error);
+      toast({
+        variant: "destructive",
+        description: error.message || "Failed to sign up. Please try again.",
+      });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -110,6 +142,9 @@ export function useAuth() {
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider as any,
+        options: {
+          redirectTo: window.location.origin,
+        }
       });
 
       if (error) throw error;
@@ -153,21 +188,45 @@ export function useAuth() {
   };
 
   const signOut = async () => {
-    if (user?.isGuest) {
-      // For guest users, just clear local storage
-      localStorage.removeItem("nuvora-guest-user");
+    try {
+      setIsLoading(true);
+      
+      if (user?.isGuest) {
+        // For guest users, just clear local storage
+        localStorage.removeItem("nuvora-guest-user");
+        setUser(null);
+        return;
+      }
+      
+      // For registered users, update online status to false before signing out
+      if (user && !user.isGuest) {
+        await supabase
+          .from('profiles')
+          .update({ 
+            online_status: false,
+            last_seen_at: new Date().toISOString()
+          })
+          .eq('id', user.id);
+      }
+      
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Sign out error:", error);
+        throw error;
+      }
+      
       setUser(null);
-      return;
+    } catch (error) {
+      console.error("Error during sign out:", error);
+      toast({
+        variant: "destructive",
+        description: "Failed to sign out properly. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
     }
-    
-    // For registered users, sign out from Supabase
-    const { error } = await supabase.auth.signOut();
-    
-    if (error) {
-      console.error("Sign out error:", error);
-    }
-    
-    setUser(null);
   };
 
   return {

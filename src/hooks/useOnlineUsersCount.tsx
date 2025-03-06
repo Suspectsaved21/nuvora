@@ -11,11 +11,11 @@ export function useOnlineUsersCount() {
     try {
       setIsLoading(true);
       
-      // Query active_users table to get users who are online and available
+      // Query profiles table to get users who are online
       const { data, error, count } = await supabase
-        .from('active_users')
+        .from('profiles')
         .select('*', { count: 'exact' })
-        .eq('status', 'available');
+        .eq('online_status', true);
       
       if (error) throw error;
       
@@ -32,7 +32,7 @@ export function useOnlineUsersCount() {
     }
   };
 
-  // Subscribe to changes in the active_users table
+  // Subscribe to changes in the profiles table
   useEffect(() => {
     fetchOnlineUsersCount();
     
@@ -43,10 +43,10 @@ export function useOnlineUsersCount() {
           {
             event: '*',
             schema: 'public',
-            table: 'active_users'
+            table: 'profiles'
           }, 
-          () => {
-            // Update count when any active_users record changes
+          (payload) => {
+            // Update count when any profile changes online status
             fetchOnlineUsersCount();
           })
       .subscribe();

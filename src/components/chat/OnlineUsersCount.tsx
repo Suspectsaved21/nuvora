@@ -11,7 +11,7 @@ const OnlineUsersCount = ({ className }: OnlineUsersCountProps) => {
 
   return (
     <div className={`flex items-center justify-center text-sm ${className}`}>
-      <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+      <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
       {isLoading ? (
         <div className="flex items-center">
           <Loader2 className="h-3 w-3 animate-spin mr-2" />
