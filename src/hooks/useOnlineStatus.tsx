@@ -115,21 +115,27 @@ export function useOnlineStatus(userId?: string) {
           clearInterval(intervalId);
           
           // Set status to offline and remove channel
-          supabase
-            .from('profiles')
-            .update({ 
-              online_status: false,
-              last_seen_at: new Date().toISOString()
-            })
-            .eq('id', userId)
-            .then(() => {
+          // Fix: Convert this to a proper Promise with .then and .catch
+          const updateStatus = async () => {
+            try {
+              await supabase
+                .from('profiles')
+                .update({ 
+                  online_status: false,
+                  last_seen_at: new Date().toISOString()
+                })
+                .eq('id', userId);
+                
               if (channel) {
                 supabase.removeChannel(channel);
               }
-            })
-            .catch(error => {
+            } catch (error) {
               console.error("Error cleaning up online status:", error);
-            });
+            }
+          };
+          
+          // Execute the async function
+          updateStatus();
         };
       } catch (error) {
         console.error("Error in online status tracking:", error);
