@@ -17,6 +17,8 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import ProfileSettings from "./pages/ProfileSettings";
+import VideoChat from "./pages/VideoChat";
+import TextChat from "./pages/TextChat";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,6 +47,8 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/chat" element={<Chat />} />
+              <Route path="/video-chat" element={<VideoChat />} />
+              <Route path="/text-chat" element={<TextChat />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/games" element={<Games />} />
               <Route path="/friends" element={<Friends />} />
