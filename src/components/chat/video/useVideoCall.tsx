@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect, useContext } from "react";
 import { initPeer, setupVideoCall, handleRemoteStream, cleanupMedia } from "@/lib/peerjs";
 import ChatContext from "@/context/ChatContext";
@@ -39,7 +38,8 @@ export function useVideoCall(isConnected: boolean, partner: { id: string } | nul
           audio: true
         };
         
-        const { localStream } = await setupVideoCall(localVideoRef, remoteVideoRef, constraints);
+        // Fix: Pass false for audioOnly instead of constraints object
+        const { localStream } = await setupVideoCall(localVideoRef, remoteVideoRef, false);
         localStreamRef = localStream;
         
         // Handle incoming calls
