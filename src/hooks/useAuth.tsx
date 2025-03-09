@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useUserProfile } from "./useUserProfile";
+import { setUserOnline } from "@/integrations/supabase/peerservice";
 
 export function useAuth() {
   const { 
@@ -26,6 +27,10 @@ export function useAuth() {
       
       if (session?.user) {
         await fetchUserProfile(session.user);
+        // Set user as online
+        if (user) {
+          setUserOnline(user, true);
+        }
       }
       
       // Listen for auth changes
@@ -34,6 +39,9 @@ export function useAuth() {
           console.log("Auth state changed:", event);
           if (session?.user) {
             await fetchUserProfile(session.user);
+            if (event === 'SIGNED_IN') {
+              setUserOnline(user, true);
+            }
           } else {
             setUser(null);
           }
@@ -65,10 +73,9 @@ export function useAuth() {
         await fetchUserProfile(data.user);
         
         // Update online status immediately upon login
-        await supabase
-          .from('profiles')
-          .update({ online_status: true })
-          .eq('id', data.user.id);
+        if (user) {
+          await setUserOnline(user, true);
+        }
       }
     } catch (error: any) {
       console.error("Sign in error:", error);
@@ -122,8 +129,11 @@ export function useAuth() {
         
         setUser(tempUserProfile);
         
+        // Set user as online
+        await setUserOnline(tempUserProfile, true);
+        
         toast({
-          description: "Verification email sent! Please check your inbox and verify your email to fully activate your account.",
+          description: "Account created successfully! You can now use the application.",
         });
       }
     } catch (error: any) {
@@ -200,13 +210,7 @@ export function useAuth() {
       
       // For registered users, update online status to false before signing out
       if (user && !user.isGuest) {
-        await supabase
-          .from('profiles')
-          .update({ 
-            online_status: false,
-            last_seen_at: new Date().toISOString()
-          })
-          .eq('id', user.id);
+        await setUserOnline(user, false);
       }
       
       // Sign out from Supabase

@@ -20,6 +20,7 @@ export type Database = {
           matched_user_id: string | null
           peer_id: string | null
           status: string
+          user_id: string
         }
         Insert: {
           country?: string | null
@@ -31,6 +32,7 @@ export type Database = {
           matched_user_id?: string | null
           peer_id?: string | null
           status?: string
+          user_id: string
         }
         Update: {
           country?: string | null
@@ -42,6 +44,7 @@ export type Database = {
           matched_user_id?: string | null
           peer_id?: string | null
           status?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -94,25 +97,34 @@ export type Database = {
       }
       friends: {
         Row: {
+          blocked_by: string | null
           created_at: string | null
           friend_id: string
           id: string
+          last_seen: string | null
+          peer_id: string | null
           status: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          blocked_by?: string | null
           created_at?: string | null
           friend_id: string
           id?: string
+          last_seen?: string | null
+          peer_id?: string | null
           status: string
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          blocked_by?: string | null
           created_at?: string | null
           friend_id?: string
           id?: string
+          last_seen?: string | null
+          peer_id?: string | null
           status?: string
           updated_at?: string | null
           user_id?: string
@@ -164,6 +176,30 @@ export type Database = {
           question?: string
           type?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      match_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          match_user_id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          match_user_id: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          match_user_id?: string
+          status?: string | null
+          user_id?: string
         }
         Relationships: []
       }

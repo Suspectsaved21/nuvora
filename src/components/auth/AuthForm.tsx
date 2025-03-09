@@ -1,3 +1,4 @@
+
 import { useState, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -86,7 +87,7 @@ const AuthForm = () => {
       await signUp(formData.email, formData.password);
       toast({
         title: "Account created",
-        description: "Please check your email for a verification link. You need to verify your email before signing in.",
+        description: "Your account has been successfully created. You can now use the application.",
       });
     } catch (error: any) {
       console.error(error);
@@ -326,6 +327,6 @@ const AuthForm = () => {
       </div>
     </div>
   );
-};
+}
 
 export default AuthForm;
