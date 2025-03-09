@@ -12,11 +12,12 @@ import VideoFooter from "./video/VideoFooter";
 import OnlineUsersCount from "./OnlineUsersCount";
 
 const VideoChat = () => {
-  const { partner, isConnected, addFriend } = useContext(ChatContext);
+  const { partner, isConnected, addFriend, findNewPartner, isFindingPartner, reportPartner } = useContext(ChatContext);
   const videoChatRef = useRef<HTMLDivElement>(null);
   const localVideoChatRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [isChatVisible, setIsChatVisible] = useState(!isMobile);
+  const [isSplitView, setIsSplitView] = useState(false);
   
   const { isFullscreen, toggleFullscreen, requestFullscreen } = useFullscreen(videoChatRef);
   const { 
@@ -57,8 +58,22 @@ const VideoChat = () => {
     }
   };
 
+  const handleReportPartner = () => {
+    if (partner) {
+      reportPartner("inappropriate behavior");
+      toast({
+        title: "Report Sent",
+        description: "Thank you for your report. We'll review it shortly.",
+      });
+    }
+  };
+
   const toggleChatVisibility = () => {
     setIsChatVisible(!isChatVisible);
+  };
+  
+  const toggleSplitView = () => {
+    setIsSplitView(!isSplitView);
   };
   
   // Request fullscreen on mobile when component mounts
@@ -80,18 +95,19 @@ const VideoChat = () => {
   }, [isMobile, requestFullscreen]);
   
   return (
-    <>
+    <div className="flex flex-col space-y-4">
       {/* Online Users Count Banner */}
-      <div className="w-full mb-4 py-2 px-4 rounded-md bg-black/20 backdrop-blur-sm text-center">
+      <div className="w-full mb-4 fixed top-20 left-0 right-0 flex justify-center z-50">
         <OnlineUsersCount />
       </div>
       
       <div 
         ref={videoChatRef}
         className={cn(
-          "relative w-full aspect-video bg-nexablack rounded-lg overflow-hidden",
-          isFullscreen || isLocalFullscreen ? "fixed inset-0 z-50 h-screen aspect-auto" : "",
-          isMobile ? "h-[calc(100vh-120px)]" : ""
+          "relative w-full bg-nexablack rounded-lg overflow-hidden",
+          isFullscreen || isLocalFullscreen ? "fixed inset-0 z-50 h-screen" : "",
+          isMobile ? "h-[calc(100vh-120px)]" : "aspect-video",
+          isSplitView && !(isFullscreen || isLocalFullscreen) ? "omegle-split-screen" : ""
         )}
       >
         <div className="w-full h-full" ref={localVideoChatRef}>
@@ -105,7 +121,11 @@ const VideoChat = () => {
             toggleFullscreen={toggleFullscreen}
             toggleLocalFullscreen={toggleLocalFullscreen}
             handleAddFriend={handleAddFriend}
+            handleReportPartner={handleReportPartner}
             isMobile={isMobile}
+            isSplitView={isSplitView}
+            toggleSplitView={toggleSplitView}
+            isFindingPartner={isFindingPartner}
           />
         </div>
         
@@ -119,6 +139,16 @@ const VideoChat = () => {
             toggleAudio={toggleAudio}
             toggleFullscreen={isLocalFullscreen ? toggleLocalFullscreen : toggleFullscreen}
             handleAddFriend={handleAddFriend}
+            toggleSplitView={toggleSplitView}
+            isSplitView={isSplitView}
+            findNewPartner={findNewPartner}
+          />
+        )}
+
+        {!isConnected && !isFullscreen && !isLocalFullscreen && (
+          <NavigationButtons 
+            findNewPartner={findNewPartner} 
+            isFindingPartner={isFindingPartner} 
           />
         )}
 
@@ -128,7 +158,7 @@ const VideoChat = () => {
           isChatVisible={isChatVisible}
         />
       </div>
-    </>
+    </div>
   );
 };
 

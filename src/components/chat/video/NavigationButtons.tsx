@@ -1,32 +1,26 @@
 
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 interface NavigationButtonsProps {
   findNewPartner: () => void;
+  isFindingPartner: boolean;
 }
 
-const NavigationButtons = ({ findNewPartner }: NavigationButtonsProps) => {
+const NavigationButtons = ({ findNewPartner, isFindingPartner }: NavigationButtonsProps) => {
   return (
-    <>
+    <div className="absolute bottom-24 left-0 right-0 flex justify-center z-40">
       <Button 
-        variant="outline" 
-        size="icon" 
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-40 rounded-full h-10 w-10"
+        variant="default" 
+        size="lg" 
+        className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full px-8 shadow-lg"
         onClick={findNewPartner}
+        disabled={isFindingPartner}
       >
-        <ChevronLeft size={20} />
-      </Button>
-      
-      <Button 
-        variant="outline" 
-        size="icon" 
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-40 rounded-full h-10 w-10"
-        onClick={findNewPartner}
-      >
+        <span className="mr-2">Next</span>
         <ChevronRight size={20} />
       </Button>
-    </>
+    </div>
   );
 };
 

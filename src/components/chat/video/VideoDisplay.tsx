@@ -1,6 +1,6 @@
 
 import { useContext } from "react";
-import { Minimize } from "lucide-react";
+import { Minimize, Split } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ChatContext from "@/context/ChatContext";
 import RemoteVideo from "./RemoteVideo";
@@ -19,7 +19,11 @@ interface VideoDisplayProps {
   toggleFullscreen: () => void;
   toggleLocalFullscreen: () => void;
   handleAddFriend: () => void;
+  handleReportPartner?: () => void;
   isMobile: boolean;
+  isSplitView: boolean;
+  toggleSplitView: () => void;
+  isFindingPartner: boolean;
 }
 
 const VideoDisplay = ({
@@ -32,16 +36,20 @@ const VideoDisplay = ({
   toggleFullscreen,
   toggleLocalFullscreen,
   handleAddFriend,
-  isMobile
+  handleReportPartner,
+  isMobile,
+  isSplitView,
+  toggleSplitView,
+  isFindingPartner
 }: VideoDisplayProps) => {
-  const { findNewPartner, isFindingPartner } = useContext(ChatContext);
+  const { findNewPartner } = useContext(ChatContext);
   
   if (!isConnected || isFindingPartner) {
     return <WaitingScreen localVideoRef={localVideoRef} isFindingPartner={isFindingPartner} />;
   }
   
   return (
-    <div className="relative w-full h-full">
+    <div className={`relative w-full h-full ${isSplitView ? 'omegle-split-screen' : ''}`}>
       {/* Remote video (partner) */}
       <RemoteVideo 
         remoteVideoRef={remoteVideoRef}
@@ -49,6 +57,7 @@ const VideoDisplay = ({
         isLocalFullscreen={isLocalFullscreen}
         toggleFullscreen={toggleFullscreen}
         isMobile={isMobile}
+        isSplitView={isSplitView}
       />
       
       {/* Local video (user) */}
@@ -58,16 +67,29 @@ const VideoDisplay = ({
         isLocalFullscreen={isLocalFullscreen}
         toggleLocalFullscreen={toggleLocalFullscreen}
         isMobile={isMobile}
+        isSplitView={isSplitView}
       />
       
       {/* Partner info overlay */}
       {partner && !isLocalFullscreen && (
-        <PartnerInfo partner={partner} handleAddFriend={handleAddFriend} />
+        <PartnerInfo 
+          partner={partner} 
+          handleAddFriend={handleAddFriend} 
+          reportPartner={handleReportPartner}
+        />
       )}
       
-      {/* Next/Previous User Navigation */}
-      {!isLocalFullscreen && (
-        <NavigationButtons findNewPartner={findNewPartner} />
+      {/* Split View Button */}
+      {!isLocalFullscreen && !isFullscreen && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={toggleSplitView}
+          className="absolute top-4 right-4 bg-black/50 border-white/20 text-white hover:bg-black/70 z-40 rounded-full"
+          title={isSplitView ? "Exit Split View" : "Enter Split View"}
+        >
+          <Split size={16} />
+        </Button>
       )}
 
       {/* Fullscreen exit button for the remote video */}

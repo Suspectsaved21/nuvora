@@ -10,6 +10,7 @@ interface RemoteVideoProps {
   isLocalFullscreen: boolean;
   toggleFullscreen: () => void;
   isMobile: boolean;
+  isSplitView: boolean;
 }
 
 const RemoteVideo = ({
@@ -17,18 +18,21 @@ const RemoteVideo = ({
   isFullscreen,
   isLocalFullscreen,
   toggleFullscreen,
-  isMobile
+  isMobile,
+  isSplitView
 }: RemoteVideoProps) => {
   return (
     <div className={cn(
       "absolute transition-all duration-300 ease-in-out",
-      isMobile && !isFullscreen && !isLocalFullscreen 
-        ? "inset-0 w-full h-full" // Full screen on mobile by default
-        : !isMobile && !isFullscreen && !isLocalFullscreen 
-          ? "inset-0 w-full h-full" // Also fullscreen on desktop for better viewing
-          : isLocalFullscreen 
-            ? "w-1/4 h-1/4 bottom-20 right-4 z-20 rounded-lg border border-white/10" 
-            : "inset-0 w-full h-full z-30" // Always fullscreen for remote
+      isSplitView && !isFullscreen && !isLocalFullscreen
+        ? "w-full h-1/2 top-0 left-0 z-10" // Split view - top half
+        : isMobile && !isFullscreen && !isLocalFullscreen 
+          ? "inset-0 w-full h-full" // Full screen on mobile by default
+          : !isMobile && !isFullscreen && !isLocalFullscreen 
+            ? "inset-0 w-full h-full" // Also fullscreen on desktop for better viewing
+            : isLocalFullscreen 
+              ? "w-1/4 h-1/4 bottom-20 right-4 z-20 rounded-lg border border-white/10" 
+              : "inset-0 w-full h-full z-30" // Always fullscreen for remote when in fullscreen mode
     )}>
       <video
         ref={remoteVideoRef}
@@ -38,7 +42,7 @@ const RemoteVideo = ({
         onClick={toggleFullscreen}
       />
       
-      {!isFullscreen && !isLocalFullscreen && (
+      {!isFullscreen && !isLocalFullscreen && !isSplitView && (
         <Button
           variant="outline"
           size="icon"

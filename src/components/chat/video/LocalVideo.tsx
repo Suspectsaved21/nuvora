@@ -10,6 +10,7 @@ interface LocalVideoProps {
   isLocalFullscreen: boolean;
   toggleLocalFullscreen: () => void;
   isMobile: boolean;
+  isSplitView: boolean;
 }
 
 const LocalVideo = ({
@@ -17,19 +18,22 @@ const LocalVideo = ({
   isFullscreen,
   isLocalFullscreen,
   toggleLocalFullscreen,
-  isMobile
+  isMobile,
+  isSplitView
 }: LocalVideoProps) => {
   return (
     <div 
       className={cn(
         "transition-all duration-300 ease-in-out",
-        isMobile && !isFullscreen && !isLocalFullscreen 
-          ? "absolute w-1/3 aspect-video bottom-20 right-4 rounded-lg overflow-hidden border-2 border-white/20 shadow-lg z-40" 
-          : !isMobile && !isFullscreen && !isLocalFullscreen 
-            ? "absolute w-1/4 aspect-video bottom-20 right-4 rounded-lg overflow-hidden border-2 border-white/20 shadow-lg z-40" 
-            : isFullscreen 
+        isSplitView && !isFullscreen && !isLocalFullscreen
+          ? "absolute w-full h-1/2 bottom-0 left-0 z-10" // Split view - bottom half
+          : isMobile && !isFullscreen && !isLocalFullscreen 
+            ? "absolute w-1/3 aspect-video bottom-20 right-4 rounded-lg overflow-hidden border-2 border-white/20 shadow-lg z-40" 
+            : !isMobile && !isFullscreen && !isLocalFullscreen 
               ? "absolute w-1/4 aspect-video bottom-20 right-4 rounded-lg overflow-hidden border-2 border-white/20 shadow-lg z-40" 
-              : "fixed inset-0 z-50 w-full h-full" // For local fullscreen
+              : isFullscreen 
+                ? "absolute w-1/4 aspect-video bottom-20 right-4 rounded-lg overflow-hidden border-2 border-white/20 shadow-lg z-40" 
+                : "fixed inset-0 z-50 w-full h-full" // For local fullscreen
       )}
     >
       <video
@@ -38,10 +42,10 @@ const LocalVideo = ({
         playsInline
         muted
         className="w-full h-full object-cover cursor-pointer"
-        onClick={toggleLocalFullscreen}
+        onClick={!isSplitView ? toggleLocalFullscreen : undefined}
       />
       
-      {!isLocalFullscreen && (
+      {!isLocalFullscreen && !isSplitView && (
         <Button
           variant="outline"
           size="icon"
