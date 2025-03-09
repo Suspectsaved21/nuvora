@@ -1,5 +1,6 @@
+
 import Peer from 'peerjs';
-import { supabase } from './supabaseClient'; // ✅ Make sure this path is correct!
+import { supabase } from '../supabase/client'; // Updated import path to the correct location
 
 class PeerService {
   peer: Peer | null = null;
