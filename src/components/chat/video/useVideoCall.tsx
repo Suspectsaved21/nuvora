@@ -29,7 +29,17 @@ export function useVideoCall(isConnected: boolean, partner: { id: string } | nul
         setPeerInstance(peer);
         
         // Set up the video call with local and remote video elements
-        const { localStream } = await setupVideoCall(localVideoRef, remoteVideoRef);
+        // Use higher quality settings for mobile
+        const constraints = {
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: "user"
+          },
+          audio: true
+        };
+        
+        const { localStream } = await setupVideoCall(localVideoRef, remoteVideoRef, constraints);
         localStreamRef = localStream;
         
         // Handle incoming calls

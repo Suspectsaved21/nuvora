@@ -61,6 +61,24 @@ const VideoChat = () => {
     setIsChatVisible(!isChatVisible);
   };
   
+  // Request fullscreen on mobile when component mounts
+  useEffect(() => {
+    if (isMobile && videoChatRef.current) {
+      // Use a timeout to ensure DOM is ready
+      const timer = setTimeout(() => {
+        try {
+          if (videoChatRef.current) {
+            requestFullscreen(videoChatRef.current);
+          }
+        } catch (error) {
+          console.error("Failed to request fullscreen:", error);
+        }
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isMobile, requestFullscreen]);
+  
   return (
     <>
       {/* Online Users Count Banner */}
