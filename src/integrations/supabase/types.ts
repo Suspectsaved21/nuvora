@@ -360,6 +360,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      match_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user1: string
+          user2: string
+        }[]
+      }
       random_matching: {
         Args: Record<PropertyKey, never>
         Returns: {
