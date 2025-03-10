@@ -15,7 +15,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface UserResult {
   id: string;
   username: string;
-  avatar_url?: string;
   country?: string;
 }
 
@@ -46,7 +45,7 @@ const Search = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, username, avatar_url, country')
+        .select('id, username, country')
         .ilike('username', `%${searchQuery}%`)
         .neq('id', user.id)
         .limit(10);
@@ -73,11 +72,14 @@ const Search = () => {
 
   const handleAddFriend = async (userId: string, username: string) => {
     try {
+      // Use the 'friends' table instead of 'friend_requests'
       const { error } = await supabase
-        .from('friend_requests')
-        .insert([
-          { sender_id: user.id, receiver_id: userId, status: 'pending' }
-        ]);
+        .from('friends')
+        .insert({
+          user_id: user.id,
+          friend_id: userId,
+          status: 'pending'
+        });
 
       if (error) throw error;
       
