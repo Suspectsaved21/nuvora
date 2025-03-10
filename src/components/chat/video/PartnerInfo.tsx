@@ -13,7 +13,7 @@ const PartnerInfo = ({ partner, handleAddFriend, reportPartner }: PartnerInfoPro
   
   return (
     <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-40">
-      <div className="glass-morphism px-4 py-2 rounded-full text-sm text-white flex items-center gap-2">
+      <div className="px-4 py-2 rounded-full text-sm text-white flex items-center gap-2 bg-black/50 backdrop-blur-md border border-purple-500/30">
         <div className="flex items-center">
           <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
           <span className="truncate max-w-40 font-medium">

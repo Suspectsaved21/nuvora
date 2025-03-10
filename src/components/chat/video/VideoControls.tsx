@@ -38,7 +38,7 @@ const VideoControls = ({
     )}>
       <div className={cn(
         "px-3 py-2 rounded-full flex gap-2",
-        "glass-morphism bg-black/70"
+        "bg-black/70 backdrop-blur-md border border-purple-500/30"
       )}>
         <Button
           variant="outline"

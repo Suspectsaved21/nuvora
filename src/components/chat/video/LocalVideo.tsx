@@ -28,11 +28,11 @@ const LocalVideo = ({
         isSplitView && !isFullscreen && !isLocalFullscreen
           ? "absolute w-full h-1/2 bottom-0 left-0 z-10" // Split view - bottom half
           : isMobile && !isFullscreen && !isLocalFullscreen 
-            ? "absolute w-1/3 aspect-video bottom-20 right-4 rounded-lg overflow-hidden border-2 border-white/20 shadow-lg z-40" 
+            ? "absolute w-1/3 aspect-video bottom-20 right-4 rounded-lg overflow-hidden border-2 border-purple-500/30 shadow-lg z-40" 
             : !isMobile && !isFullscreen && !isLocalFullscreen 
-              ? "absolute w-1/4 aspect-video bottom-20 right-4 rounded-lg overflow-hidden border-2 border-white/20 shadow-lg z-40" 
+              ? "absolute w-1/4 aspect-video bottom-20 right-4 rounded-lg overflow-hidden border-2 border-purple-500/30 shadow-lg z-40" 
               : isFullscreen 
-                ? "absolute w-1/4 aspect-video bottom-20 right-4 rounded-lg overflow-hidden border-2 border-white/20 shadow-lg z-40" 
+                ? "absolute w-1/4 aspect-video bottom-20 right-4 rounded-lg overflow-hidden border-2 border-purple-500/30 shadow-lg z-40" 
                 : "fixed inset-0 z-50 w-full h-full" // For local fullscreen
       )}
     >
@@ -41,7 +41,7 @@ const LocalVideo = ({
         autoPlay
         playsInline
         muted
-        className="w-full h-full object-cover cursor-pointer"
+        className="w-full h-full object-cover cursor-pointer bg-gradient-to-br from-indigo-900 to-purple-900"
         onClick={!isSplitView ? toggleLocalFullscreen : undefined}
       />
       

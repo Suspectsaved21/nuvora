@@ -1,7 +1,7 @@
 
 import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserCircle, GamepadIcon, MessageCircle, Search, Settings, Users } from 'lucide-react';
+import { UserCircle, Gamepad, MessageCircle, Search, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ChatContext from '@/context/ChatContext';
 import AuthContext from '@/context/AuthContext';
@@ -39,17 +39,17 @@ const VideoFooter = ({
   };
 
   const iconSize = isMobile ? 20 : 24;
-  const textSize = isMobile ? "text-[10px]" : "text-xs";
+  const textSize = isMobile ? "text-xs" : "text-sm";
 
   return (
     <div className={cn(
-      "fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-2 py-1 z-40",
+      "fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent px-2 py-1 z-40",
       isFullscreen ? "z-[60]" : ""
     )}>
       <div className="container mx-auto flex justify-around items-center">
         <Button
           variant="ghost"
-          className={`flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
+          className={`flex flex-col items-center text-white hover:text-primary hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
           asChild
         >
           <Link to="/profile">
@@ -60,7 +60,7 @@ const VideoFooter = ({
 
         <Button
           variant="ghost"
-          className={`flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
+          className={`flex flex-col items-center text-white hover:text-primary hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
           asChild
         >
           <Link to="/search">
@@ -71,10 +71,10 @@ const VideoFooter = ({
 
         <Button
           variant="ghost"
-          className={`flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
+          className={`flex flex-col items-center text-white hover:text-primary hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
           onClick={handleGameClick}
         >
-          <GamepadIcon size={iconSize} />
+          <Gamepad size={iconSize} />
           <span className={`${textSize} mt-1`}>Games</span>
         </Button>
 
@@ -84,8 +84,8 @@ const VideoFooter = ({
             className={cn(
               `flex flex-col items-center hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`,
               isChatVisible 
-                ? "text-white" 
-                : "text-white/80 hover:text-white"
+                ? "text-primary" 
+                : "text-white hover:text-primary"
             )}
             onClick={toggleChatVisibility}
           >
@@ -96,7 +96,7 @@ const VideoFooter = ({
 
         <Button
           variant="ghost"
-          className={`flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
+          className={`flex flex-col items-center text-white hover:text-primary hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
           asChild
         >
           <Link to="/friends">

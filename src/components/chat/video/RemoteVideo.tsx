@@ -1,7 +1,7 @@
 
 import { RefObject } from "react";
 import { Button } from "@/components/ui/button";
-import { Maximize, Minimize } from "lucide-react";
+import { Maximize } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface RemoteVideoProps {
@@ -38,7 +38,7 @@ const RemoteVideo = ({
         ref={remoteVideoRef}
         autoPlay
         playsInline
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover bg-gradient-to-br from-purple-900 to-indigo-900"
         onClick={!isSplitView ? toggleFullscreen : undefined}
       />
       

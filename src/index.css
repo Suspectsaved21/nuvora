@@ -80,9 +80,10 @@
   }
 }
 
+/* OmeTV-inspired styles */
 @layer utilities {
   .glass-morphism {
-    @apply backdrop-blur-xl bg-white/20 dark:bg-black/20 border border-white/20 dark:border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_12px_-2px_rgba(255,255,255,0.05)];
+    @apply backdrop-blur-xl bg-white/5 dark:bg-black/20 border border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_12px_-2px_rgba(255,255,255,0.05)];
   }
   
   .neomorphism {

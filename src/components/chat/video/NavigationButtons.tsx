@@ -16,11 +16,11 @@ const NavigationButtons = ({ findNewPartner, isFindingPartner }: NavigationButto
       <Button 
         variant="default" 
         size={isMobile ? "default" : "lg"}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full px-8 shadow-lg"
+        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-full px-8 shadow-lg"
         onClick={findNewPartner}
         disabled={isFindingPartner}
       >
-        <span className="mr-2">Next</span>
+        <span className="mr-2">{isFindingPartner ? "Finding..." : "Next"}</span>
         <ChevronRight size={20} />
       </Button>
     </div>

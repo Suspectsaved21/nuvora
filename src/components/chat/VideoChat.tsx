@@ -104,13 +104,13 @@ const VideoChat = () => {
       <div 
         ref={videoChatRef}
         className={cn(
-          "relative w-full bg-nexablack rounded-lg overflow-hidden",
+          "relative w-full rounded-lg overflow-hidden",
           isFullscreen || isLocalFullscreen ? "fixed inset-0 z-50 h-screen" : "",
           isMobile ? "h-[calc(100vh-120px)]" : "aspect-video",
           isSplitView && !(isFullscreen || isLocalFullscreen) ? "omegle-split-screen" : ""
         )}
       >
-        <div className="w-full h-full" ref={localVideoChatRef}>
+        <div className="w-full h-full bg-gradient-to-br from-purple-900 to-indigo-900" ref={localVideoChatRef}>
           <VideoDisplay
             isConnected={isConnected}
             remoteVideoRef={remoteVideoRef}
