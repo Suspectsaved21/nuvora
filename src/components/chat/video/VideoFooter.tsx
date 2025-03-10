@@ -91,8 +91,8 @@ const VideoFooter = ({
           >
             <MessageCircle size={iconSize} />
             <span className={`${textSize} mt-1`}>Chat</span>
-          </Link>
-        </Button>
+          </Button>
+        )}
 
         <Button
           variant="ghost"
