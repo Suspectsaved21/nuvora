@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { StripeProvider } from "@/context/StripeContext";
 import SubscriptionModal from "@/components/subscription/SubscriptionModal";
@@ -17,18 +17,8 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import ProfileSettings from "./pages/ProfileSettings";
-import VideoChat from "./pages/VideoChat";
-import TextChat from "./pages/TextChat";
-import Search from "./pages/Search";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 // Get basename from environment if available
 const getBasename = () => {
@@ -48,19 +38,13 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/chat" element={<Chat />} />
-              <Route path="/video-chat" element={<VideoChat />} />
-              <Route path="/text-chat" element={<TextChat />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/games" element={<Games />} />
               <Route path="/friends" element={<Friends />} />
-              <Route path="/search" element={<Search />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/profile/settings" element={<ProfileSettings />} />
-              
-              {/* Handle 404s by redirecting to NotFound component */}
-              <Route path="/404" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

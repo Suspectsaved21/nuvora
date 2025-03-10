@@ -6,8 +6,6 @@ import { useFriendManagement } from "@/hooks/useFriendManagement";
 import { usePartnerManagement } from "@/hooks/usePartnerManagement";
 import { Friend, Message, Partner, Location, GameAction } from "@/types/chat";
 import { toast } from "@/components/ui/use-toast";
-import { toast as sonnerToast } from "sonner";
-import { subscribeToFriendRequests, showFriendRequestNotification } from "@/services/friends/index";
 
 interface ChatContextType {
   messages: Message[];
@@ -70,8 +68,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     friends,
     blockUser,
     unfriendUser,
-    addFriend: addFriendToList,
-    refreshFriends
+    addFriend: addFriendToList
   } = useFriendManagement();
   
   const {
@@ -97,22 +94,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user, partner, isFindingPartner]);
   
-  // Set up real-time friend request notifications
-  useEffect(() => {
-    if (!user) return;
-    
-    const cleanup = subscribeToFriendRequests(user.id, (sender) => {
-      showFriendRequestNotification(
-        sender.id,
-        sender.username,
-        user.id,
-        refreshFriends
-      );
-    });
-    
-    return cleanup;
-  }, [user, refreshFriends]);
-  
   // Wrapper functions to connect all our hooks together
   const findNewPartner = () => {
     findPartner();
@@ -125,10 +106,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const startDirectChat = (userId: string) => {
     const friend = friends.find(f => f.id === userId);
-    if (friend && !friend.blocked && !friend.pending) {
+    if (friend && !friend.blocked) {
       initDirectChat(friend.id, friend.username, friend.country);
-    } else if (friend && friend.pending) {
-      sonnerToast.error("Cannot chat with pending friend. Wait for them to accept your request.");
     } else {
       toast({
         variant: "destructive",
@@ -139,12 +118,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const startVideoCall = (userId: string) => {
     const friend = friends.find(f => f.id === userId);
-    if (friend && !friend.blocked && !friend.pending && friend.status === 'online') {
+    if (friend && !friend.blocked) {
       initVideoCall(friend.id, friend.username, friend.country);
-    } else if (friend && friend.pending) {
-      sonnerToast.error("Cannot call pending friend. Wait for them to accept your request.");
-    } else if (friend && friend.status !== 'online') {
-      sonnerToast.error("User is not online. Try again when they're online.");
     } else {
       toast({
         variant: "destructive",
@@ -171,7 +146,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       // Show success notification
-      sonnerToast.success(`Friend request sent to ${partner.username}`);
+      toast({
+        description: `Friend request sent to ${partner.username}.`
+      });
       
       // Send a system message in the chat
       const systemMessage = {

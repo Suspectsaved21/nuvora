@@ -1,8 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { Video, VideoOff, Mic, MicOff, UserPlus, Maximize, Minimize, Split, ChevronRight } from "lucide-react";
+import { Video, VideoOff, Mic, MicOff, UserPlus, Maximize, Minimize } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface VideoControlsProps {
   videoEnabled: boolean;
@@ -12,9 +11,6 @@ interface VideoControlsProps {
   toggleAudio: () => void;
   toggleFullscreen: () => void;
   handleAddFriend: () => void;
-  toggleSplitView: () => void;
-  isSplitView: boolean;
-  findNewPartner: () => void;
 }
 
 const VideoControls = ({
@@ -24,32 +20,21 @@ const VideoControls = ({
   toggleVideo,
   toggleAudio,
   toggleFullscreen,
-  handleAddFriend,
-  toggleSplitView,
-  isSplitView,
-  findNewPartner
+  handleAddFriend
 }: VideoControlsProps) => {
-  const isMobile = useIsMobile();
-  
   return (
-    <div className={cn(
-      "absolute left-0 right-0 flex justify-center items-center z-50", 
-      isMobile ? "bottom-16" : "bottom-24" 
-    )}>
-      <div className={cn(
-        "px-3 py-2 rounded-full flex gap-2",
-        "bg-black/70 backdrop-blur-md border border-purple-500/30"
-      )}>
+    <div className="absolute bottom-16 left-0 right-0 flex justify-center items-center gap-2 z-40">
+      <div className="glass-morphism px-4 py-2 rounded-full flex gap-2">
         <Button
           variant="outline"
           size="icon"
           onClick={toggleVideo}
           className={cn(
-            "rounded-full border-white/20 text-white hover:bg-black/70 h-10 w-10",
+            "rounded-full border-white/20 text-white hover:bg-black/70",
             videoEnabled ? "bg-black/50" : "bg-red-500/70"
           )}
         >
-          {videoEnabled ? <Video size={isMobile ? 16 : 18} /> : <VideoOff size={isMobile ? 16 : 18} />}
+          {videoEnabled ? <Video size={16} /> : <VideoOff size={16} />}
         </Button>
         
         <Button
@@ -57,59 +42,31 @@ const VideoControls = ({
           size="icon"
           onClick={toggleAudio}
           className={cn(
-            "rounded-full border-white/20 text-white hover:bg-black/70 h-10 w-10",
+            "rounded-full border-white/20 text-white hover:bg-black/70",
             audioEnabled ? "bg-black/50" : "bg-red-500/70"
           )}
         >
-          {audioEnabled ? <Mic size={isMobile ? 16 : 18} /> : <MicOff size={isMobile ? 16 : 18} />}
+          {audioEnabled ? <Mic size={16} /> : <MicOff size={16} />}
         </Button>
         
         <Button
           variant="outline"
           size="icon"
           onClick={handleAddFriend}
-          className={cn(
-            "rounded-full border-white/20 text-white hover:bg-black/70 h-10 w-10",
-            "bg-green-500/70"
-          )}
+          className="rounded-full bg-black/50 border-white/20 text-white hover:bg-black/70"
           title="Add to Friends"
         >
-          <UserPlus size={isMobile ? 16 : 18} />
-        </Button>
-        
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={toggleSplitView}
-          className={cn(
-            "rounded-full border-white/20 text-white hover:bg-black/70 h-10 w-10",
-            isSplitView ? "bg-purple-500/70" : "bg-black/50"
-          )}
-          title={isSplitView ? "Exit Split View" : "Enter Split View"}
-        >
-          <Split size={isMobile ? 16 : 18} />
+          <UserPlus size={16} />
         </Button>
         
         <Button
           variant="outline"
           size="icon"
           onClick={toggleFullscreen}
-          className={cn(
-            "rounded-full bg-black/50 border-white/20 text-white hover:bg-black/70 h-10 w-10"
-          )}
+          className="rounded-full bg-black/50 border-white/20 text-white hover:bg-black/70"
           title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
         >
-          {isFullscreen ? <Minimize size={isMobile ? 16 : 18} /> : <Maximize size={isMobile ? 16 : 18} />}
-        </Button>
-        
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={findNewPartner}
-          className="rounded-full bg-blue-500/70 border-white/20 text-white hover:bg-blue-600/90 h-10 w-10"
-          title="Find Next Partner"
-        >
-          <ChevronRight size={isMobile ? 16 : 18} />
+          {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
         </Button>
       </div>
     </div>

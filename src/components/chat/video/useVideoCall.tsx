@@ -1,3 +1,4 @@
+
 import { useRef, useState, useEffect, useContext } from "react";
 import { initPeer, setupVideoCall, handleRemoteStream, cleanupMedia } from "@/lib/peerjs";
 import ChatContext from "@/context/ChatContext";
@@ -28,18 +29,7 @@ export function useVideoCall(isConnected: boolean, partner: { id: string } | nul
         setPeerInstance(peer);
         
         // Set up the video call with local and remote video elements
-        // Use higher quality settings for mobile
-        const constraints = {
-          video: {
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-            facingMode: "user"
-          },
-          audio: true
-        };
-        
-        // Fix: Pass false for audioOnly instead of constraints object
-        const { localStream } = await setupVideoCall(localVideoRef, remoteVideoRef, false);
+        const { localStream } = await setupVideoCall(localVideoRef, remoteVideoRef);
         localStreamRef = localStream;
         
         // Handle incoming calls

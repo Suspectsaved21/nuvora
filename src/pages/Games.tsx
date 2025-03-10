@@ -12,7 +12,7 @@ import { useStripe } from "@/context/StripeContext";
 import { ChatProvider } from "@/context/ChatContext";
 
 const Games = () => {
-  const { user, hasActiveSubscription } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const { setShowSubscriptionModal } = useStripe();
 
   // Redirect if not logged in
@@ -21,7 +21,7 @@ const Games = () => {
   }
 
   // If not premium, show subscription modal
-  if (!hasActiveSubscription()) {
+  if (!user.isPremium) {
     setShowSubscriptionModal(true);
     return <Navigate to="/chat" />;
   }

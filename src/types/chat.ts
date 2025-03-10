@@ -15,7 +15,6 @@ export interface Friend {
   status: "online" | "offline" | "blocked" | "active";
   lastSeen?: number;
   blocked?: boolean;
-  pending?: boolean;
 }
 
 export interface Partner {

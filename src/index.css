@@ -80,77 +80,12 @@
   }
 }
 
-/* OmeTV-inspired styles */
 @layer utilities {
   .glass-morphism {
-    @apply backdrop-blur-xl bg-white/5 dark:bg-black/20 border border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_12px_-2px_rgba(255,255,255,0.05)];
+    @apply backdrop-blur-xl bg-white/20 dark:bg-black/20 border border-white/20 dark:border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_12px_-2px_rgba(255,255,255,0.05)];
   }
   
   .neomorphism {
     @apply bg-white dark:bg-nexablack shadow-[8px_8px_16px_#e6e6e6,-8px_-8px_16px_#ffffff] dark:shadow-[8px_8px_16px_#14171e,-8px_-8px_16px_#20273a];
-  }
-  
-  /* Responsive video sizing classes */
-  .video-container-mobile {
-    @apply h-[calc(100vh-140px)];
-  }
-  
-  .video-container-desktop {
-    @apply aspect-video;
-  }
-  
-  /* Omegle-style split view */
-  .omegle-split-screen .local-video,
-  .omegle-split-screen .remote-video {
-    @apply transition-all duration-300;
-  }
-  
-  /* Omegle split view layout */
-  .omegle-split-screen > div:first-child > div:first-child {
-    height: 50% !important;
-    width: 100% !important;
-    top: 0;
-    left: 0;
-  }
-  
-  .omegle-split-screen > div:first-child > div:last-child {
-    height: 50% !important; 
-    width: 100% !important;
-    bottom: 0;
-    left: 0;
-  }
-}
-
-/* Omegle split screen animations */
-.video-transition {
-  transition: all 0.3s ease-in-out;
-}
-
-/* Omegle-style country selector */
-.country-select {
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 8px;
-  padding: 10px;
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Mobile-specific adjustments */
-@media (max-width: 640px) {
-  .mobile-footer-buttons {
-    padding: 8px 4px;
-    font-size: 10px;
-  }
-  
-  .mobile-video-controls {
-    bottom: 80px;
-  }
-  
-  /* Optimize for mobile screens */
-  .omegle-split-screen > div:first-child > div:first-child,
-  .omegle-split-screen > div:first-child > div:last-child {
-    height: 50vh !important;
   }
 }
