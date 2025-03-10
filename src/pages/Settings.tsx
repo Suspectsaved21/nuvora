@@ -15,13 +15,15 @@ import { ChatProvider } from "@/context/ChatContext";
 import LocationSettings from "@/components/chat/LocationSettings";
 
 const Settings = () => {
-  const { user, signOut } = useContext(AuthContext);
+  const { user, signOut, hasActiveSubscription } = useContext(AuthContext);
   const { setShowSubscriptionModal } = useStripe();
 
   // Redirect if not logged in
   if (!user) {
     return <Navigate to="/" />;
   }
+
+  const isPremium = hasActiveSubscription();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -46,16 +48,16 @@ const Settings = () => {
                 <div>
                   <h3 className="font-medium">Premium Account</h3>
                   <p className="text-sm text-muted-foreground">
-                    {user.isPremium 
+                    {isPremium 
                       ? "You have a premium account" 
                       : "Upgrade to premium for €1.99/month"}
                   </p>
                 </div>
                 <Button 
                   onClick={() => setShowSubscriptionModal(true)}
-                  variant={user.isPremium ? "outline" : "default"}
+                  variant={isPremium ? "outline" : "default"}
                 >
-                  {user.isPremium ? "Manage Subscription" : "Upgrade"}
+                  {isPremium ? "Manage Subscription" : "Upgrade"}
                 </Button>
               </div>
               

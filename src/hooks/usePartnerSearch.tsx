@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Partner, Message } from "@/types/chat";
 import { nanoid } from "nanoid";
@@ -25,39 +24,35 @@ export function usePartnerSearch() {
     setPartner(null);
     
     try {
+      // Generate a peer ID for this user
+      const peerId = `user_${user.id}_${nanoid(6)}`;
+      
       // First, check if there are other users waiting for a match
       const { data: waitingUsers } = await supabase
         .from('waiting_users')
-        .select('user_id')
+        .select('user_id, peer_id')
         .not('user_id', 'eq', user.id)
-        .eq('match_status', 'waiting')
-        .order('last_seen', { ascending: false })
+        .eq('is_available', true)
         .limit(10);
       
       if (waitingUsers && waitingUsers.length > 0) {
         // Choose a random user from the waiting list
         const randomIndex = Math.floor(Math.random() * waitingUsers.length);
         const matchedUserId = waitingUsers[randomIndex].user_id;
+        const matchedPeerId = waitingUsers[randomIndex].peer_id;
         
-        // Update both users' statuses to matched
-        const timestamp = new Date().toISOString();
-        
-        // Update our status
+        // Update our waiting status
         await supabase.from('waiting_users').upsert({
           user_id: user.id,
-          matched_user_id: matchedUserId,
-          match_status: 'matched',
-          match_time: timestamp,
-          last_seen: timestamp
+          peer_id: peerId,
+          is_available: false
         });
         
         // Update the matched user's status
         await supabase.from('waiting_users').upsert({
           user_id: matchedUserId,
-          matched_user_id: user.id,
-          match_status: 'matched',
-          match_time: timestamp,
-          last_seen: timestamp
+          peer_id: matchedPeerId,
+          is_available: false
         });
         
         // Get the matched user's information
@@ -94,8 +89,8 @@ export function usePartnerSearch() {
       // If no waiting users, make us available
       await supabase.from('waiting_users').upsert({
         user_id: user.id,
-        match_status: 'waiting',
-        last_seen: new Date().toISOString()
+        peer_id: peerId,
+        is_available: true
       });
       
       // Try to find a partner from active users (fallback)
@@ -193,12 +188,11 @@ export function usePartnerSearch() {
     
     // Add a chat record to track the conversation
     try {
-      await supabase.from('chats').upsert({
-        user_id: user.id,
-        partner_id: userId,
-        last_message: `Chat started by ${user.username}`,
-        last_message_time: new Date().toISOString(),
-        is_active: true
+      await supabase.from('messages').insert({
+        sender_id: user.id,
+        receiver_id: userId,
+        content: `Chat started by ${user.username}`,
+        is_read: false
       });
     } catch (error) {
       console.error("Error creating chat record:", error);

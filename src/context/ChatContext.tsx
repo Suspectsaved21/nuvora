@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext } from "react";
 import AuthContext from "./AuthContext";
 import { useLocationTracking } from "@/hooks/useLocationTracking";
@@ -99,11 +98,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     const setupUserAvailability = async () => {
       try {
+        // Generate a peer ID for this user
+        const peerId = `user_${user.id}_${nanoid(6)}`;
+        
         // Make the user available for matching
         await supabase.from('waiting_users').upsert({
           user_id: user.id,
-          last_seen: new Date().toISOString(),
-          match_status: 'waiting'
+          peer_id: peerId,
+          is_available: true
         });
         
         // Set up listener for matches
