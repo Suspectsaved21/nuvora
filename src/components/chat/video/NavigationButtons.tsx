@@ -12,11 +12,11 @@ const NavigationButtons = ({ findNewPartner, isFindingPartner }: NavigationButto
   const isMobile = useIsMobile();
   
   return (
-    <div className={`absolute bottom-${isMobile ? '20' : '24'} left-0 right-0 flex justify-center z-40`}>
+    <div className="absolute bottom-20 left-0 right-0 flex justify-center z-40">
       <Button 
         variant="default" 
         size={isMobile ? "default" : "lg"}
-        className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full px-8 shadow-lg"
+        className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full px-8 shadow-lg"
         onClick={findNewPartner}
         disabled={isFindingPartner}
       >

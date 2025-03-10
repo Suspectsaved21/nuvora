@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import ProfileSettings from "./pages/ProfileSettings";
 import VideoChat from "./pages/VideoChat";
 import TextChat from "./pages/TextChat";
+import Search from "./pages/Search";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/games" element={<Games />} />
               <Route path="/friends" element={<Friends />} />
+              <Route path="/search" element={<Search />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />

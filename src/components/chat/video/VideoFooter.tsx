@@ -1,7 +1,7 @@
 
 import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserCircle, GamepadIcon, MessageCircle, Settings, Users } from 'lucide-react';
+import { UserCircle, GamepadIcon, MessageCircle, Search, Settings, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ChatContext from '@/context/ChatContext';
 import AuthContext from '@/context/AuthContext';
@@ -61,6 +61,17 @@ const VideoFooter = ({
         <Button
           variant="ghost"
           className={`flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
+          asChild
+        >
+          <Link to="/search">
+            <Search size={iconSize} />
+            <span className={`${textSize} mt-1`}>Search</span>
+          </Link>
+        </Button>
+
+        <Button
+          variant="ghost"
+          className={`flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
           onClick={handleGameClick}
         >
           <GamepadIcon size={iconSize} />
@@ -80,8 +91,8 @@ const VideoFooter = ({
           >
             <MessageCircle size={iconSize} />
             <span className={`${textSize} mt-1`}>Chat</span>
-          </Button>
-        )}
+          </Link>
+        </Button>
 
         <Button
           variant="ghost"
@@ -91,17 +102,6 @@ const VideoFooter = ({
           <Link to="/friends">
             <Users size={iconSize} />
             <span className={`${textSize} mt-1`}>Friends</span>
-          </Link>
-        </Button>
-
-        <Button
-          variant="ghost"
-          className={`flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
-          asChild
-        >
-          <Link to="/settings">
-            <Settings size={iconSize} />
-            <span className={`${textSize} mt-1`}>Settings</span>
           </Link>
         </Button>
       </div>
