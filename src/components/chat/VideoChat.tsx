@@ -1,4 +1,3 @@
-
 import { useRef, useEffect, useContext, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
@@ -10,6 +9,7 @@ import VideoDisplay from "./video/VideoDisplay";
 import VideoControls from "./video/VideoControls";
 import VideoFooter from "./video/VideoFooter";
 import OnlineUsersCount from "./OnlineUsersCount";
+import NavigationButtons from "./video/NavigationButtons";
 
 const VideoChat = () => {
   const { partner, isConnected, addFriend, findNewPartner, isFindingPartner, reportPartner } = useContext(ChatContext);
@@ -34,7 +34,6 @@ const VideoChat = () => {
     toggleAudio
   } = useVideoCall(isConnected, partner);
   
-  // Handle page reload warning
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
@@ -76,10 +75,8 @@ const VideoChat = () => {
     setIsSplitView(!isSplitView);
   };
   
-  // Request fullscreen on mobile when component mounts
   useEffect(() => {
     if (isMobile && videoChatRef.current) {
-      // Use a timeout to ensure DOM is ready
       const timer = setTimeout(() => {
         try {
           if (videoChatRef.current) {
@@ -96,7 +93,6 @@ const VideoChat = () => {
   
   return (
     <div className="flex flex-col space-y-4">
-      {/* Online Users Count Banner */}
       <div className="w-full mb-4 fixed top-20 left-0 right-0 flex justify-center z-50">
         <OnlineUsersCount />
       </div>
@@ -129,7 +125,6 @@ const VideoChat = () => {
           />
         </div>
         
-        {/* Only show video controls when connected */}
         {isConnected && (
           <VideoControls
             videoEnabled={videoEnabled}
