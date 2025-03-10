@@ -40,3 +40,11 @@ export interface GameAction {
   answer?: string;
   liked?: boolean;
 }
+
+export interface VideoSession {
+  sessionId: string;
+  peerId: string;
+  partnerId: string;
+  isActive: boolean;
+  startTime: number;
+}

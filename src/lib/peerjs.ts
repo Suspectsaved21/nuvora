@@ -1,5 +1,4 @@
 
-// PeerJS implementation for WebRTC
 import Peer from 'peerjs';
 
 let localStream: MediaStream | null = null;
@@ -21,7 +20,11 @@ export const initPeer = (userId: string) => {
           { urls: 'stun:stun2.l.google.com:19302' },
           { urls: 'stun:stun3.l.google.com:19302' },
           { urls: 'stun:stun4.l.google.com:19302' },
-          { urls: 'turn:numb.viagenie.ca', username: 'webrtc@live.com', credential: 'muazkh' }
+          { 
+            urls: 'turn:global.turn.twilio.com:3478?transport=udp',
+            username: 'f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d',
+            credential: 'w1WpauqUtbZQzYgaGEPY6R/Litg7XTJliJYWbDDMzHQ='
+          }
         ]
       }
     });
@@ -59,22 +62,21 @@ export const initPeer = (userId: string) => {
         }
         
         if (localStream) {
-          const call = peer.call(peerId, localStream);
-          
-          call.on('stream', (remoteStream) => {
-            console.log('Received remote stream from call', remoteStream);
-            return remoteStream;
-          });
-
-          call.on('error', (err) => {
-            console.error('Call error:', err);
-          });
-
-          call.on('close', () => {
-            console.log('Call closed');
-          });
-          
-          return call;
+          try {
+            const call = peer.call(peerId, localStream);
+            
+            if (!call) {
+              console.error('Failed to create call object');
+              return null;
+            }
+            
+            console.log('Call created successfully', call);
+            
+            return call;
+          } catch (error) {
+            console.error('Error creating call:', error);
+            return null;
+          }
         } else {
           console.error('No local stream available for call');
           return null;

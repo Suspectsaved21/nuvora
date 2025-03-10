@@ -7,15 +7,15 @@ import { supabase } from "@/integrations/supabase/client";
  * Creates a mock partner with randomly assigned attributes
  */
 export const createMockPartner = (): Partner => {
+  const randomId = nanoid();
+  const countries = ["USA", "Canada", "UK", "Australia", "Germany", "Japan", "France", "Brazil", "Italy"];
+  const languages = ["English", "Spanish", "French", "German", "Japanese", "Portuguese", "Italian"];
+  
   return {
-    id: nanoid(),
+    id: randomId,
     username: `User_${Math.floor(Math.random() * 10000)}`,
-    country: ["USA", "Canada", "UK", "Australia", "Germany", "Japan"][
-      Math.floor(Math.random() * 6)
-    ],
-    language: ["English", "Spanish", "French", "German", "Japanese"][
-      Math.floor(Math.random() * 5)
-    ],
+    country: countries[Math.floor(Math.random() * countries.length)],
+    language: languages[Math.floor(Math.random() * languages.length)],
   };
 };
 
@@ -32,6 +32,13 @@ export const generatePartnerResponse = (partnerId: string): Message => {
     "Where are you from?",
     "What do you do for fun?",
     "What's the weather like there?",
+    "I like your profile picture!",
+    "Do you enjoy video chats?",
+    "Have you been using Nuvora for long?",
+    "What brings you here today?",
+    "I'd love to chat more often!",
+    "What do you think about this platform?",
+    "That's a great point of view."
   ];
   
   return {
@@ -48,29 +55,38 @@ export const generatePartnerResponse = (partnerId: string): Message => {
  */
 export const findRandomPartner = async (): Promise<Partner | null> => {
   try {
+    // Find users who are active and available for matching
     const { data, error } = await supabase
-      .from('profiles')
-      .select('id, username')
-      .not('is_guest', 'eq', true)
-      .order('created_at', { ascending: false })
+      .from('active_users')
+      .select('user_id, status')
+      .eq('status', 'available')
+      .order('last_seen', { ascending: false })
       .limit(20);
     
     if (error) throw error;
     
     if (data && data.length > 0) {
+      // Randomly select one of the active users
       const randomIndex = Math.floor(Math.random() * data.length);
-      const randomUser = data[randomIndex];
+      const randomUserId = data[randomIndex].user_id;
       
-      return {
-        id: randomUser.id,
-        username: randomUser.username,
-        country: ["USA", "Canada", "UK", "Australia", "Germany", "Japan"][
-          Math.floor(Math.random() * 6)
-        ],
-        language: ["English", "Spanish", "French", "German", "Japanese"][
-          Math.floor(Math.random() * 5)
-        ],
-      };
+      // Get the user's profile information
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('username, country, language')
+        .eq('id', randomUserId)
+        .single();
+      
+      if (userError) throw userError;
+      
+      if (userData) {
+        return {
+          id: randomUserId,
+          username: userData.username || `User_${randomUserId.substring(0, 4)}`,
+          country: userData.country,
+          language: userData.language,
+        };
+      }
     }
     
     return null;
@@ -86,7 +102,8 @@ export const findRandomPartner = async (): Promise<Partner | null> => {
 export const saveMessageToDatabase = async (
   userId: string, 
   partnerId: string, 
-  text: string
+  text: string,
+  messageType: 'user' | 'system' = 'user'
 ): Promise<void> => {
   if (!partnerId || partnerId.length < 10) return;
   
@@ -95,6 +112,16 @@ export const saveMessageToDatabase = async (
       sender_id: userId,
       receiver_id: partnerId,
       content: text,
+      is_system_message: messageType === 'system',
+    });
+    
+    // Update the last message in the chat record
+    await supabase.from('chats').upsert({
+      user_id: userId,
+      partner_id: partnerId,
+      last_message: text.substring(0, 100), // Trim long messages
+      last_message_time: new Date().toISOString(),
+      is_active: true
     });
   } catch (error) {
     console.error("Error saving message:", error);
@@ -105,6 +132,7 @@ export const saveMessageToDatabase = async (
  * Fetches messages between user and partner from the database
  */
 export const fetchMessagesFromDatabase = async (
+  userId: string,
   partnerId: string
 ): Promise<Message[] | null> => {
   if (!partnerId || partnerId.length < 10) return null;
@@ -113,19 +141,19 @@ export const fetchMessagesFromDatabase = async (
     const { data, error } = await supabase
       .from('messages')
       .select('*')
-      .or(`sender_id.eq.${partnerId},receiver_id.eq.${partnerId}`)
+      .or(`and(sender_id.eq.${userId},receiver_id.eq.${partnerId}),and(sender_id.eq.${partnerId},receiver_id.eq.${userId})`)
       .order('created_at', { ascending: true })
-      .limit(50);
+      .limit(100);
     
     if (error) throw error;
     
     if (data && data.length > 0) {
       return data.map(msg => ({
-        id: msg.id,
+        id: msg.id.toString(),
         sender: msg.sender_id,
         text: msg.content,
         timestamp: new Date(msg.created_at).getTime(),
-        isOwn: msg.sender_id !== partnerId,
+        isOwn: msg.sender_id === userId,
       }));
     }
     

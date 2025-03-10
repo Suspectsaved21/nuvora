@@ -9,20 +9,18 @@ import { useVideoCall } from "./video/useVideoCall";
 import VideoDisplay from "./video/VideoDisplay";
 import VideoControls from "./video/VideoControls";
 import VideoFooter from "./video/VideoFooter";
-import { Maximize, Minimize } from "lucide-react";
+import { Maximize, Minimize, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const VideoChat = () => {
-  const { partner, isConnected, addFriend } = useContext(ChatContext);
+  const { partner, isConnected, addFriend, findNewPartner, isFindingPartner } = useContext(ChatContext);
   const videoChatRef = useRef<HTMLDivElement>(null);
   const localVideoChatRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [isChatVisible, setIsChatVisible] = useState(!isMobile);
   
   const { isFullscreen, toggleFullscreen, requestFullscreen } = useFullscreen(videoChatRef);
-  const { 
-    isFullscreen: isLocalFullscreen, 
-    toggleFullscreen: toggleLocalFullscreen 
-  } = useFullscreen(localVideoChatRef);
+  const { isFullscreen: isLocalFullscreen, toggleFullscreen: toggleLocalFullscreen } = useFullscreen(localVideoChatRef);
   
   const {
     localVideoRef,
@@ -30,7 +28,8 @@ const VideoChat = () => {
     videoEnabled,
     audioEnabled,
     toggleVideo,
-    toggleAudio
+    toggleAudio,
+    isConnecting
   } = useVideoCall(isConnected, partner);
   
   // Auto fullscreen for mobile
@@ -67,16 +66,45 @@ const VideoChat = () => {
   const toggleChatVisibility = () => {
     setIsChatVisible(!isChatVisible);
   };
+
+  const handleFindNewPartner = () => {
+    findNewPartner();
+  };
   
   return (
     <>
       <div 
         ref={videoChatRef}
         className={cn(
-          "relative w-full aspect-video bg-nexablack rounded-lg overflow-hidden",
+          "relative w-full aspect-video bg-[#121212] rounded-lg overflow-hidden shadow-xl",
           isFullscreen || isMobile ? "fixed inset-0 z-50 h-screen aspect-auto" : ""
         )}
       >
+        {/* Ome.TV style header */}
+        <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent px-4 py-2 z-40 flex justify-between items-center">
+          <div className="text-white font-bold text-lg">Nuvora</div>
+          <div className="flex items-center space-x-2">
+            {isFindingPartner ? (
+              <div className="flex items-center text-white text-sm">
+                <Loader2 className="animate-spin mr-2" size={16} />
+                Finding a partner...
+              </div>
+            ) : (
+              <div className="text-white text-sm">
+                {isConnected ? "Connected" : "Disconnected"}
+              </div>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-2 bg-black/50 border-white/20 text-white hover:bg-black/70"
+              onClick={toggleFullscreen}
+            >
+              {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+            </Button>
+          </div>
+        </div>
+        
         <div className="w-full h-full" ref={localVideoChatRef}>
           <VideoDisplay
             isConnected={isConnected}
@@ -88,7 +116,9 @@ const VideoChat = () => {
             toggleFullscreen={toggleFullscreen}
             toggleLocalFullscreen={toggleLocalFullscreen}
             handleAddFriend={handleAddFriend}
+            handleFindNewPartner={handleFindNewPartner}
             isMobile={isMobile}
+            isFindingPartner={isFindingPartner}
           />
         </div>
         
@@ -101,6 +131,8 @@ const VideoChat = () => {
           toggleAudio={toggleAudio}
           toggleFullscreen={toggleFullscreen}
           handleAddFriend={handleAddFriend}
+          handleFindNewPartner={handleFindNewPartner}
+          isFindingPartner={isFindingPartner}
         />
 
         <VideoFooter 

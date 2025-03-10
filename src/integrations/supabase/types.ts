@@ -9,27 +9,122 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      active_users: {
+        Row: {
+          country: string | null
+          gender: string | null
+          id: string
+          last_seen: string
+          match_status: string | null
+          match_time: string | null
+          matched_user_id: string | null
+          peer_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          country?: string | null
+          gender?: string | null
+          id?: string
+          last_seen?: string
+          match_status?: string | null
+          match_time?: string | null
+          matched_user_id?: string | null
+          peer_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          country?: string | null
+          gender?: string | null
+          id?: string
+          last_seen?: string
+          match_status?: string | null
+          match_time?: string | null
+          matched_user_id?: string | null
+          peer_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "active_users_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
+            referencedRelation: "active_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chats: {
+        Row: {
+          created_at: string | null
+          id: number
+          message: string
+          receiver_id: string | null
+          sender_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          message: string
+          receiver_id?: string | null
+          sender_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          message?: string
+          receiver_id?: string | null
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chats_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "active_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "active_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friends: {
         Row: {
+          blocked_by: string | null
           created_at: string | null
           friend_id: string
           id: string
+          last_seen: string | null
+          peer_id: string | null
           status: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          blocked_by?: string | null
           created_at?: string | null
           friend_id: string
           id?: string
+          last_seen?: string | null
+          peer_id?: string | null
           status: string
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          blocked_by?: string | null
           created_at?: string | null
           friend_id?: string
           id?: string
+          last_seen?: string | null
+          peer_id?: string | null
           status?: string
           updated_at?: string | null
           user_id?: string
@@ -81,6 +176,30 @@ export type Database = {
           question?: string
           type?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      match_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          match_user_id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          match_user_id: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          match_user_id?: string
+          status?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -206,6 +325,30 @@ export type Database = {
           },
         ]
       }
+      waiting_users: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_available: boolean
+          peer_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_available?: boolean
+          peer_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_available?: boolean
+          peer_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -216,6 +359,19 @@ export type Database = {
           user_uuid: string
         }
         Returns: boolean
+      }
+      match_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user1: string
+          user2: string
+        }[]
+      }
+      random_matching: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          peer_id: string
+        }[]
       }
     }
     Enums: {
