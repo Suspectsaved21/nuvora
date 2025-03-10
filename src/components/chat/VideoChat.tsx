@@ -1,3 +1,4 @@
+
 import { useRef, useEffect, useContext, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
@@ -93,7 +94,10 @@ const VideoChat = () => {
   
   return (
     <div className="flex flex-col space-y-4">
-      <div className="w-full mb-4 fixed top-20 left-0 right-0 flex justify-center z-50">
+      <div className={cn(
+        "w-full flex justify-center z-50",
+        isMobile ? "fixed top-2" : "fixed top-20 left-0 right-0"
+      )}>
         <OnlineUsersCount />
       </div>
       

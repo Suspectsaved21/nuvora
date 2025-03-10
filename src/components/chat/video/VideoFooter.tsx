@@ -8,6 +8,7 @@ import AuthContext from '@/context/AuthContext';
 import { useStripe } from '@/context/StripeContext';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface VideoFooterProps {
   isFullscreen: boolean;
@@ -24,6 +25,7 @@ const VideoFooter = ({
   const { isConnected } = useContext(ChatContext);
   const { setShowSubscriptionModal } = useStripe();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handleGameClick = () => {
     if (hasActiveSubscription()) {
@@ -36,67 +38,70 @@ const VideoFooter = ({
     }
   };
 
+  const iconSize = isMobile ? 20 : 24;
+  const textSize = isMobile ? "text-[10px]" : "text-xs";
+
   return (
     <div className={cn(
-      "fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-2 z-40",
+      "fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-2 py-1 z-40",
       isFullscreen ? "z-[60]" : ""
     )}>
       <div className="container mx-auto flex justify-around items-center">
         <Button
           variant="ghost"
-          className="flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent"
+          className={`flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
           asChild
         >
           <Link to="/profile">
-            <UserCircle size={24} />
-            <span className="text-xs mt-1">Profile</span>
+            <UserCircle size={iconSize} />
+            <span className={`${textSize} mt-1`}>Profile</span>
           </Link>
         </Button>
 
         <Button
           variant="ghost"
-          className="flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent"
+          className={`flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
           onClick={handleGameClick}
         >
-          <GamepadIcon size={24} />
-          <span className="text-xs mt-1">Games</span>
+          <GamepadIcon size={iconSize} />
+          <span className={`${textSize} mt-1`}>Games</span>
         </Button>
 
         {toggleChatVisibility && (
           <Button
             variant="ghost"
             className={cn(
-              "flex flex-col items-center hover:bg-transparent",
+              `flex flex-col items-center hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`,
               isChatVisible 
                 ? "text-white" 
                 : "text-white/80 hover:text-white"
             )}
             onClick={toggleChatVisibility}
           >
-            <MessageCircle size={24} />
-            <span className="text-xs mt-1">Chat</span>
+            <MessageCircle size={iconSize} />
+            <span className={`${textSize} mt-1`}>Chat</span>
           </Button>
         )}
 
         <Button
           variant="ghost"
-          className="flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent"
+          className={`flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
           asChild
         >
           <Link to="/friends">
-            <Users size={24} />
-            <span className="text-xs mt-1">Friends</span>
+            <Users size={iconSize} />
+            <span className={`${textSize} mt-1`}>Friends</span>
           </Link>
         </Button>
 
         <Button
           variant="ghost"
-          className="flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent"
+          className={`flex flex-col items-center text-white/80 hover:text-white hover:bg-transparent ${isMobile ? 'px-2' : 'px-4'}`}
           asChild
         >
           <Link to="/settings">
-            <Settings size={24} />
-            <span className="text-xs mt-1">Settings</span>
+            <Settings size={iconSize} />
+            <span className={`${textSize} mt-1`}>Settings</span>
           </Link>
         </Button>
       </div>

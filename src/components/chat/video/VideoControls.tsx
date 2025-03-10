@@ -34,10 +34,10 @@ const VideoControls = ({
   return (
     <div className={cn(
       "absolute left-0 right-0 flex justify-center items-center z-50", 
-      isMobile ? "bottom-4 top-auto" : "bottom-16" 
+      isMobile ? "bottom-16" : "bottom-24" 
     )}>
       <div className={cn(
-        "px-4 py-3 rounded-full flex gap-3",
+        "px-3 py-2 rounded-full flex gap-2",
         "glass-morphism bg-black/70"
       )}>
         <Button
@@ -45,11 +45,11 @@ const VideoControls = ({
           size="icon"
           onClick={toggleVideo}
           className={cn(
-            "rounded-full border-white/20 text-white hover:bg-black/70",
+            "rounded-full border-white/20 text-white hover:bg-black/70 h-10 w-10",
             videoEnabled ? "bg-black/50" : "bg-red-500/70"
           )}
         >
-          {videoEnabled ? <Video size={18} /> : <VideoOff size={18} />}
+          {videoEnabled ? <Video size={isMobile ? 16 : 18} /> : <VideoOff size={isMobile ? 16 : 18} />}
         </Button>
         
         <Button
@@ -57,11 +57,11 @@ const VideoControls = ({
           size="icon"
           onClick={toggleAudio}
           className={cn(
-            "rounded-full border-white/20 text-white hover:bg-black/70",
+            "rounded-full border-white/20 text-white hover:bg-black/70 h-10 w-10",
             audioEnabled ? "bg-black/50" : "bg-red-500/70"
           )}
         >
-          {audioEnabled ? <Mic size={18} /> : <MicOff size={18} />}
+          {audioEnabled ? <Mic size={isMobile ? 16 : 18} /> : <MicOff size={isMobile ? 16 : 18} />}
         </Button>
         
         <Button
@@ -69,12 +69,12 @@ const VideoControls = ({
           size="icon"
           onClick={handleAddFriend}
           className={cn(
-            "rounded-full border-white/20 text-white hover:bg-black/70",
+            "rounded-full border-white/20 text-white hover:bg-black/70 h-10 w-10",
             "bg-green-500/70"
           )}
           title="Add to Friends"
         >
-          <UserPlus size={18} />
+          <UserPlus size={isMobile ? 16 : 18} />
         </Button>
         
         <Button
@@ -82,12 +82,12 @@ const VideoControls = ({
           size="icon"
           onClick={toggleSplitView}
           className={cn(
-            "rounded-full border-white/20 text-white hover:bg-black/70",
+            "rounded-full border-white/20 text-white hover:bg-black/70 h-10 w-10",
             isSplitView ? "bg-purple-500/70" : "bg-black/50"
           )}
           title={isSplitView ? "Exit Split View" : "Enter Split View"}
         >
-          <Split size={18} />
+          <Split size={isMobile ? 16 : 18} />
         </Button>
         
         <Button
@@ -95,21 +95,21 @@ const VideoControls = ({
           size="icon"
           onClick={toggleFullscreen}
           className={cn(
-            "rounded-full bg-black/50 border-white/20 text-white hover:bg-black/70"
+            "rounded-full bg-black/50 border-white/20 text-white hover:bg-black/70 h-10 w-10"
           )}
           title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
         >
-          {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+          {isFullscreen ? <Minimize size={isMobile ? 16 : 18} /> : <Maximize size={isMobile ? 16 : 18} />}
         </Button>
         
         <Button
           variant="outline"
           size="icon"
           onClick={findNewPartner}
-          className="rounded-full bg-blue-500/70 border-white/20 text-white hover:bg-blue-600/90"
+          className="rounded-full bg-blue-500/70 border-white/20 text-white hover:bg-blue-600/90 h-10 w-10"
           title="Find Next Partner"
         >
-          <ChevronRight size={18} />
+          <ChevronRight size={isMobile ? 16 : 18} />
         </Button>
       </div>
     </div>

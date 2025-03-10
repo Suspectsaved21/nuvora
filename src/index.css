@@ -88,4 +88,19 @@
   .neomorphism {
     @apply bg-white dark:bg-nexablack shadow-[8px_8px_16px_#e6e6e6,-8px_-8px_16px_#ffffff] dark:shadow-[8px_8px_16px_#14171e,-8px_-8px_16px_#20273a];
   }
+  
+  /* Responsive video sizing classes */
+  .video-container-mobile {
+    @apply h-[calc(100vh-140px)];
+  }
+  
+  .video-container-desktop {
+    @apply aspect-video;
+  }
+  
+  /* Omegle-style split view */
+  .omegle-split-screen .local-video,
+  .omegle-split-screen .remote-video {
+    @apply transition-all duration-300;
+  }
 }

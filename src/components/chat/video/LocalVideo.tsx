@@ -50,7 +50,7 @@ const LocalVideo = ({
           variant="outline"
           size="icon"
           onClick={toggleLocalFullscreen}
-          className="absolute top-2 right-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-10 min-h-8 min-w-8"
+          className="absolute top-2 right-2 bg-black/50 border-white/20 text-white hover:bg-black/70 z-10 h-8 w-8 min-h-8 min-w-8"
           title="Enter Fullscreen"
         >
           <Maximize size={14} />
