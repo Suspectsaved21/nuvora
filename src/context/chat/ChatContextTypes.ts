@@ -16,6 +16,7 @@ export interface ChatContextType {
   sendGameAction: (action: GameAction) => void;
   setIsTyping: (typing: boolean) => void;
   findNewPartner: () => void;
+  cancelFindPartner: () => void; // Add this new function
   reportPartner: (reason: string) => void;
   toggleLocationTracking: () => void;
   refreshLocation: () => Promise<void>;

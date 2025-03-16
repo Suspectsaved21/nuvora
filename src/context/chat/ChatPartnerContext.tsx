@@ -17,6 +17,7 @@ interface ChatPartnerContextType {
   sendGameAction: (action: GameAction) => void;
   setIsTyping: (typing: boolean) => void;
   findNewPartner: () => void;
+  cancelFindPartner: () => void;
   reportPartner: (reason: string) => void;
   startDirectChat: (userId: string) => void;
   startVideoCall: (userId: string) => void;
@@ -33,6 +34,7 @@ const ChatPartnerContext = createContext<ChatPartnerContextType>({
   sendGameAction: () => {},
   setIsTyping: () => {},
   findNewPartner: () => {},
+  cancelFindPartner: () => {},
   reportPartner: () => {},
   startDirectChat: () => {},
   startVideoCall: () => {}
@@ -50,6 +52,7 @@ export const ChatPartnerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     messages,
     setIsTyping,
     findPartner,
+    cancelSearch,
     sendMessage: sendPartnerMessage,
     sendGameAction,
     reportPartner,
@@ -57,16 +60,16 @@ export const ChatPartnerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     startVideoCall: initVideoCall
   } = usePartnerManagement();
 
-  // Initialize chat when user is logged in and automatically find a partner
-  useEffect(() => {
-    if (user && !partner && !isFindingPartner) {
-      findPartner();
-    }
-  }, [user, partner, isFindingPartner, findPartner]);
+  // No longer auto-finding a partner when user logs in
+  // We'll let the user control when to start searching
 
   // Wrapper functions to connect all our hooks together
   const findNewPartner = () => {
     findPartner();
+  };
+  
+  const cancelFindPartner = () => {
+    cancelSearch();
   };
 
   const sendMessage = (text: string) => {
@@ -103,6 +106,7 @@ export const ChatPartnerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         sendGameAction,
         setIsTyping,
         findNewPartner,
+        cancelFindPartner,
         reportPartner,
         startDirectChat,
         startVideoCall,

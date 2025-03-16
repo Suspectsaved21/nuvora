@@ -11,6 +11,7 @@ export function usePartnerManagement() {
     isConnected,
     isFindingPartner,
     findPartner: searchPartner,
+    cancelSearch: cancelPartnerSearch,
     mockFindPartner,
     startDirectChat: initDirectChat,
     startVideoCall: initVideoCall,
@@ -37,6 +38,13 @@ export function usePartnerManagement() {
     if (result) {
       setMessages([result.systemMessage]);
     }
+  };
+
+  /**
+   * Cancel the search for a new partner
+   */
+  const cancelSearch = () => {
+    cancelPartnerSearch();
   };
 
   /**
@@ -90,6 +98,7 @@ export function usePartnerManagement() {
     setIsTyping,
     mockFindPartner,
     findPartner,
+    cancelSearch,
     sendMessage,
     sendGameAction,
     reportPartner,
