@@ -75,12 +75,12 @@ const VideoChat = () => {
   };
 
   const handleFindNewPartner = () => {
-    // User manually initiates partner search
+    // User manually initiates partner search - only search once
     findNewPartner();
   };
   
   const handleCancelFindPartner = () => {
-    // User manually cancels partner search
+    // User manually cancels partner search and returns to video interface
     cancelFindPartner();
   };
   
@@ -104,7 +104,7 @@ const VideoChat = () => {
               </div>
             ) : (
               <div className="text-white text-sm">
-                {isConnected ? "Connected" : "Disconnected"}
+                {isConnected ? "Connected" : "Ready to Connect"}
               </div>
             )}
             <Button

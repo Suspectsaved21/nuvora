@@ -1,10 +1,8 @@
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 import AuthContext from "@/context/AuthContext";
 import { usePartnerManagement } from "@/hooks/usePartnerManagement";
 import { Partner, Message, GameAction } from "@/types/chat";
-import { toast } from "@/components/ui/use-toast";
-import { nanoid } from "nanoid";
 
 interface ChatPartnerContextType {
   partner: Partner | null;
@@ -60,15 +58,19 @@ export const ChatPartnerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     startVideoCall: initVideoCall
   } = usePartnerManagement();
 
-  // No longer auto-finding a partner when user logs in
-  // We'll let the user control when to start searching
-
   // Wrapper functions to connect all our hooks together
   const findNewPartner = () => {
+    // Clear any existing search first
+    if (isFindingPartner) {
+      cancelSearch();
+    }
+    
+    // Start a new search
     findPartner();
   };
   
   const cancelFindPartner = () => {
+    // Cancel the current search and return to video interface
     cancelSearch();
   };
 

@@ -28,6 +28,16 @@ const ChatControls = () => {
     }
   };
   
+  // Single search trigger - no automatic continuation
+  const handleFindPartner = () => {
+    findNewPartner();
+  };
+  
+  // Cancel search and return to video interface
+  const handleCancelSearch = () => {
+    cancelFindPartner();
+  };
+  
   return (
     <div className="glass-morphism rounded-lg p-4 flex flex-col gap-4">
       <h3 className="font-semibold text-center">Chat Controls</h3>
@@ -38,7 +48,7 @@ const ChatControls = () => {
           <Button
             variant="destructive"
             className="w-full py-6 text-lg"
-            onClick={cancelFindPartner}
+            onClick={handleCancelSearch}
           >
             <X size={20} className="mr-2" />
             Cancel Search
@@ -47,7 +57,7 @@ const ChatControls = () => {
           <Button
             variant={isConnected ? "default" : "outline"}
             className={`w-full py-6 text-lg ${isConnected ? "bg-purple hover:bg-purple-dark" : "border-purple border-2 text-purple hover:bg-purple/10"}`}
-            onClick={findNewPartner}
+            onClick={handleFindPartner}
           >
             <SkipForward size={20} className="mr-2" />
             {isConnected ? "Next Person" : "Start Random Chat"} {locationEnabled && "(Location Based)"}
