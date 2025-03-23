@@ -9,21 +9,18 @@ import { useVideoCall } from "./video/useVideoCall";
 import VideoDisplay from "./video/VideoDisplay";
 import VideoControls from "./video/VideoControls";
 import VideoFooter from "./video/VideoFooter";
-import OnlineUsersCount from "./OnlineUsersCount";
+import { Maximize, Minimize, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const VideoChat = () => {
-  const { partner, isConnected, addFriend, findNewPartner, isFindingPartner, reportPartner } = useContext(ChatContext);
+  const { partner, isConnected, addFriend, findNewPartner, isFindingPartner } = useContext(ChatContext);
   const videoChatRef = useRef<HTMLDivElement>(null);
   const localVideoChatRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [isChatVisible, setIsChatVisible] = useState(!isMobile);
-  const [isSplitView, setIsSplitView] = useState(false);
   
   const { isFullscreen, toggleFullscreen, requestFullscreen } = useFullscreen(videoChatRef);
-  const { 
-    isFullscreen: isLocalFullscreen, 
-    toggleFullscreen: toggleLocalFullscreen 
-  } = useFullscreen(localVideoChatRef);
+  const { isFullscreen: isLocalFullscreen, toggleFullscreen: toggleLocalFullscreen } = useFullscreen(localVideoChatRef);
   
   const {
     localVideoRef,
@@ -31,8 +28,16 @@ const VideoChat = () => {
     videoEnabled,
     audioEnabled,
     toggleVideo,
-    toggleAudio
+    toggleAudio,
+    isConnecting
   } = useVideoCall(isConnected, partner);
+  
+  // Auto fullscreen for mobile
+  useEffect(() => {
+    if (isMobile && videoChatRef.current) {
+      requestFullscreen(videoChatRef.current);
+    }
+  }, [isMobile, requestFullscreen]);
   
   // Handle page reload warning
   useEffect(() => {
@@ -58,58 +63,48 @@ const VideoChat = () => {
     }
   };
 
-  const handleReportPartner = () => {
-    if (partner) {
-      reportPartner("inappropriate behavior");
-      toast({
-        title: "Report Sent",
-        description: "Thank you for your report. We'll review it shortly.",
-      });
-    }
-  };
-
   const toggleChatVisibility = () => {
     setIsChatVisible(!isChatVisible);
   };
-  
-  const toggleSplitView = () => {
-    setIsSplitView(!isSplitView);
+
+  const handleFindNewPartner = () => {
+    findNewPartner();
   };
   
-  // Request fullscreen on mobile when component mounts
-  useEffect(() => {
-    if (isMobile && videoChatRef.current) {
-      // Use a timeout to ensure DOM is ready
-      const timer = setTimeout(() => {
-        try {
-          if (videoChatRef.current) {
-            requestFullscreen(videoChatRef.current);
-          }
-        } catch (error) {
-          console.error("Failed to request fullscreen:", error);
-        }
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isMobile, requestFullscreen]);
-  
   return (
-    <div className="flex flex-col space-y-4">
-      {/* Online Users Count Banner */}
-      <div className="w-full mb-4 fixed top-20 left-0 right-0 flex justify-center z-50">
-        <OnlineUsersCount />
-      </div>
-      
+    <>
       <div 
         ref={videoChatRef}
         className={cn(
-          "relative w-full bg-nexablack rounded-lg overflow-hidden",
-          isFullscreen || isLocalFullscreen ? "fixed inset-0 z-50 h-screen" : "",
-          isMobile ? "h-[calc(100vh-120px)]" : "aspect-video",
-          isSplitView && !(isFullscreen || isLocalFullscreen) ? "omegle-split-screen" : ""
+          "relative w-full aspect-video bg-[#121212] rounded-lg overflow-hidden shadow-xl",
+          isFullscreen || isMobile ? "fixed inset-0 z-50 h-screen aspect-auto" : ""
         )}
       >
+        {/* Ome.TV style header */}
+        <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent px-4 py-2 z-40 flex justify-between items-center">
+          <div className="text-white font-bold text-lg">Nuvora</div>
+          <div className="flex items-center space-x-2">
+            {isFindingPartner ? (
+              <div className="flex items-center text-white text-sm">
+                <Loader2 className="animate-spin mr-2" size={16} />
+                Finding a partner...
+              </div>
+            ) : (
+              <div className="text-white text-sm">
+                {isConnected ? "Connected" : "Disconnected"}
+              </div>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-2 bg-black/50 border-white/20 text-white hover:bg-black/70"
+              onClick={toggleFullscreen}
+            >
+              {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+            </Button>
+          </div>
+        </div>
+        
         <div className="w-full h-full" ref={localVideoChatRef}>
           <VideoDisplay
             isConnected={isConnected}
@@ -121,44 +116,32 @@ const VideoChat = () => {
             toggleFullscreen={toggleFullscreen}
             toggleLocalFullscreen={toggleLocalFullscreen}
             handleAddFriend={handleAddFriend}
-            handleReportPartner={handleReportPartner}
+            handleFindNewPartner={handleFindNewPartner}
             isMobile={isMobile}
-            isSplitView={isSplitView}
-            toggleSplitView={toggleSplitView}
             isFindingPartner={isFindingPartner}
           />
         </div>
         
-        {/* Only show video controls when connected */}
-        {isConnected && (
-          <VideoControls
-            videoEnabled={videoEnabled}
-            audioEnabled={audioEnabled}
-            isFullscreen={isFullscreen || isLocalFullscreen}
-            toggleVideo={toggleVideo}
-            toggleAudio={toggleAudio}
-            toggleFullscreen={isLocalFullscreen ? toggleLocalFullscreen : toggleFullscreen}
-            handleAddFriend={handleAddFriend}
-            toggleSplitView={toggleSplitView}
-            isSplitView={isSplitView}
-            findNewPartner={findNewPartner}
-          />
-        )}
-
-        {!isConnected && !isFullscreen && !isLocalFullscreen && (
-          <NavigationButtons 
-            findNewPartner={findNewPartner} 
-            isFindingPartner={isFindingPartner} 
-          />
-        )}
+        {/* Only show video controls when connected or in special cases */}
+        <VideoControls
+          videoEnabled={videoEnabled}
+          audioEnabled={audioEnabled}
+          isFullscreen={isFullscreen}
+          toggleVideo={toggleVideo}
+          toggleAudio={toggleAudio}
+          toggleFullscreen={toggleFullscreen}
+          handleAddFriend={handleAddFriend}
+          handleFindNewPartner={handleFindNewPartner}
+          isFindingPartner={isFindingPartner}
+        />
 
         <VideoFooter 
-          isFullscreen={isFullscreen || isLocalFullscreen}
+          isFullscreen={isFullscreen}
           toggleChatVisibility={toggleChatVisibility}
           isChatVisible={isChatVisible}
         />
       </div>
-    </div>
+    </>
   );
 };
 

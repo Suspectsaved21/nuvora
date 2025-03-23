@@ -2,7 +2,7 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Video, MessageSquare, Globe, Shield, MoveRight, Users, Gamepad, Settings as SettingsIcon } from "lucide-react";
+import { ArrowRight, Video, MessageSquare, Globe, Shield, MoveRight } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AuthContext from "@/context/AuthContext";
@@ -33,16 +33,10 @@ const Index = () => {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Link to="/video-chat">
+                  <Link to="/chat">
                     <Button className="bg-purple hover:bg-purple-dark text-white px-8 py-6 text-lg">
-                      Start Video Chat
-                      <Video className="ml-2 h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Link to="/text-chat">
-                    <Button variant="outline" className="px-8 py-6 text-lg">
-                      Text Chat
-                      <MessageSquare className="ml-2 h-5 w-5" />
+                      Start Chatting
+                      <ArrowRight className="ml-2" />
                     </Button>
                   </Link>
                 </div>
@@ -73,7 +67,7 @@ const Index = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Link to="/video-chat" className="block bg-background glass-morphism p-6 rounded-xl hover:shadow-md transition-shadow">
+              <div className="bg-background glass-morphism p-6 rounded-xl">
                 <div className="h-12 w-12 rounded-full bg-purple/10 flex items-center justify-center mb-4">
                   <Video className="h-6 w-6 text-purple" />
                 </div>
@@ -81,9 +75,9 @@ const Index = () => {
                 <p className="text-muted-foreground">
                   Connect face-to-face with people around the world using our high-quality video chat.
                 </p>
-              </Link>
+              </div>
               
-              <Link to="/text-chat" className="block bg-background glass-morphism p-6 rounded-xl hover:shadow-md transition-shadow">
+              <div className="bg-background glass-morphism p-6 rounded-xl">
                 <div className="h-12 w-12 rounded-full bg-purple/10 flex items-center justify-center mb-4">
                   <MessageSquare className="h-6 w-6 text-purple" />
                 </div>
@@ -91,9 +85,9 @@ const Index = () => {
                 <p className="text-muted-foreground">
                   Exchange messages in real-time with intuitive typing indicators and read receipts.
                 </p>
-              </Link>
+              </div>
               
-              <Link to="/chat" className="block bg-background glass-morphism p-6 rounded-xl hover:shadow-md transition-shadow">
+              <div className="bg-background glass-morphism p-6 rounded-xl">
                 <div className="h-12 w-12 rounded-full bg-purple/10 flex items-center justify-center mb-4">
                   <Globe className="h-6 w-6 text-purple" />
                 </div>
@@ -101,9 +95,9 @@ const Index = () => {
                 <p className="text-muted-foreground">
                   Our algorithm matches you with people from around the world, with optional country and language filters.
                 </p>
-              </Link>
+              </div>
               
-              <Link to="/settings" className="block bg-background glass-morphism p-6 rounded-xl hover:shadow-md transition-shadow">
+              <div className="bg-background glass-morphism p-6 rounded-xl">
                 <div className="h-12 w-12 rounded-full bg-purple/10 flex items-center justify-center mb-4">
                   <Shield className="h-6 w-6 text-purple" />
                 </div>
@@ -111,9 +105,9 @@ const Index = () => {
                 <p className="text-muted-foreground">
                   Our AI moderation system ensures a safe environment by filtering inappropriate content.
                 </p>
-              </Link>
+              </div>
               
-              <Link to="/chat" className="block bg-background glass-morphism p-6 rounded-xl hover:shadow-md transition-shadow">
+              <div className="bg-background glass-morphism p-6 rounded-xl">
                 <div className="h-12 w-12 rounded-full bg-purple/10 flex items-center justify-center mb-4">
                   <MoveRight className="h-6 w-6 text-purple" />
                 </div>
@@ -121,47 +115,17 @@ const Index = () => {
                 <p className="text-muted-foreground">
                   Not feeling the conversation? Simply skip to the next person with one click.
                 </p>
-              </Link>
+              </div>
               
-              <Link to="/friends" className="block bg-background glass-morphism p-6 rounded-xl hover:shadow-md transition-shadow">
+              <div className="bg-background glass-morphism p-6 rounded-xl">
                 <div className="h-12 w-12 rounded-full bg-purple/10 flex items-center justify-center mb-4">
-                  <Users className="h-6 w-6 text-purple" />
+                  <ArrowRight className="h-6 w-6 text-purple" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Friends</h3>
+                <h3 className="text-xl font-semibold mb-2">Easy to Use</h3>
                 <p className="text-muted-foreground">
-                  Connect with friends you've made and chat with them anytime.
+                  Our intuitive interface makes it simple to connect with new people in seconds.
                 </p>
-              </Link>
-              
-              <Link to="/games" className="block bg-background glass-morphism p-6 rounded-xl hover:shadow-md transition-shadow">
-                <div className="h-12 w-12 rounded-full bg-purple/10 flex items-center justify-center mb-4">
-                  <Gamepad className="h-6 w-6 text-purple" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Games</h3>
-                <p className="text-muted-foreground">
-                  Play interactive games with your chat partners for a more engaging experience.
-                </p>
-              </Link>
-              
-              <Link to="/profile" className="block bg-background glass-morphism p-6 rounded-xl hover:shadow-md transition-shadow">
-                <div className="h-12 w-12 rounded-full bg-purple/10 flex items-center justify-center mb-4">
-                  <Users className="h-6 w-6 text-purple" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Profile</h3>
-                <p className="text-muted-foreground">
-                  Manage your profile information and personalize your experience.
-                </p>
-              </Link>
-              
-              <Link to="/settings" className="block bg-background glass-morphism p-6 rounded-xl hover:shadow-md transition-shadow">
-                <div className="h-12 w-12 rounded-full bg-purple/10 flex items-center justify-center mb-4">
-                  <SettingsIcon className="h-6 w-6 text-purple" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Settings</h3>
-                <p className="text-muted-foreground">
-                  Configure your app preferences and account settings.
-                </p>
-              </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -174,20 +138,12 @@ const Index = () => {
               <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
                 Join thousands of users already connecting on Nuvora. Start chatting now - no downloads required.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/video-chat">
-                  <Button className="bg-purple hover:bg-purple-dark text-white px-8 py-6 text-lg">
-                    Video Chat
-                    <Video className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                <Link to="/text-chat">
-                  <Button variant="outline" className="px-8 py-6 text-lg">
-                    Text Chat
-                    <MessageSquare className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-              </div>
+              <Link to="/chat">
+                <Button className="bg-purple hover:bg-purple-dark text-white px-8 py-6 text-lg">
+                  Get Started
+                  <ArrowRight className="ml-2" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>

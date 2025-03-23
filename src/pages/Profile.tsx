@@ -10,7 +10,7 @@ import AuthContext from "@/context/AuthContext";
 import { Link } from "react-router-dom";
 
 const Profile = () => {
-  const { user, hasActiveSubscription } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   // Redirect if not logged in
   if (!user) {
@@ -42,7 +42,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Account Type</p>
-                  <p className="font-medium">{hasActiveSubscription() ? 'Premium' : 'Free'}</p>
+                  <p className="font-medium">{user.isPremium ? 'Premium' : 'Free'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">User ID</p>

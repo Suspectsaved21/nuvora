@@ -3,47 +3,38 @@ import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
 
-interface MobileState {
-  isMobile: boolean
-  isLandscape: boolean
-}
-
 export function useIsMobile() {
-  const [state, setState] = React.useState<MobileState>({
-    isMobile: false,
-    isLandscape: false
+  const [isMobile, setIsMobile] = React.useState<boolean>(() => {
+    // Initialize with current window width if available
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < MOBILE_BREAKPOINT
+    }
+    return false
   })
 
   React.useEffect(() => {
-    const checkOrientation = () => {
-      const width = window.innerWidth
-      const height = window.innerHeight
-      setState({
-        isMobile: width < MOBILE_BREAKPOINT,
-        isLandscape: width > height
-      })
+    if (typeof window === 'undefined') return
+
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    
+    const onChange = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     }
     
-    // Initial check
-    checkOrientation()
-    
-    // Event listeners
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    mql.addEventListener("change", checkOrientation)
-    
-    // Detect orientation changes
-    window.addEventListener("resize", checkOrientation)
-    window.addEventListener("orientationchange", checkOrientation)
-    
-    return () => {
-      mql.removeEventListener("change", checkOrientation)
-      window.removeEventListener("resize", checkOrientation)
-      window.removeEventListener("orientationchange", checkOrientation)
+    // Modern API
+    if (mql.addEventListener) {
+      mql.addEventListener("change", onChange)
+      return () => mql.removeEventListener("change", onChange)
+    } 
+    // Fallback for older browsers
+    else {
+      mql.addListener(onChange)
+      return () => mql.removeListener(onChange)
     }
   }, [])
 
-  return state.isMobile
+  return isMobile
 }
 
 // Add this alias for backward compatibility
-export const useMobile = useIsMobile;
+export const useMobile = useIsMobile

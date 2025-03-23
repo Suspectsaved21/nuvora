@@ -8,19 +8,12 @@ export function useFullscreen(elementRef: RefObject<HTMLElement>) {
     if (element.requestFullscreen) {
       element.requestFullscreen()
         .then(() => setIsFullscreen(true))
-        .catch(err => {
-          console.error("Fullscreen error:", err);
-          // Fallback for mobile browsers that don't support fullscreen API
-          setIsFullscreen(true);
-        });
+        .catch(err => console.error("Fullscreen error:", err));
     } else if ((element as any).webkitRequestFullscreen) {
       (element as any).webkitRequestFullscreen();
       setIsFullscreen(true);
     } else if ((element as any).msRequestFullscreen) {
       (element as any).msRequestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      // Fallback for browsers that don't support fullscreen API
       setIsFullscreen(true);
     }
   };
@@ -29,18 +22,12 @@ export function useFullscreen(elementRef: RefObject<HTMLElement>) {
     if (document.exitFullscreen) {
       document.exitFullscreen()
         .then(() => setIsFullscreen(false))
-        .catch(err => {
-          console.error("Exit fullscreen error:", err);
-          setIsFullscreen(false);
-        });
+        .catch(err => console.error("Exit fullscreen error:", err));
     } else if ((document as any).webkitExitFullscreen) {
       (document as any).webkitExitFullscreen();
       setIsFullscreen(false);
     } else if ((document as any).msExitFullscreen) {
       (document as any).msExitFullscreen();
-      setIsFullscreen(false);
-    } else {
-      // Fallback
       setIsFullscreen(false);
     }
   };

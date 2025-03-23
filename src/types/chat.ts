@@ -15,7 +15,6 @@ export interface Friend {
   status: "online" | "offline" | "blocked" | "active";
   lastSeen?: number;
   blocked?: boolean;
-  pending?: boolean;
 }
 
 export interface Partner {
@@ -40,4 +39,12 @@ export interface GameAction {
   itemId?: string;
   answer?: string;
   liked?: boolean;
+}
+
+export interface VideoSession {
+  sessionId: string;
+  peerId: string;
+  partnerId: string;
+  isActive: boolean;
+  startTime: number;
 }
