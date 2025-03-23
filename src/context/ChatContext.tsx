@@ -85,7 +85,7 @@ const ChatContextConnector: React.FC<{ children: React.ReactNode }> = ({ childre
     const friend = friends.find(f => f.id === userId);
     if (friend && !friend.blocked) {
       initializeVideoCall(userId);
-      initVideoCall(userId, friend.username, friend.country);
+      initVideoCall(userId);
     } else {
       toast({
         variant: "destructive",
@@ -111,7 +111,7 @@ const ChatContextConnector: React.FC<{ children: React.ReactNode }> = ({ childre
         sendGameAction,
         setIsTyping,
         findNewPartner,
-        cancelFindPartner, // Added this missing property
+        cancelFindPartner,
         reportPartner,
         toggleLocationTracking,
         refreshLocation,
