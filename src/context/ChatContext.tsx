@@ -47,7 +47,6 @@ const ChatContextConnector: React.FC<{ children: React.ReactNode }> = ({ childre
     sendGameAction,
     setIsTyping,
     findNewPartner,
-    cancelFindPartner, // Ensure this is included from the ChatPartnerContext
     reportPartner,
     startDirectChat,
     startVideoCall: initVideoCall
@@ -84,8 +83,8 @@ const ChatContextConnector: React.FC<{ children: React.ReactNode }> = ({ childre
   const startVideoCall = (userId: string) => {
     const friend = friends.find(f => f.id === userId);
     if (friend && !friend.blocked) {
-      initializeVideoCall(userId); // Fix: Only pass the userId
-      initVideoCall(userId, friend.username, friend.country);
+      initializeVideoCall(friend.id, friend.username, friend.country);
+      initVideoCall(friend.id, friend.username, friend.country);
     } else {
       toast({
         variant: "destructive",
@@ -111,7 +110,6 @@ const ChatContextConnector: React.FC<{ children: React.ReactNode }> = ({ childre
         sendGameAction,
         setIsTyping,
         findNewPartner,
-        cancelFindPartner, // Make sure to include this property
         reportPartner,
         toggleLocationTracking,
         refreshLocation,
