@@ -84,9 +84,11 @@ const ChatContextConnector: React.FC<{ children: React.ReactNode }> = ({ childre
   const startVideoCall = (userId: string) => {
     const friend = friends.find(f => f.id === userId);
     if (friend && !friend.blocked) {
-      initializeVideoCall(userId);
-      // Pass the friend username and country to initVideoCall
-      initVideoCall(userId, friend.username, friend.country);
+      // Fix: Pass user id and username to initializeVideoCall
+      initializeVideoCall(userId, friend.username, friend.country);
+      
+      // Fix: Pass only the userId to initVideoCall as it expects
+      initVideoCall(userId);
     } else {
       toast({
         variant: "destructive",
