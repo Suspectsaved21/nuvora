@@ -1,3 +1,4 @@
+
 import { useContext, useState } from "react";
 import { SkipForward, Flag, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import ChatContext from "@/context/ChatContext";
 import { toast } from "@/components/ui/use-toast";
 
 const ChatControls = () => {
-  const { findNewPartner, partner, reportPartner, addFriend, locationEnabled } = useContext(ChatContext);
+  const { findNewPartner, partner, reportPartner, addFriend, locationEnabled, isFindingPartner, cancelFindPartner } = useContext(ChatContext);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   
@@ -32,14 +33,25 @@ const ChatControls = () => {
       <h3 className="font-semibold text-center">Chat Controls</h3>
       
       <div className="flex flex-col sm:flex-row gap-2">
-        <Button
-          variant="default"
-          className="flex-1 bg-purple hover:bg-purple-dark"
-          onClick={findNewPartner}
-        >
-          <SkipForward size={16} className="mr-2" />
-          Next Person {locationEnabled && "(Location Based)"}
-        </Button>
+        {isFindingPartner ? (
+          <Button
+            variant="destructive"
+            className="flex-1"
+            onClick={cancelFindPartner}
+          >
+            <X size={16} className="mr-2" />
+            Cancel Search
+          </Button>
+        ) : (
+          <Button
+            variant="default"
+            className="flex-1 bg-purple hover:bg-purple-dark"
+            onClick={findNewPartner}
+          >
+            <SkipForward size={16} className="mr-2" />
+            Next Person {locationEnabled && "(Location Based)"}
+          </Button>
+        )}
         
         <Button
           variant="outline"

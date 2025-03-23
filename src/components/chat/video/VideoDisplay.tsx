@@ -76,7 +76,7 @@ const VideoDisplay = ({
           </div>
         </div>
       ) : (
-        // When connected, show Ome.TV style layout
+        // When connected, show the video layout
         <div className="relative w-full h-full">
           {/* Remote video (partner) - take full screen */}
           <div className="absolute inset-0">
@@ -137,32 +137,30 @@ const VideoDisplay = ({
             </div>
           )}
           
-          {/* Next/Previous User Navigation - only on desktop or in fullscreen */}
-          {(isFullscreen || !isMobile) && (
-            <>
-              <div className="absolute inset-y-0 left-0 flex items-center z-10 pl-2">
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="bg-black/50 border-white/20 text-white hover:bg-black/70"
-                  onClick={handleFindNewPartner}
-                >
-                  <ChevronLeft size={24} />
-                </Button>
-              </div>
-              
-              <div className="absolute inset-y-0 right-0 flex items-center z-10 pr-2">
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="bg-black/50 border-white/20 text-white hover:bg-black/70"
-                  onClick={handleFindNewPartner}
-                >
-                  <ChevronRight size={24} />
-                </Button>
-              </div>
-            </>
-          )}
+          {/* Next/Skip buttons - always visible when connected */}
+          <div className="absolute inset-y-0 left-0 flex items-center z-10 pl-2">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-12 w-12 rounded-full bg-black/50 border-white/20 text-white hover:bg-black/70"
+              onClick={handleFindNewPartner}
+              title="Find Next Partner"
+            >
+              <ChevronLeft size={24} />
+            </Button>
+          </div>
+          
+          <div className="absolute inset-y-0 right-0 flex items-center z-10 pr-2">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-12 w-12 rounded-full bg-black/50 border-white/20 text-white hover:bg-black/70"
+              onClick={handleFindNewPartner}
+              title="Find Next Partner"
+            >
+              <ChevronRight size={24} />
+            </Button>
+          </div>
         </div>
       )}
     </>

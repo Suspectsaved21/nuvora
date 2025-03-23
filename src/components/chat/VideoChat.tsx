@@ -75,10 +75,12 @@ const VideoChat = () => {
   };
 
   const handleFindNewPartner = () => {
+    // User manually initiates partner search
     findNewPartner();
   };
   
   const handleCancelFindPartner = () => {
+    // User manually cancels partner search
     cancelFindPartner();
   };
   
@@ -134,7 +136,7 @@ const VideoChat = () => {
           />
         </div>
         
-        {/* Only show video controls when connected or in special cases */}
+        {/* Video controls - always visible */}
         <VideoControls
           videoEnabled={videoEnabled}
           audioEnabled={audioEnabled}
