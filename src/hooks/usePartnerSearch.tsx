@@ -16,9 +16,13 @@ export function usePartnerSearch() {
   
   /**
    * Find a new random partner from the database or create a mock one
+   * This now only searches once per call, not automatically
    */
   const findPartner = async () => {
     if (!user) return null;
+    
+    // Only proceed if not already finding a partner
+    if (isFindingPartner) return null;
     
     setIsFindingPartner(true);
     setIsConnected(false);
@@ -145,6 +149,7 @@ export function usePartnerSearch() {
 
   /**
    * Create a mock partner when database search fails
+   * Now only runs once rather than automatically continuing
    */
   const mockFindPartner = () => {
     setIsFindingPartner(true);

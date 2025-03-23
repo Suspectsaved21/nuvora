@@ -9,7 +9,7 @@ import { useVideoCall } from "./video/useVideoCall";
 import VideoDisplay from "./video/VideoDisplay";
 import VideoControls from "./video/VideoControls";
 import VideoFooter from "./video/VideoFooter";
-import { Maximize, Minimize, Loader2 } from "lucide-react";
+import { Maximize, Minimize, Loader2, SkipForward, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const VideoChat = () => {
@@ -149,6 +149,36 @@ const VideoChat = () => {
           handleCancelFindPartner={handleCancelFindPartner}
           isFindingPartner={isFindingPartner}
         />
+
+        {/* Add prominent partner search button overlay */}
+        {!isConnected && !isFindingPartner && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-30">
+            <Button 
+              onClick={handleFindNewPartner}
+              className="bg-purple hover:bg-purple-dark px-8 py-6 text-lg rounded-full shadow-xl"
+            >
+              <SkipForward size={24} className="mr-2" />
+              Start Random Chat
+            </Button>
+          </div>
+        )}
+        
+        {/* Searching overlay */}
+        {isFindingPartner && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-30">
+            <div className="animate-spin mb-4">
+              <Loader2 size={40} className="text-white" />
+            </div>
+            <p className="text-white text-xl mb-4">Finding a partner...</p>
+            <Button 
+              variant="destructive"
+              onClick={handleCancelFindPartner}
+            >
+              <X size={16} className="mr-2" />
+              Cancel Search
+            </Button>
+          </div>
+        )}
 
         <VideoFooter 
           isFullscreen={isFullscreen}

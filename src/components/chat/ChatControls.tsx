@@ -9,7 +9,7 @@ import ChatContext from "@/context/ChatContext";
 import { toast } from "@/components/ui/use-toast";
 
 const ChatControls = () => {
-  const { findNewPartner, partner, reportPartner, addFriend, locationEnabled, isFindingPartner, cancelFindPartner } = useContext(ChatContext);
+  const { findNewPartner, partner, reportPartner, addFriend, locationEnabled, isFindingPartner, cancelFindPartner, isConnected } = useContext(ChatContext);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   
@@ -32,46 +32,49 @@ const ChatControls = () => {
     <div className="glass-morphism rounded-lg p-4 flex flex-col gap-4">
       <h3 className="font-semibold text-center">Chat Controls</h3>
       
-      <div className="flex flex-col sm:flex-row gap-2">
+      <div className="flex flex-col gap-2">
+        {/* Main partner search control - more prominent */}
         {isFindingPartner ? (
           <Button
             variant="destructive"
-            className="flex-1"
+            className="w-full py-6 text-lg"
             onClick={cancelFindPartner}
           >
-            <X size={16} className="mr-2" />
+            <X size={20} className="mr-2" />
             Cancel Search
           </Button>
         ) : (
           <Button
-            variant="default"
-            className="flex-1 bg-purple hover:bg-purple-dark"
+            variant={isConnected ? "default" : "outline"}
+            className={`w-full py-6 text-lg ${isConnected ? "bg-purple hover:bg-purple-dark" : "border-purple border-2 text-purple hover:bg-purple/10"}`}
             onClick={findNewPartner}
           >
-            <SkipForward size={16} className="mr-2" />
-            Next Person {locationEnabled && "(Location Based)"}
+            <SkipForward size={20} className="mr-2" />
+            {isConnected ? "Next Person" : "Start Random Chat"} {locationEnabled && "(Location Based)"}
           </Button>
         )}
         
-        <Button
-          variant="outline"
-          className="flex-1"
-          onClick={handleAddFriend}
-          disabled={!partner}
-        >
-          <UserPlus size={16} className="mr-2" />
-          Add Friend
-        </Button>
-        
-        <Button
-          variant="outline"
-          className="flex-1"
-          onClick={() => setReportDialogOpen(true)}
-          disabled={!partner}
-        >
-          <Flag size={16} className="mr-2" />
-          Report
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 mt-2">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={handleAddFriend}
+            disabled={!partner}
+          >
+            <UserPlus size={16} className="mr-2" />
+            Add Friend
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => setReportDialogOpen(true)}
+            disabled={!partner}
+          >
+            <Flag size={16} className="mr-2" />
+            Report
+          </Button>
+        </div>
       </div>
       
       <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>

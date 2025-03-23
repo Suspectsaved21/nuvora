@@ -16,7 +16,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 const Chat = () => {
-  const { user, isLoading } = useContext(AuthContext);
+  const { user, isLoading, hasActiveSubscription } = useContext(AuthContext);
   const isMobile = useIsMobile();
   const location = useLocation();
   const [isChatVisible, setIsChatVisible] = useState(!isMobile);
@@ -50,6 +50,9 @@ const Chat = () => {
     );
   }
   
+  // Determine if the user has premium access for games
+  const hasPremiumAccess = user && hasActiveSubscription && hasActiveSubscription();
+  
   return (
     <div className="min-h-screen flex flex-col">
       {!isMobile && <Navbar />}
@@ -60,10 +63,11 @@ const Chat = () => {
             <ChatProvider>
               <div className={cn(
                 "grid grid-cols-1 gap-6",
-                isMobile ? "" : "lg:grid-cols-3"
+                isMobile ? "" : hasPremiumAccess && showGame ? "lg:grid-cols-2" : "lg:grid-cols-3"
               )}>
+                {/* Left column - Video and Controls */}
                 <div className={cn(
-                  isMobile ? "col-span-1" : "lg:col-span-2",
+                  isMobile ? "col-span-1" : hasPremiumAccess && showGame ? "lg:col-span-1" : "lg:col-span-2",
                   "space-y-6"
                 )}>
                   {/* Video chat takes full width in this column */}
@@ -71,9 +75,7 @@ const Chat = () => {
                   
                   {(!isMobile || !isChatVisible) && (
                     <>
-                      {showGame ? (
-                        <GameFeature />
-                      ) : (
+                      {!showGame && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <ChatControls />
                           <LocationSettings />
@@ -83,6 +85,14 @@ const Chat = () => {
                   )}
                 </div>
                 
+                {/* Middle column - Game (only for premium users) */}
+                {hasPremiumAccess && showGame && !isMobile && (
+                  <div className="h-full space-y-6">
+                    <GameFeature />
+                  </div>
+                )}
+                
+                {/* Right column - Chat and Friends */}
                 {(!isMobile || isChatVisible) && (
                   <div className="h-[600px]">
                     <Tabs defaultValue="chat" className="h-full">
@@ -102,6 +112,13 @@ const Chat = () => {
                   </div>
                 )}
               </div>
+              
+              {/* Mobile game section */}
+              {isMobile && hasPremiumAccess && showGame && (
+                <div className="mt-6">
+                  <GameFeature />
+                </div>
+              )}
             </ChatProvider>
           ) : (
             <div className="max-w-2xl mx-auto">
