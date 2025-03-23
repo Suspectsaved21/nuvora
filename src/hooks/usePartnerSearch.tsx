@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Partner, Message } from "@/types/chat";
 import { nanoid } from "nanoid";
@@ -122,6 +123,27 @@ export function usePartnerSearch() {
   };
 
   /**
+   * Cancel the search for a new partner
+   */
+  const cancelSearch = () => {
+    if (!user) return;
+    
+    setIsFindingPartner(false);
+    
+    // Remove user from waiting list if they're there
+    try {
+      supabase.from('waiting_users')
+        .delete()
+        .eq('user_id', user.id)
+        .then(() => {
+          console.log("Removed from waiting list");
+        });
+    } catch (error) {
+      console.error("Error removing from waiting list:", error);
+    }
+  };
+
+  /**
    * Create a mock partner when database search fails
    */
   const mockFindPartner = () => {
@@ -240,6 +262,7 @@ export function usePartnerSearch() {
     isConnected,
     isFindingPartner,
     findPartner,
+    cancelSearch,
     mockFindPartner,
     startDirectChat,
     startVideoCall,

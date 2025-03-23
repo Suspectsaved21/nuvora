@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Video, VideoOff, Mic, MicOff, UserPlus, Maximize, Minimize, RefreshCw } from "lucide-react";
+import { Video, VideoOff, Mic, MicOff, UserPlus, Maximize, Minimize, RefreshCw, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface VideoControlsProps {
@@ -12,6 +12,7 @@ interface VideoControlsProps {
   toggleFullscreen: () => void;
   handleAddFriend: () => void;
   handleFindNewPartner: () => void;
+  handleCancelFindPartner: () => void;
   isFindingPartner: boolean;
 }
 
@@ -24,6 +25,7 @@ const VideoControls = ({
   toggleFullscreen,
   handleAddFriend,
   handleFindNewPartner,
+  handleCancelFindPartner,
   isFindingPartner
 }: VideoControlsProps) => {
   return (
@@ -63,21 +65,27 @@ const VideoControls = ({
           <UserPlus size={18} />
         </Button>
         
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleFindNewPartner}
-          className={cn(
-            "rounded-full border-white/20 text-white h-10 w-10",
-            isFindingPartner 
-              ? "bg-yellow-500/70 hover:bg-yellow-500/90" 
-              : "bg-[#9b87f5]/70 hover:bg-[#9b87f5]/90"
-          )}
-          disabled={isFindingPartner}
-          title="Find New Partner"
-        >
-          <RefreshCw size={18} className={isFindingPartner ? "animate-spin" : ""} />
-        </Button>
+        {isFindingPartner ? (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleCancelFindPartner}
+            className="rounded-full bg-red-500/70 border-white/20 text-white hover:bg-red-500/90 h-10 w-10"
+            title="Cancel Search"
+          >
+            <X size={18} />
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleFindNewPartner}
+            className="rounded-full bg-[#9b87f5]/70 border-white/20 text-white hover:bg-[#9b87f5]/90 h-10 w-10"
+            title="Find New Partner"
+          >
+            <RefreshCw size={18} />
+          </Button>
+        )}
         
         <Button
           variant="outline"
