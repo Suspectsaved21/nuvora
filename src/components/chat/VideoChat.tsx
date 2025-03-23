@@ -13,14 +13,7 @@ import { Maximize, Minimize, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const VideoChat = () => {
-  const { 
-    partner, 
-    isConnected, 
-    addFriend, 
-    findNewPartner, 
-    cancelFindPartner, 
-    isFindingPartner 
-  } = useContext(ChatContext);
+  const { partner, isConnected, addFriend, findNewPartner, isFindingPartner } = useContext(ChatContext);
   const videoChatRef = useRef<HTMLDivElement>(null);
   const localVideoChatRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -78,10 +71,6 @@ const VideoChat = () => {
     findNewPartner();
   };
   
-  const handleCancelFindPartner = () => {
-    cancelFindPartner();
-  };
-  
   return (
     <>
       <div 
@@ -130,7 +119,6 @@ const VideoChat = () => {
             handleFindNewPartner={handleFindNewPartner}
             isMobile={isMobile}
             isFindingPartner={isFindingPartner}
-            handleCancelFindPartner={handleCancelFindPartner}
           />
         </div>
         
@@ -144,7 +132,6 @@ const VideoChat = () => {
           toggleFullscreen={toggleFullscreen}
           handleAddFriend={handleAddFriend}
           handleFindNewPartner={handleFindNewPartner}
-          handleCancelFindPartner={handleCancelFindPartner}
           isFindingPartner={isFindingPartner}
         />
 

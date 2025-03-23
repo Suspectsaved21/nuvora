@@ -1,5 +1,5 @@
 
-import { UserPlus, Maximize, Minimize, ChevronLeft, ChevronRight, Loader2, X } from "lucide-react";
+import { UserPlus, Maximize, Minimize, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +14,6 @@ interface VideoDisplayProps {
   toggleLocalFullscreen: () => void;
   handleAddFriend: () => void;
   handleFindNewPartner: () => void;
-  handleCancelFindPartner: () => void;
   isMobile: boolean;
   isFindingPartner: boolean;
 }
@@ -30,7 +29,6 @@ const VideoDisplay = ({
   toggleLocalFullscreen,
   handleAddFriend,
   handleFindNewPartner,
-  handleCancelFindPartner,
   isMobile,
   isFindingPartner
 }: VideoDisplayProps) => {
@@ -47,31 +45,17 @@ const VideoDisplay = ({
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
-            {isFindingPartner ? (
-              <>
-                <Loader2 className="animate-spin mb-4 text-purple-500" size={40} />
-                <div className="text-xl font-semibold text-white mb-2">
-                  Finding you a partner...
-                </div>
-                <Button 
-                  onClick={handleCancelFindPartner}
-                  className="mt-4 bg-red-500 hover:bg-red-600 text-white"
-                >
-                  Cancel Search
-                </Button>
-              </>
-            ) : (
-              <>
-                <div className="text-xl font-semibold text-white mb-2">
-                  Ready to connect?
-                </div>
-                <Button 
-                  onClick={handleFindNewPartner}
-                  className="mt-4 bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
-                >
-                  Start Random Chat
-                </Button>
-              </>
+            <Loader2 className="animate-spin mb-4 text-purple-500" size={40} />
+            <div className="text-xl font-semibold text-white mb-2">
+              {isFindingPartner ? "Finding you a partner..." : "Ready to connect?"}
+            </div>
+            {!isFindingPartner && (
+              <Button 
+                onClick={handleFindNewPartner}
+                className="mt-4 bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
+              >
+                Start Random Chat
+              </Button>
             )}
           </div>
         </div>
