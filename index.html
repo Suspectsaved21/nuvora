@@ -4,10 +4,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nuvora | Checkout</title>
-    <meta name="description" content="Lovable Generated Project with Stripe Checkout" />
-    <meta name="author" content="Lovable" />
-    <meta property="og:image" content="/og-image.png" />
+    <title>Nuvora</title>
+    <meta name="description" content="Connect with people from around the world through video and text chat" />
+    <meta name="author" content="Nuvora" />
+    <meta property="og:image" content="/lovable-uploads/3bf177b0-93cb-4190-868c-cce798ac60cc.png" />
+    <meta property="og:title" content="Nuvora - Global Video and Text Chat" />
+    <meta property="og:description" content="Connect with people from around the world through video and text chat" />
+    <meta property="og:url" content="https://nuvora.io" />
+    <meta property="og:type" content="website" />
     
     <!-- Favicon links for various platforms and contexts -->
     <link rel="icon" href="/lovable-uploads/3bf177b0-93cb-4190-868c-cce798ac60cc.png" type="image/png" />
@@ -15,96 +19,28 @@
     <link rel="apple-touch-icon" href="/lovable-uploads/3bf177b0-93cb-4190-868c-cce798ac60cc.png" />
     <link rel="apple-touch-icon-precomposed" href="/lovable-uploads/3bf177b0-93cb-4190-868c-cce798ac60cc.png" />
     <meta name="msapplication-TileImage" content="/lovable-uploads/3bf177b0-93cb-4190-868c-cce798ac60cc.png" />
-
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        text-align: center;
-        padding: 20px;
-      }
-      .container {
-        max-width: 400px;
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        margin: auto;
-      }
-      h2 {
-        color: #333;
-      }
-      .payment-icons {
-        display: flex;
-        justify-content: center;
-        margin: 15px 0;
-      }
-      .payment-icons img {
-        width: 50px;
-        margin: 5px;
-      }
-      button {
-        background-color: #007bff;
-        color: white;
-        padding: 12px;
-        border: none;
-        cursor: pointer;
-        font-size: 16px;
-        border-radius: 5px;
-        width: 100%;
-      }
-      button:hover {
-        background-color: #0056b3;
-      }
-    </style>
+    <script>
+      // This script handles deep linking for SPA routes
+      (function() {
+        try {
+          // Log navigation for debugging
+          if (window.location.pathname !== '/' && !window.location.pathname.includes('.')) {
+            console.log('Handling direct navigation to: ' + window.location.pathname);
+            
+            // For client-side routing, store the original path to redirect after app load
+            // Window interface is extended in vite-env.d.ts to include this property
+            window.initialPath = window.location.pathname + window.location.search + window.location.hash;
+          }
+        } catch (e) {
+          console.error('Navigation script error:', e);
+        }
+      })();
+    </script>
   </head>
 
   <body>
     <div id="root"></div>
-
-    <div class="container">
-      <h2>Checkout</h2>
-      <p>Secure payment with Stripe</p>
-      
-      <div class="payment-icons">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="Mastercard">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Apple_Pay_logo.svg" alt="Apple Pay">
-      </div>
-
-      <button id="checkout-button">Pay Now</button>
-    </div>
-
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById("checkout-button").addEventListener("click", function () {
-          console.log("Pay Now button clicked!"); // Debugging Log
-          fetch("https://nuvora.ink/create-checkout-session", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                  priceId: "price_1R59YJP2JFPqxih4k2adHL8m" // Your Live Price ID
-              })
-          })
-          .then(res => res.json())
-          .then(data => {
-              console.log("Stripe session response:", data); // Debugging Log
-              if (data.url) {
-                  window.location.href = data.url; // Redirect to Stripe Checkout
-              } else {
-                  alert("Error creating checkout session");
-              }
-          })
-          .catch(error => {
-              console.error("Error:", error);
-              alert("Failed to connect to the server.");
-          });
-        });
-      });
-    </script>
-
-    <!-- Stripe Scripts -->
+    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>

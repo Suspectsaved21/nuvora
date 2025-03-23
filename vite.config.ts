@@ -9,11 +9,8 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    headers: {
-      // Add CORS headers to allow using camera/microphone
-      "Cross-Origin-Embedder-Policy": "require-corp",
-      "Cross-Origin-Opener-Policy": "same-origin"
-    },
+    // Add history fallback for SPA routing
+    historyApiFallback: true,
   },
   plugins: [
     react(),
@@ -25,22 +22,16 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  optimizeDeps: {
-    esbuildOptions: {
-      target: 'es2020',
-    },
-  },
+  // Client-side routing configuration for production
   build: {
     outDir: 'dist',
     minify: true,
     sourcemap: false,
-    target: 'es2020',
     rollupOptions: {
       output: {
         manualChunks: {
           'vendor': ['react', 'react-dom'],
           'router': ['react-router-dom'],
-          'peerjs': ['peerjs'],
         }
       }
     }

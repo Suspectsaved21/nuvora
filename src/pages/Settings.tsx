@@ -23,8 +23,6 @@ const Settings = () => {
     return <Navigate to="/" />;
   }
 
-  const isPremium = hasActiveSubscription();
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -48,16 +46,16 @@ const Settings = () => {
                 <div>
                   <h3 className="font-medium">Premium Account</h3>
                   <p className="text-sm text-muted-foreground">
-                    {isPremium 
+                    {hasActiveSubscription() 
                       ? "You have a premium account" 
                       : "Upgrade to premium for €1.99/month"}
                   </p>
                 </div>
                 <Button 
                   onClick={() => setShowSubscriptionModal(true)}
-                  variant={isPremium ? "outline" : "default"}
+                  variant={hasActiveSubscription() ? "outline" : "default"}
                 >
-                  {isPremium ? "Manage Subscription" : "Upgrade"}
+                  {hasActiveSubscription() ? "Manage Subscription" : "Upgrade"}
                 </Button>
               </div>
               

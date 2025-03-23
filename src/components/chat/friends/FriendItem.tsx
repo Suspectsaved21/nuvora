@@ -1,4 +1,6 @@
-import { MessageSquare, Video, UserX, Ban, Clock } from "lucide-react";
+
+import React from "react";
+import { MessageSquare, Video, UserX, Ban, Clock, UserCheck, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Friend } from "@/types/chat";
 import { getTimeAgo } from "@/utils/dateUtils";
+import { Badge } from "@/components/ui/badge";
 
 interface FriendItemProps {
   friend: Friend;
@@ -41,13 +44,28 @@ const FriendItem = ({
           </div>
           
           <div>
-            <div className="font-medium">{friend.username}</div>
+            <div className="font-medium flex items-center gap-2">
+              {friend.username}
+              {friend.pending && (
+                <Badge variant="outline" className="text-xs py-0">Pending</Badge>
+              )}
+            </div>
             <div className="text-xs text-muted-foreground">
               {friend.country || "Unknown location"}
-              {friend.status === 'offline' && (
+              {friend.status === 'offline' && !friend.pending && (
                 <span className="ml-1 flex items-center text-xs">
                   <Clock size={10} className="mr-1" />
                   {getTimeAgo(friend.lastSeen || 0)}
+                </span>
+              )}
+              {friend.pending && (
+                <span className="ml-1 flex items-center text-xs">
+                  <UserCheck size={10} className="mr-1" />
+                  {friend.status === 'online' ? (
+                    <span className="text-green-500">Online now</span>
+                  ) : (
+                    "Waiting for response"
+                  )}
                 </span>
               )}
             </div>
@@ -60,9 +78,10 @@ const FriendItem = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                className={`size-8 ${friend.pending ? 'opacity-50' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
                 onClick={() => startDirectChat(friend.id)}
                 title="Send message"
+                disabled={friend.pending}
               >
                 <MessageSquare size={16} />
               </Button>
@@ -70,10 +89,10 @@ const FriendItem = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                className={`size-8 ${friend.pending ? 'opacity-50' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
                 onClick={() => startVideoCall(friend.id)}
                 title="Start video call"
-                disabled={friend.status === 'offline'}
+                disabled={friend.status === 'offline' || friend.pending}
               >
                 <Video size={16} />
               </Button>
@@ -116,7 +135,7 @@ const FriendItem = ({
                 onClick={() => unfriendUser(friend.id)}
               >
                 <UserX size={16} className="mr-2" />
-                Remove friend
+                {friend.pending ? "Cancel request" : "Remove friend"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

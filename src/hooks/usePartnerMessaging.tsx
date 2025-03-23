@@ -1,19 +1,18 @@
-import { useState, useEffect, useContext } from "react";
+
+import { useState, useEffect } from "react";
 import { nanoid } from "nanoid";
 import { Partner, Message, GameAction } from "@/types/chat";
 import { generatePartnerResponse, saveMessageToDatabase, fetchMessagesFromDatabase } from "@/utils/partnerUtils";
-import AuthContext from "@/context/AuthContext";
 
 export function usePartnerMessaging(partner: Partner | null) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
-  const { user } = useContext(AuthContext);
 
   /**
    * Send a message to the current partner
    */
-  const sendMessage = async (text: string, userId: string, messageType: 'user' | 'system' = 'user') => {
-    if (!partner || !user) return;
+  const sendMessage = async (text: string, userId: string) => {
+    if (!partner) return;
     
     const newMessage = {
       id: nanoid(),
@@ -26,46 +25,21 @@ export function usePartnerMessaging(partner: Partner | null) {
     setMessages((prev) => [...prev, newMessage]);
     
     if (partner && partner.id && partner.id.length > 10) {
-      // Save to database if partner has a valid ID (not a mock partner)
-      await saveMessageToDatabase(userId, partner.id, text, messageType);
-      
-      // For real partners, they will reply via the real-time channel
-      // But for mock partners, we simulate responses
-      if (partner.id.length < 20) { // Simple way to detect mock partners
-        simulatePartnerTyping();
-        
-        setTimeout(() => {
-          const partnerResponse = generatePartnerResponse(partner.id);
-          setMessages((prev) => [...prev, partnerResponse]);
-        }, 1500 + Math.random() * 2000);
-      }
-    } else {
-      // Always simulate responses for mock partners
-      simulatePartnerTyping();
-      
-      setTimeout(() => {
-        const partnerResponse = generatePartnerResponse(partner.id);
-        setMessages((prev) => [...prev, partnerResponse]);
-      }, 1000 + Math.random() * 2000);
+      await saveMessageToDatabase(userId, partner.id, text);
     }
-  };
-  
-  /**
-   * Simulate the partner typing
-   */
-  const simulatePartnerTyping = () => {
-    setIsTyping(true);
     
+    // Simulate partner response
     setTimeout(() => {
-      setIsTyping(false);
-    }, 1000 + Math.random() * 1500);
+      const partnerResponse = generatePartnerResponse(partner.id);
+      setMessages((prev) => [...prev, partnerResponse]);
+    }, 1000 + Math.random() * 2000);
   };
 
   /**
    * Send a game-related action
    */
   const sendGameAction = (gameAction: GameAction) => {
-    if (!partner || !user) return;
+    if (!partner) return;
     
     const { action, gameType, liked } = gameAction;
     
@@ -105,19 +79,7 @@ export function usePartnerMessaging(partner: Partner | null) {
     
     setMessages((prev) => [...prev, newMessage]);
     
-    // If it's a real partner, save the game action as a system message
-    if (partner.id.length > 10) {
-      saveMessageToDatabase(
-        user.id, 
-        partner.id, 
-        `[GAME] ${systemMessage}`, 
-        'system'
-      );
-    }
-    
     if (action === "start") {
-      simulatePartnerTyping();
-      
       setTimeout(() => {
         const partnerResponse = {
           id: nanoid(),
@@ -128,11 +90,6 @@ export function usePartnerMessaging(partner: Partner | null) {
         };
         
         setMessages((prev) => [...prev, partnerResponse]);
-        
-        // Save partner's response for real partners
-        if (partner.id.length > 10) {
-          saveMessageToDatabase(partner.id, user.id, partnerResponse.text);
-        }
       }, 1000);
     }
   };
@@ -142,56 +99,20 @@ export function usePartnerMessaging(partner: Partner | null) {
    */
   useEffect(() => {
     const loadMessages = async () => {
-      if (!partner || !user) return;
+      if (!partner) return;
       
-      // Only fetch real messages if partner is real (valid ID)
-      if (partner.id.length > 10) {
-        const fetchedMessages = await fetchMessagesFromDatabase(user.id, partner.id);
-        
-        if (fetchedMessages) {
-          setMessages(prev => {
-            const systemMessages = prev.filter(msg => msg.sender === 'system');
-            return [...systemMessages, ...fetchedMessages];
-          });
-        }
-      } else {
-        // For mock partners, just keep system messages
-        setMessages(prev => prev.filter(msg => msg.sender === 'system'));
+      const fetchedMessages = await fetchMessagesFromDatabase(partner.id);
+      
+      if (fetchedMessages) {
+        setMessages(prev => {
+          const systemMessages = prev.filter(msg => msg.sender === 'system');
+          return [...systemMessages, ...fetchedMessages];
+        });
       }
     };
     
     loadMessages();
-    
-    // Listen for real-time messages from this partner
-    if (partner && partner.id.length > 10 && user) {
-      const channel = supabase
-        .channel(`messages:${partner.id}:${user.id}`)
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `receiver_id=eq.${user.id}`,
-        }, (payload) => {
-          // Check if the message is from the current partner
-          if (payload.new && payload.new.sender_id === partner.id) {
-            const newMessage: Message = {
-              id: payload.new.id.toString(),
-              sender: payload.new.sender_id,
-              text: payload.new.content,
-              timestamp: new Date(payload.new.created_at).getTime(),
-              isOwn: false,
-            };
-            
-            setMessages(prev => [...prev, newMessage]);
-          }
-        })
-        .subscribe();
-      
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [partner, user]);
+  }, [partner]);
 
   return {
     messages,
@@ -202,6 +123,3 @@ export function usePartnerMessaging(partner: Partner | null) {
     setMessages
   };
 }
-
-// Import supabase at the top of the file
-import { supabase } from "@/integrations/supabase/client";

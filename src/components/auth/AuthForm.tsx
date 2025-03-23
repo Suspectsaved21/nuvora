@@ -6,12 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import AuthContext from "@/context/AuthContext";
-import { Facebook, Mail, Instagram } from "lucide-react";
+import { Facebook, Mail, Instagram, AlertCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const AuthForm = () => {
   const { signIn, signUp, continueAsGuest, signInWithSocial } = useContext(AuthContext);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -22,10 +24,33 @@ const AuthForm = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    
+    if (error) setError(null);
+  };
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string): boolean => {
+    return password.length >= 6;
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    
+    if (!validateEmail(formData.email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    
+    if (!validatePassword(formData.password)) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -34,13 +59,9 @@ const AuthForm = () => {
         title: "Welcome back!",
         description: "You've successfully signed in.",
       });
-    } catch (error) {
-      toast({
-        title: "Sign in failed",
-        description: "Please check your credentials and try again.",
-        variant: "destructive",
-      });
+    } catch (error: any) {
       console.error(error);
+      setError(error.message || "Failed to sign in. Please check your credentials and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -48,21 +69,29 @@ const AuthForm = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    
+    if (!validateEmail(formData.email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    
+    if (!validatePassword(formData.password)) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
       await signUp(formData.email, formData.password);
       toast({
         title: "Account created",
-        description: "You've successfully signed up.",
+        description: "Your account has been successfully created. You can now use the application.",
       });
-    } catch (error) {
-      toast({
-        title: "Sign up failed",
-        description: "Please try again with a different email.",
-        variant: "destructive",
-      });
+    } catch (error: any) {
       console.error(error);
+      setError(error.message || "Failed to sign up. Please try with a different email.");
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +101,7 @@ const AuthForm = () => {
     continueAsGuest();
     toast({
       title: "Welcome!",
-      description: "You're now using Nexaconnect as a guest.",
+      description: "You're now using Nuvora as a guest.",
     });
   };
 
@@ -84,13 +113,9 @@ const AuthForm = () => {
         title: "Processing login",
         description: `Signing in with ${provider}...`,
       });
-    } catch (error) {
-      toast({
-        title: "Sign in failed",
-        description: `Could not sign in with ${provider}.`,
-        variant: "destructive",
-      });
+    } catch (error: any) {
       console.error(error);
+      setError(`Could not sign in with ${provider}.`);
     } finally {
       setIsLoading(false);
     }
@@ -104,6 +129,13 @@ const AuthForm = () => {
           <TabsTrigger value="signup">Sign Up</TabsTrigger>
         </TabsList>
         
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        
         <TabsContent value="signin">
           <form onSubmit={handleSignIn} className="space-y-4">
             <div className="space-y-2">
@@ -116,6 +148,7 @@ const AuthForm = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
+                disabled={isLoading}
               />
             </div>
             
@@ -129,6 +162,7 @@ const AuthForm = () => {
                 required
                 value={formData.password}
                 onChange={handleChange}
+                disabled={isLoading}
               />
             </div>
             
@@ -137,7 +171,14 @@ const AuthForm = () => {
               className="w-full bg-purple hover:bg-purple-dark"
               disabled={isLoading}
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
 
@@ -195,6 +236,7 @@ const AuthForm = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
+                disabled={isLoading}
               />
             </div>
             
@@ -208,7 +250,10 @@ const AuthForm = () => {
                 required
                 value={formData.password}
                 onChange={handleChange}
+                disabled={isLoading}
+                minLength={6}
               />
+              <p className="text-xs text-muted-foreground">Password must be at least 6 characters long</p>
             </div>
             
             <Button
@@ -216,7 +261,14 @@ const AuthForm = () => {
               className="w-full bg-purple hover:bg-purple-dark"
               disabled={isLoading}
             >
-              {isLoading ? "Creating account..." : "Create Account"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </form>
 
@@ -275,6 +327,6 @@ const AuthForm = () => {
       </div>
     </div>
   );
-};
+}
 
 export default AuthForm;
